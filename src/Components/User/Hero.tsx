@@ -5,7 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { Navbar } from './Navbar';
-export  function Hero() {
+import HomeBody from '../../Pages/User/HomeBody';
+import { IonIcon } from '@ionic/react';
+import { useEffect } from 'react';
+
+
+export const Hero = () => {
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -30,36 +36,78 @@ export  function Hero() {
             <h1 className="text-4xl  tracking-tight text-gray-300 sm:text-6xl " style={{fontFamily:'cursive'}}>
               BID or BOOK
             </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-400">
+            {/* <p className="mt-6 text-lg leading-8 text-gray-400">
               Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet
               fugiat veniam occaecat fugiat aliqua.
-            </p>
+            </p> */}
             <div className="mt-8 flex items-center justify-center gap-x-6">
               <a
                 href="#"
-                className="rounded-md bg-white bg-opacity-70 px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="rounded-md bg-white bg-opacity-65 px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Get started
+                Explore
               </a>
               <a href="#" className="text-sm font-semibold leading-6 text-gray-400">
-                Learn more <span aria-hidden="true">→</span>
+                Auction <span aria-hidden="true">→</span>
               </a>
             </div>
           </div>
         </div>
-        {/* <div
-          className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
-          aria-hidden="true"
-        >
-          <div
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath:
-                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-          />
-        </div> */}
+        
       </div>
+
+      <HomeBody></HomeBody>
+     
     </div>
   )
 }
+
+
+
+
+
+{/* <div className="bg-black w-full h-full min-h-screen p-8">
+<div className="container mx-auto">
+  <div className="w-full z-0 relative md:min-h-[41rem]">
+    <div className="w-full h-full relative z-0 rounded-2xl">
+      <video
+        className="relative z-[1] inline w-full h-full object-center object-cover rounded-2xl"
+        preload="metadata"
+        autoPlay
+        loop
+        playsInline
+        aria-hidden="false"
+      >
+        <source
+          src="https://player.vimeo.com/progressive_redirect/playback/840627949/rendition/1080p/file.mp4?loc=external&amp;signature=df9cfec6465233ea6f14bd85906ac7412e35a0a00e65cdb6823b45d2b2cf5607"
+          type="video/mp4"
+        />
+      </video>
+      <video
+        className="absolute top-0 left-0 w-full h-full transform-gpu translate-x-0 translate-y-0 z-0 inline object-center object-cover rounded-2xl blur-2xl"
+        preload="none"
+        autoPlay
+        loop
+        playsInline
+        aria-hidden="false"
+      >
+        <source
+          src="https://player.vimeo.com/progressive_redirect/playback/840627949/rendition/1080p/file.mp4?loc=external&amp;signature=df9cfec6465233ea6f14bd85906ac7412e35a0a00e65cdb6823b45d2b2cf5607"
+          type="video/mp4"
+        />
+      </video>
+    </div>
+  </div>
+</div>
+</div> */}
+
+
+// <div className="hello2 relative group flex justify-center items-center h-full w-full p-5"> {/* Adjusted className for the third div */}
+// <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+//   <div className="bg-transparent p-6 rounded-lg text-center" style={{ fontFamily: 'cursive' }}>
+//     <p className="text-gray-800 dark:text-white mb-4" style={{ fontSize: '1.2rem' }}>
+//       At Bid or Book, we believe in the power of visual storytelling to inspire, connect, and transform. Whether you're searching for the perfect photographer to capture your wedding day, family portraits, or corporate event, our platform is your one-stop destination to discover talented photographers and book your ideal match.
+//     </p>
+//   </div>
+// </div>
+// </div>
