@@ -1,21 +1,21 @@
 import { apiSlice } from "./clientApi";
-const CLIENT_URL = '/';
+const CLIENT_URL = '/users';
 
 export const adminApiSlice = apiSlice.injectEndpoints({
     endpoints:(builder) => ({
-        adminLogin: builder.mutation({
-            query:(data)=> ({
-                url:`${CLIENT_URL}`,
-                method:'GET',
-                body: data,
-            })
-        })       
+        signup: builder.mutation({
+            query: (user) => ({
+                url: '/signup',
+                method: 'POST',
+                body: user,
+            }),
+        }),     
         
 
     })
 })
 
 export const {
-    useAdminLoginMutation,
+    useSignupMutation,
    
 } = adminApiSlice

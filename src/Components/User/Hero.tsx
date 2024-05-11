@@ -5,18 +5,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { Navbar } from './Navbar';
-import HomeBody from '../../Pages/User/HomeBody';
-import { IonIcon } from '@ionic/react';
+import HomeBody from './HomeBody';
 import { useEffect } from 'react';
-
+import { useSignupMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 
 export const Hero = () => {
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  
+  const [signup] = useSignupMutation();
+  const something=async(e:any)=>{
+    const res = await signup({'navya':'yaya'})
+    console.log(res)
+  }
   return (
+    <>
     <div className="bg-white" style={{backgroundImage: 'url(/src/assets/ClientHome.webp)',height:'90vh',backgroundSize:'cover'}}>
       <Navbar></Navbar>
 
@@ -47,18 +51,65 @@ export const Hero = () => {
               >
                 Explore
               </a>
-              <a href="#" className="text-sm font-semibold leading-6 text-gray-400">
+              <a href="#" className="text-sm font-semibold leading-6 text-gray-400" onClick={something}>
                 Auction <span aria-hidden="true">→</span>
+                
               </a>
             </div>
           </div>
         </div>
         
       </div>
-
-      <HomeBody></HomeBody>
-     
+        
     </div>
+      <HomeBody></HomeBody>
+      <section className="section">
+      <div className="cards">
+        <a href="#" className="card card-1">
+          <figure className="visual">
+            <img
+              className="card-img"
+              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-1.avif"
+              alt="Person with a game controller in hand"
+            />
+            <figcaption className="figcaption">Early Access</figcaption>
+          </figure>
+        </a>
+        <a href="#" className="card card-2">
+          <figure className="visual">
+            <img
+              className="card-img"
+              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-2.avif"
+              alt="Person with curly hair in neon lighting"
+            />
+            <figcaption className="figcaption">Top Sellers</figcaption>
+          </figure>
+        </a>
+        <a href="#" className="card card-3">
+          <figure className="visual">
+            <img
+              className="card-img"
+              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-3.avif"
+              alt="Person in vibrant neon lighting with abstract shapes"
+            />
+            <figcaption className="figcaption">New Releases</figcaption>
+          </figure>
+        </a>
+        <a href="#" className="card card-4">
+          <figure className="visual">
+            <img
+              className="card-img"
+              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-4.avif"
+              alt="Person wearing a virtual reality headset in a blue-lit room"
+            />
+            <figcaption className="figcaption">Upcoming</figcaption>
+          </figure>
+        </a>
+      </div>
+    </section>
+    
+    </> 
+    
   )
 }
 

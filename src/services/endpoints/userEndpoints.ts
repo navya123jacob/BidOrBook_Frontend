@@ -1,6 +1,6 @@
 const userEndpoints = {
-    homeClient:"/",
-    signup: "/users",
+    
+    signup: "/signup",
     signupVerification: "/users/verify-otp",
     resendVerification:"/users/resend-otp",
     login: "/auth/users/login",
