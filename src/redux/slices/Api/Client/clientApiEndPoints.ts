@@ -1,3 +1,4 @@
+import { ArrowLeftEndOnRectangleIcon, ArrowLongDownIcon } from "@heroicons/react/24/outline";
 import { apiSlice } from "./clientApi";
 const CLIENT_URL = '/users';
 
@@ -10,6 +11,13 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 body: user,
             }),
         }),     
+        login: builder.mutation({
+            query: (user) => ({
+                url: '/login',
+                method: 'POST',
+                body: user,
+            }),
+        }),     
         
 
     })
@@ -17,5 +25,6 @@ export const adminApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useSignupMutation,
+    useLoginMutation
    
 } = adminApiSlice

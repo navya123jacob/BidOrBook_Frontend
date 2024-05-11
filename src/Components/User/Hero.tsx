@@ -62,52 +62,8 @@ export const Hero = () => {
       </div>
         
     </div>
-      <HomeBody></HomeBody>
-      <section className="section">
-      <div className="cards">
-        <a href="#" className="card card-1">
-          <figure className="visual">
-            <img
-              className="card-img"
-              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-1.avif"
-              alt="Person with a game controller in hand"
-            />
-            <figcaption className="figcaption">Early Access</figcaption>
-          </figure>
-        </a>
-        <a href="#" className="card card-2">
-          <figure className="visual">
-            <img
-              className="card-img"
-              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-2.avif"
-              alt="Person with curly hair in neon lighting"
-            />
-            <figcaption className="figcaption">Top Sellers</figcaption>
-          </figure>
-        </a>
-        <a href="#" className="card card-3">
-          <figure className="visual">
-            <img
-              className="card-img"
-              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-3.avif"
-              alt="Person in vibrant neon lighting with abstract shapes"
-            />
-            <figcaption className="figcaption">New Releases</figcaption>
-          </figure>
-        </a>
-        <a href="#" className="card card-4">
-          <figure className="visual">
-            <img
-              className="card-img"
-              src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-4.avif"
-              alt="Person wearing a virtual reality headset in a blue-lit room"
-            />
-            <figcaption className="figcaption">Upcoming</figcaption>
-          </figure>
-        </a>
-      </div>
-    </section>
-    
+      
+     
     </> 
     
   )
@@ -115,50 +71,3 @@ export const Hero = () => {
 
 
 
-
-
-{/* <div className="bg-black w-full h-full min-h-screen p-8">
-<div className="container mx-auto">
-  <div className="w-full z-0 relative md:min-h-[41rem]">
-    <div className="w-full h-full relative z-0 rounded-2xl">
-      <video
-        className="relative z-[1] inline w-full h-full object-center object-cover rounded-2xl"
-        preload="metadata"
-        autoPlay
-        loop
-        playsInline
-        aria-hidden="false"
-      >
-        <source
-          src="https://player.vimeo.com/progressive_redirect/playback/840627949/rendition/1080p/file.mp4?loc=external&amp;signature=df9cfec6465233ea6f14bd85906ac7412e35a0a00e65cdb6823b45d2b2cf5607"
-          type="video/mp4"
-        />
-      </video>
-      <video
-        className="absolute top-0 left-0 w-full h-full transform-gpu translate-x-0 translate-y-0 z-0 inline object-center object-cover rounded-2xl blur-2xl"
-        preload="none"
-        autoPlay
-        loop
-        playsInline
-        aria-hidden="false"
-      >
-        <source
-          src="https://player.vimeo.com/progressive_redirect/playback/840627949/rendition/1080p/file.mp4?loc=external&amp;signature=df9cfec6465233ea6f14bd85906ac7412e35a0a00e65cdb6823b45d2b2cf5607"
-          type="video/mp4"
-        />
-      </video>
-    </div>
-  </div>
-</div>
-</div> */}
-
-
-// <div className="hello2 relative group flex justify-center items-center h-full w-full p-5"> {/* Adjusted className for the third div */}
-// <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-//   <div className="bg-transparent p-6 rounded-lg text-center" style={{ fontFamily: 'cursive' }}>
-//     <p className="text-gray-800 dark:text-white mb-4" style={{ fontSize: '1.2rem' }}>
-//       At Bid or Book, we believe in the power of visual storytelling to inspire, connect, and transform. Whether you're searching for the perfect photographer to capture your wedding day, family portraits, or corporate event, our platform is your one-stop destination to discover talented photographers and book your ideal match.
-//     </p>
-//   </div>
-// </div>
-// </div>

@@ -31,12 +31,7 @@ const HomeBody = () => {
               </div>
             </a>
             <figcaption className="figcaption text-sm leading-relaxed">
-              Step into the world of art and photography with Bid or Book! Explore a diverse collection of stunning
-              paintings and captivating photographs, each telling its own unique story. From breathtaking landscapes to
-              intimate portraits, Bid or Book offers you the opportunity to bid on your favorite pieces or book a
-              session with talented artists and photographers. Immerse yourself in the beauty of visual art and
-              photography, and let Bid or Book be your gateway to discovering and owning exceptional artwork. Start
-              your artistic journey today!
+            At  Bid or Book, we extend our platform to encompass not just photographers but also a vibrant community of artists ready to bring your creative visions to life. Whether you're seeking a painter to immortalize a cherished memory, a sculptor to breathe life into your space, or any other artistic talent to add a touch of magic to your projects, we've got you covered. With our easy-to-use booking system and diverse range of artists, finding the perfect match for your artistic needs has never been easier. 
             </figcaption>
           </div>
 
