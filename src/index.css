@@ -7,10 +7,7 @@ body{
 }
 
 
-
-
-
-
+/* user home lower */
 
 @layer reset {
     *,
@@ -215,6 +212,17 @@ body{
     font-size:medium;
     font-family: cursive; 
   }
+
+
+
+  /* signup */
+  .signupsection {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url(/src/assets/loginbg.jpeg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
 
 
   

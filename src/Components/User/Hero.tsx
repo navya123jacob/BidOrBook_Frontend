@@ -9,6 +9,7 @@ import HomeBody from './HomeBody';
 import { useEffect } from 'react';
 import { useSignupMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 
+
 export const Hero = () => {
   
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ export const Hero = () => {
   }
   return (
     <>
+    
     <div className="bg-white" style={{backgroundImage: 'url(/src/assets/ClientHome.webp)',height:'90vh',backgroundSize:'cover'}}>
       <Navbar></Navbar>
 

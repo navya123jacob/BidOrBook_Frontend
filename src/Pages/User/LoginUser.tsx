@@ -6,7 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
 import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
 import { Link } from "react-router-dom";
+import GoogleComp from "./GoogleComp";
+
 const LoginUser = () => {
+
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
@@ -14,9 +18,14 @@ const LoginUser = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [phone, setPhone] = useState("");
+  const [category, setCategory] = useState("");
   const [login, { isLoading, isError, error }] = useLoginMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const [userType, setUserType] = useState(""); // To store selected user type
+  const [userType, setUserType] = useState("");
+  
+  
 
   const validateForm = () => {
     setLoginError("");
@@ -40,6 +49,7 @@ const LoginUser = () => {
       setLoginError("Please select a user type");
       isValid = false;
     }
+    
 
     return isValid;
   };
@@ -74,17 +84,10 @@ const LoginUser = () => {
 
   return (
     <>
+    
       <Navbar />
       <section
-        className="flex justify-center items-center h-screen"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url(/src/assets/loginbg.jpeg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+        className="flex justify-center items-center h-screen signupsection">
         <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
           <div className="justify-center mx-auto text-left align-bottom transition-all transform rounded-lg sm:align-middle sm:max-w-2xl sm:w-full">
             <div className="grid flex-wrap items-center justify-center grid-cols-1 mx-auto shadow-xl lg:grid-cols-2 rounded-xl">
@@ -178,6 +181,7 @@ const LoginUser = () => {
                   </div>
                 </div>
               </div>
+            
               <div className="order-first hidden w-full lg:block">
                 <img
                   className="object-cover h-full bg-cover rounded-l-lg"
@@ -194,3 +198,4 @@ const LoginUser = () => {
 };
 
 export default LoginUser;
+

@@ -1,101 +1,123 @@
-
-
 import React, { useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
-import { useLoginMutation } from "../../redux/slices/Api/Client/clientApiEndPoints";
+import { useSignupMutation } from "../../redux/slices/Api/Client/clientApiEndPoints";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
+import { useAuth0 } from "@auth0/auth0-react";
+import GoogleComp from "./GoogleComp";
 
 export const SignupUser = () => {
+  const { user, loginWithRedirect,isAuthenticated,logout } = useAuth0();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [login, { isLoading }] = useLoginMutation();
-  const [userType, setUserType] = useState("client"); // Default user type to client
+  const [SignupError, setSignupError] = useState("");
+  const [signup, { isLoading }] = useSignupMutation();
   const [Fname, setFname] = useState("");
   const [Lname, setLname] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [category, setCategory] = useState(""); // To store selected category
-
+  const [phone, setPhone] = useState("");
+  const [category, setCategory] = useState("");
+  const [FnameError, setFnameError] = useState("");
+  const [LnameError, setLnameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [showGoogleLogin, setShowGoogleLogin] = useState(false);
   const validateForm = () => {
-    setLoginError("");
+    setSignupError("");
     let isValid = true;
 
-    if (!email.trim()) {
-      setEmailError("Email is required");
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email)) {
+      setEmailError("Enter a valid email address");
       isValid = false;
     } else {
       setEmailError("");
     }
 
-    if (!password.trim()) {
-      setPasswordError("Password is required");
+    // Validate password format
+    const passwordRegex =
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{6,}$/;
+    if (!password.trim() || !passwordRegex.test(password)) {
+      setPasswordError("Password must strong");
       isValid = false;
     } else {
       setPasswordError("");
     }
 
-    if (!userType) {
-      setLoginError("Please select a user type");
+    // Validate first name and last name format
+    const nameRegex = /^[a-zA-Z ]+$/;
+    if (!Fname.trim() || !nameRegex.test(Fname)) {
+      setFnameError("Please enter a valid first name ");
       isValid = false;
+    } else {
+      setFnameError("");
     }
 
-    if (userType === "artist" && !category) {
-      setLoginError("Please select a category");
+    if (!Lname.trim() || !nameRegex.test(Lname)) {
+      setLnameError("Please enter a valid last name ");
       isValid = false;
+    } else {
+      setLnameError("");
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phone.trim() || !phoneRegex.test(phone) || phone === "0000000000") {
+      setPhoneError("Please enter a valid phone number");
+      isValid = false;
+    } else {
+      setPhoneError("");
+    }
+
+    // Validate user type selection
+    if (category !== "Photographer" && category !== "Artist") {
+      setSignupError("Please select");
+      isValid = false;
+    } else {
+      setSignupError("");
     }
 
     return isValid;
   };
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
     if (!validateForm()) {
       return;
     }
 
     try {
-      const response = await login({
+      const response = await signup({
         email,
         password,
-        userType,
         Fname,
         Lname,
-        mobile,
+        phone,
         category,
       });
       if ("error" in response) {
-        setLoginError("Invalid Credentials");
+        setSignupError("Invalid Credentials");
       } else {
-        // dispatch(setCredentials(response));
+        console.log(response);
+        // await dispatch(signup(response))
         navigate("/");
       }
     } catch (error) {
-      setLoginError("Invalid Credentials");
-      console.error("Login failed:", error);
+      setSignupError("Invalid Credentials");
+      console.error("Signup failed:", error);
     }
   };
 
   return (
     <>
       <Navbar />
-      <section
-        className="flex justify-center items-center h-screen"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url(/src/assets/loginbg.jpeg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+      <section className="flex justify-center items-center min-h-screen signupsection">
         <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
           <div className="justify-center mx-auto text-left align-bottom transition-all transform rounded-lg sm:align-middle sm:max-w-2xl sm:w-full">
-            <div className="grid flex-wrap items-center justify-center grid-cols-1 mx-auto shadow-xl lg:grid-cols-2 rounded-xl">
+           {!user && <div className="grid flex-wrap items-center justify-center grid-cols-1 mx-auto shadow-xl lg:grid-cols-2 rounded-xl">
               <div className="w-full px-6 py-3">
                 <div className="mt-3 text-left sm:mt-5">
                   <div className="inline-flex items-center w-full">
@@ -106,7 +128,7 @@ export const SignupUser = () => {
                 </div>
 
                 <div className="mt-6 space-y-2">
-                <div>
+                  <div>
                     <label htmlFor="Fname" className="sr-only">
                       First Name
                     </label>
@@ -119,6 +141,7 @@ export const SignupUser = () => {
                       value={Fname}
                       onChange={(e) => setFname(e.target.value)}
                     />
+                    {FnameError && <p className="text-red-500">{FnameError}</p>}
                   </div>
                   <div>
                     <label htmlFor="Lname" className="sr-only">
@@ -133,8 +156,8 @@ export const SignupUser = () => {
                       value={Lname}
                       onChange={(e) => setLname(e.target.value)}
                     />
+                    {LnameError && <p className="text-red-500">{LnameError}</p>}
                   </div>
-                  
                   <div>
                     <label htmlFor="email" className="sr-only">
                       Email
@@ -168,80 +191,61 @@ export const SignupUser = () => {
                     )}
                   </div>
                   <div>
-                    <label htmlFor="mobile" className="sr-only">
-                      Mobile
+                    <label htmlFor="phone" className="sr-only">
+                      phone
                     </label>
                     <input
                       type="text"
-                      name="mobile"
-                      id="mobile"
+                      name="phone"
+                      id="phone"
                       className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
-                      placeholder="Enter your Mobile"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      placeholder="Enter your phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                     />
+                    {phoneError && <p className="text-red-500">{phoneError}</p>}
                   </div>
                   <div className="flex flex-col mt-4 lg:space-y-2">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        value="client"
-                        checked={userType === "client"}
-                        onChange={(e) => setUserType(e.target.value)}
-                        className="form-radio h-5 w-5 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-300">Artist</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        value="artist"
-                        checked={userType === "artist"}
-                        onChange={(e) => setUserType(e.target.value)}
-                        className="form-radio h-5 w-5 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-300">Photographer</span>
-                    </label>
-                    {userType === "artist" && (
-                      <div>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            value="photographer"
-                            checked={category === "photographer"}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="form-radio h-5 w-5 text-blue-600"
-                          />
-                          <span className="ml-2 text-gray-300">Photographer</span>
-                        </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            value="artist"
-                            checked={category === "artist"}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="form-radio h-5 w-5 text-blue-600"
-                          />
-                          <span className="ml-2 text-gray-300">Artist</span>
-                        </label>
-                      </div>
-                    )}
+                    <div>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          value="Photographer"
+                          checked={category === "Photographer"}
+                          onChange={(e) => setCategory(e.target.value)}
+                          className="form-radio h-5 w-5 text-blue-600"
+                        />
+                        <span className="ml-2 text-gray-300">Photographer</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          value="Artist"
+                          checked={category === "Artist"}
+                          onChange={(e) => setCategory(e.target.value)}
+                          className="form-radio h-5 w-5 text-blue-600"
+                        />
+                        <span className="ml-2 text-gray-300">Artist</span>
+                      </label>
+                    </div>
+
                     <button
                       type="button"
                       className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-950 rounded-xl hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={handleLogin}
+                      onClick={handleSignup}
                       disabled={isLoading}
                     >
-                      Log In
+                      Sign Up
                     </button>
-                    {loginError && <p className="text-red-500">{loginError}</p>}
-                    <a
-                      href="#"
+                    {SignupError && (
+                      <p className="text-red-500">{SignupError}</p>
+                    )}
+                    <button
                       type="button"
-                      className="inline-flex justify-center py-4 text-base font-medium text-gray-300 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
-                    >
-                      Forgot your Password?
-                    </a>
+                      className="inline-flex justify-center text-base font-medium text-gray-300 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
+                      onClick={() => loginWithRedirect()}  >
+                      Signup with google
+                    </button>
                     <Link
                       to="/"
                       type="button"
@@ -255,16 +259,15 @@ export const SignupUser = () => {
               <div className="order-first hidden w-full lg:block">
                 <img
                   className="object-cover h-full bg-cover rounded-l-lg"
-                  src="src/assets/Login.jpeg"
+                  src="/src/assets/Login.jpeg"
                   alt=""
                 />
               </div>
-            </div>
+            </div>}
+            {user && <GoogleComp/>}
           </div>
         </div>
       </section>
     </>
   );
 };
-
-

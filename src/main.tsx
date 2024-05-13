@@ -1,13 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
+import App from './App'
 import './index.css'
 import { Provider } from 'react-redux';
 import store from './redux/store.ts';
+import { Auth0Provider } from '@auth0/auth0-react';
 ReactDOM.createRoot(document.getElementById('root')!).render(
+  <Auth0Provider
+  domain="dev-2j0jzjuikcfrmqs4.us.auth0.com"
+  clientId="9HuPTVRmDFjux2QLuyTPw9Pxcztqzi1G"
+  authorizationParams={{
+    redirect_uri: window.location.origin + "/signup" // Add "/signup" to the redirect_uri
+  }}
+>
   <Provider store={store}>
   <React.StrictMode>
     <App />
   </React.StrictMode>
   </Provider>
+  </Auth0Provider>
 )
