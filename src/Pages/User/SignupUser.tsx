@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
 import { useSignupMutation } from "../../redux/slices/Api/Client/clientApiEndPoints";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
 import { useAuth0 } from "@auth0/auth0-react";
 import GoogleComp from "./GoogleComp";
+import Otp from "../../Components/User/Otp";
+
 
 export const SignupUser = () => {
   const { user, loginWithRedirect,isAuthenticated,logout } = useAuth0();
@@ -24,7 +25,8 @@ export const SignupUser = () => {
   const [FnameError, setFnameError] = useState("");
   const [LnameError, setLnameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [showGoogleLogin, setShowGoogleLogin] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
+
   const validateForm = () => {
     setSignupError("");
     let isValid = true;
@@ -90,7 +92,7 @@ export const SignupUser = () => {
     }
 
     try {
-      const response = await signup({
+      const response:any = await signup({
         email,
         password,
         Fname,
@@ -98,12 +100,17 @@ export const SignupUser = () => {
         phone,
         category,
       });
-      if ("error" in response) {
-        setSignupError("Invalid Credentials");
+      console.log(response)
+      if (response?.error?.data?.message) {
+        setSignupError(response?.error?.data?.message);
       } else {
-        console.log(response);
-        // await dispatch(signup(response))
-        navigate("/");
+        
+        if(response?.data?.status){
+          setShowOtp(true)
+        }
+        else{
+          setSignupError('Invalid Credentials');
+        }
       }
     } catch (error) {
       setSignupError("Invalid Credentials");
@@ -117,7 +124,7 @@ export const SignupUser = () => {
       <section className="flex justify-center items-center min-h-screen signupsection">
         <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
           <div className="justify-center mx-auto text-left align-bottom transition-all transform rounded-lg sm:align-middle sm:max-w-2xl sm:w-full">
-           {!user && <div className="grid flex-wrap items-center justify-center grid-cols-1 mx-auto shadow-xl lg:grid-cols-2 rounded-xl">
+           {!user && !showOtp && <div className="grid flex-wrap items-center justify-center grid-cols-1 mx-auto shadow-xl lg:grid-cols-2 rounded-xl">
               <div className="w-full px-6 py-3">
                 <div className="mt-3 text-left sm:mt-5">
                   <div className="inline-flex items-center w-full">
@@ -264,7 +271,9 @@ export const SignupUser = () => {
                 />
               </div>
             </div>}
-            {user && <GoogleComp/>}
+            {user &&  !showOtp && <GoogleComp/>}
+            {!user && showOtp && <Otp setOtp={setShowOtp} />}
+
           </div>
         </div>
       </section>

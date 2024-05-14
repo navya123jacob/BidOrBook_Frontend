@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from './redux/slices/Reducers/types';
 import HomeArtPho from './Pages/User/ArtPho/HomeArtPho';
 import { SignupUser } from './Pages/User/SignupUser';
+import ClientProfilePage from './Pages/User/ClientProfilePage';
 
 
 function App(): JSX.Element {
@@ -17,6 +18,7 @@ function App(): JSX.Element {
     {/* User */}
     <Route path="/" element={!userInfo?<LoginUser/>:(userInfo.client==true?<HomeUser/>:<HomeArtPho/>)}/>
     <Route path="/signup" element={!userInfo?<SignupUser/>:(userInfo.client==true?<HomeUser/>:<HomeArtPho/>)}/>
+    <Route path="/profile" element={userInfo?<ClientProfilePage/>:<LoginUser/>}/>
     
 
 

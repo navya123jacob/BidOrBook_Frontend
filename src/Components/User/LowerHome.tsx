@@ -1,4 +1,4 @@
-import React from 'react'
+import { Link } from 'react-router-dom';
 import {  useSelector } from "react-redux";
 import { RootState } from '../../redux/slices/Reducers/types';
 const LowerHome = () => {
@@ -12,41 +12,23 @@ const LowerHome = () => {
           {userInfo && userInfo.data?.message?.profile ? (
         <img src={userInfo.data?.message?.profile} className="card-img" alt="User Profile" />
       ) : (
-        <img className="card-img" src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-1.avif" alt="Default Image" />
+        <img className="card-img" src="src/assets/HomeProfDummy.jpg" alt="Default Image" />
       )}
-          <figcaption className="figcaption">Early Access</figcaption>
+          <figcaption className="figcaption2">Go To Your Profile {userInfo?.data?.message?.Fname}</figcaption>
         </figure>
       </a>
       <a href="#" className="card card-2">
         <figure className="visual">
           <img
             className="card-img"
-            src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-2.avif"
+            src="src/assets/HomeAbout.jpg"
             alt="Person with curly hair in neon lighting"
           />
-          <figcaption className="figcaption">Top Sellers</figcaption>
+          <figcaption className="figcaption2">About Us</figcaption>
         </figure>
       </a>
-      <a href="#" className="card card-3">
-        <figure className="visual">
-          <img
-            className="card-img"
-            src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-3.avif"
-            alt="Person in vibrant neon lighting with abstract shapes"
-          />
-          <figcaption className="figcaption">New Releases</figcaption>
-        </figure>
-      </a>
-      <a href="#" className="card card-4">
-        <figure className="visual">
-          <img
-            className="card-img"
-            src="https://raw.githubusercontent.com/mobalti/ui/main/cards-01/images/img-4.avif"
-            alt="Person wearing a virtual reality headset in a blue-lit room"
-          />
-          <figcaption className="figcaption">Upcoming</figcaption>
-        </figure>
-      </a>
+     
+    
     </div>
   </section>
   

@@ -18,6 +18,21 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 body: user,
             }),
         }),     
+        resendOtp: builder.mutation({
+            query: () => ({
+                url: '/resendOtp',
+                method: 'POST'
+                
+            }),
+        }),     
+        verifyOtp: builder.mutation({
+            query: (user) => ({
+                url: '/verifyotp',
+                method: 'POST',
+                body: user,
+                
+            }),
+        }),     
         
 
     })
@@ -25,6 +40,8 @@ export const adminApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useSignupMutation,
-    useLoginMutation
+    useLoginMutation,
+    useResendOtpMutation,
+    useVerifyOtpMutation
    
 } = adminApiSlice

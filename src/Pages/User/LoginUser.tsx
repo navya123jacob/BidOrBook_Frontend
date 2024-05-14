@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
 import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
 import { Link } from "react-router-dom";
-import GoogleComp from "./GoogleComp";
 
 const LoginUser = () => {
 

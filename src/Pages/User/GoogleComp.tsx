@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useSignupMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 import { useDispatch } from 'react-redux';
-
+import { toast } from "react-toastify";
 // google response type
 interface NewUserResponse {
     status: number; 
     data: any; 
   }
+  
 const GoogleComp = () => {
     const G_Password = import.meta.env.VITE_GOOGLE_PASSWORD;
     const dispatch = useDispatch();
@@ -73,8 +74,14 @@ const GoogleComp = () => {
         phone: mobile
       };
   
-      const newUser = await signup(formData);
-      logout()
+      const newUser:any = await signup(formData);
+      if(newUser?.error){
+      toast.error(newUser?.error?.data?.message)}
+      else{
+        toast.success('Successfully Registered')
+      }
+      setTimeout(logout, 3000);
+
   };
 
   return (

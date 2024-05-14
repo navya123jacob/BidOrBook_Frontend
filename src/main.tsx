@@ -5,6 +5,8 @@ import './index.css'
 import { Provider } from 'react-redux';
 import store from './redux/store.ts';
 import { Auth0Provider } from '@auth0/auth0-react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <Auth0Provider
   domain="dev-2j0jzjuikcfrmqs4.us.auth0.com"
@@ -15,7 +17,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 >
   <Provider store={store}>
   <React.StrictMode>
+  <ToastContainer/>
     <App />
+    
   </React.StrictMode>
   </Provider>
   </Auth0Provider>

@@ -28,93 +28,6 @@ body{
     }
   }
   
-  @layer components.navbar {
-    .navbar {
-      background-color: black;
-      block-size: var(--nav-block-size);
-      display: grid;
-      gap: 1rem;
-      grid-auto-flow: column;
-      inset-block-start: 0;
-      justify-content: space-between;
-      padding-inline: 0.75rem;
-      place-items: center;
-      position: sticky;
-      z-index: 10;
-    }
-  
-    .nav-actions {
-      display: grid;
-      gap: 1rem;
-      grid-auto-flow: column;
-      place-items: center;
-    }
-  
-    .nav-link {
-      color: white;
-      text-decoration: none;
-      font: 500 0.875rem/1.25rem system-ui, sans-serif;
-    }
-  
-  
-    .search-wrap {
-      display: grid;
-      grid-auto-flow: column;
-      place-items: center;
-      gap: 0.25rem;
-    }
-  
-  
-  
-    .search-btn {
-      color: white;
-      inline-size: 1.5rem;
-      block-size: 1.5rem;
-      padding: 2px;
-      margin: 0;
-      cursor: pointer;
-      background-color: inherit;
-      border: none;
-    }
-  
-    .search-input {
-      border: none;
-      background-color: inherit;
-      border-block-end: 1px solid currentColor;
-      color: white;
-      padding-block: 0.25rem;
-      min-inline-size: 5ch;
-      inline-size: 100%;
-      font: 500 0.875rem/1.25rem system-ui, sans-serif;
-  
-      &::placeholder {
-        color: white;
-      }
-  
-      &:focus {
-        outline: none;
-      }
-    }
-  
-    .cart {
-      display: grid;
-      grid-auto-flow: column;
-      place-items: center;
-      gap: 2px;
-    }
-  
-    .cart-icon-wrapper {
-      padding: 2px;
-      inline-size: 1.5rem;
-      block-size: 1.5rem;
-    }
-  
-    .nav-icon-svg {
-      block-size: auto;
-      display: block;
-      max-inline-size: 100%;
-    }
-  }
   
   @layer components.collections {
     .section {
@@ -171,13 +84,13 @@ body{
       background-color: hsl(199, 100%, 38%);
     }
   
-    .card-3::after {
+    /* .card-3::after {
       background-color: hsl(119, 59%, 64%);
     }
   
     .card-4::after {
       background-color: hsl(49, 83%, 69%);
-    }
+    } */
   
     .visual {
       background-color: black;
@@ -205,7 +118,12 @@ body{
     .figcaption {
       z-index: 2;
       color: white;
-      font: 400 8cqi / normal system-ui, sans-serif;
+      font: 500 8cqi / normal system-ui, sans-serif;
+    }
+    .figcaption2 {
+      z-index: 2;
+      color: white;
+      font: 600 6cqi / normal system-ui, sans-serif;
     }
   }
   .cards .card .visual figcaption.figcaption {

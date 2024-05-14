@@ -9,7 +9,7 @@ const navigation = [
   { name: 'Home', to: '/' },
   { name: 'About', to: '/about' },
   { name: 'Contact', to: '/contact' },
-  { name: 'Company', to: '#' },
+  { name: 'Profile', to: '/profile' },
 ];
 
 export const Navbar = () => {
