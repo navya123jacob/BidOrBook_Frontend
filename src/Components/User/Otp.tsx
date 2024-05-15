@@ -79,7 +79,7 @@ const Otp: React.FC<OtpProps> = ({ setOtp }) => {
                     {otpDigits.map((digit, index) => (
                         <input
                             key={index}
-                            className="w-12 h-12 text-center border rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                            className="w-12 h-12 text-center border rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 text-black"
                             type="text"
                             maxLength={1}
                             pattern="[0-9]"

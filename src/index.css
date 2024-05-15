@@ -120,12 +120,18 @@ body{
       color: white;
       font: 500 8cqi / normal system-ui, sans-serif;
     }
-    .figcaption2 {
-      z-index: 2;
-      color: white;
-      font: 600 6cqi / normal system-ui, sans-serif;
-    }
+    
   }
+
+  .figcaption2{
+    z-index: 2;
+    color: white;
+    
+    font-family: cursive;
+    font-size: 2rem;
+  }
+
+
   .cards .card .visual figcaption.figcaption {
     font-size:medium;
     font-family: cursive; 
@@ -140,6 +146,8 @@ body{
     background-position: center;
     background-repeat: no-repeat;
   }
+
+
   
 
 
