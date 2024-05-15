@@ -33,6 +33,15 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }),     
+            
+        clientprofile: builder.mutation({
+            query: (user) => ({
+                url: '/clientprofile',
+                method: 'PUT',
+                body: user,
+                
+            }),
+        }),     
         
 
     })
@@ -42,6 +51,7 @@ export const {
     useSignupMutation,
     useLoginMutation,
     useResendOtpMutation,
-    useVerifyOtpMutation
+    useVerifyOtpMutation,
+    useClientprofileMutation
    
 } = adminApiSlice

@@ -6,17 +6,17 @@ const LowerHome = () => {
   return (
     <section className="section">
     <div className="cards">
-      <a href="#" className="card card-1">
+      <Link to="/profile" className="card card-1">
         <figure className="visual">
-         
-          {userInfo && userInfo.data?.message?.profile ? (
+        <img className="card-img" src="src/assets/HomeProfDummy.jpg" alt="Default Image" />
+{/*    {userInfo && userInfo.data?.message?.profile ? (
         <img src={userInfo.data?.message?.profile} className="card-img" alt="User Profile" />
       ) : (
         <img className="card-img" src="src/assets/HomeProfDummy.jpg" alt="Default Image" />
-      )}
+      )} */}
           <figcaption className="figcaption2">Go To Your Profile {userInfo?.data?.message?.Fname}</figcaption>
         </figure>
-      </a>
+      </Link>
       <a href="#" className="card card-2">
         <figure className="visual">
           <img
