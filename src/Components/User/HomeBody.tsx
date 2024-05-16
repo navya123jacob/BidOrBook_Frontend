@@ -1,6 +1,9 @@
 import React from 'react'
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/slices/Reducers/types';
 
 const HomeBody = () => {
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
   return (
     <div className="flex justify-center items-center p-5">
       <div className="2xl:mx-auto 2xl:container py-12 px-4 sm:px-6 xl:px-20 2xl:px-0 w-full">
@@ -8,7 +11,8 @@ const HomeBody = () => {
           <div className="relative group flex flex-col justify-center items-center p-5">
             <a href="#" className="group relative block w-full h-full mb-10">
               <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
-                <img
+                
+               { userInfo.client ? <><img
                   src="/src/assets/clientpho.jpg"
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
@@ -17,7 +21,12 @@ const HomeBody = () => {
                   src="/src/assets/clientPho2.jpeg"
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
-                />
+                /></>:<img
+                src={userInfo?.data?.message?.profile}   
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
+              />
+                }
               </div>
 
               <div className="absolute inset-0 flex flex-col items-center justify-end p-10">

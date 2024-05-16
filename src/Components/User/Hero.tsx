@@ -23,7 +23,7 @@ export const Hero = () => {
   return (
     <>
     
-    <div className="bg-white" style={{backgroundImage: 'url(/src/assets/ClientHome.webp)',height:'90vh',backgroundSize:'cover'}}>
+    <div className={`bg-white ${!userInfo.client && 'bg-center'}`} style={{backgroundImage: `url(${userInfo.client ? "/src/assets/ClientHome.webp" : "/src/assets/ArtPho/ArtPhoHome.jpg"})`, height:'90vh', backgroundSize:'cover'}}>
       <Navbar></Navbar>
 
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -42,10 +42,7 @@ export const Hero = () => {
             <h1 className="text-4xl  tracking-tight text-gray-300 sm:text-6xl " style={{fontFamily:'cursive'}}>
               BID or BOOK
             </h1>
-            {/* <p className="mt-6 text-lg leading-8 text-gray-400">
-              Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet
-              fugiat veniam occaecat fugiat aliqua.
-            </p> */}
+            
             <div className="mt-8 flex items-center justify-center gap-x-6">
               <a
                 href="#"
