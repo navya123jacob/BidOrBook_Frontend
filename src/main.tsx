@@ -7,6 +7,7 @@ import store from './redux/store.ts';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Profile from './Components/User/cropper/Profile.tsx';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <Auth0Provider
   domain="dev-2j0jzjuikcfrmqs4.us.auth0.com"
@@ -19,7 +20,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
   <ToastContainer/>
     <App />
-    
   </React.StrictMode>
   </Provider>
   </Auth0Provider>

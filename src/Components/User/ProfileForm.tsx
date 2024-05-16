@@ -4,6 +4,7 @@ import { RootState } from '../../redux/slices/Reducers/types';
 import { useClientprofileMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 import { setCredentials } from '../../redux/slices/Reducers/ClientReducer';
 
+
 const ProfileForm: React.FC = () => {
     const userInfo = useSelector((state: RootState) => state.client.userInfo);
     const [clientprofile, { isLoading }] = useClientprofileMutation();
@@ -108,6 +109,7 @@ const ProfileForm: React.FC = () => {
     };
 
     return (
+        <>
         <div className="bg-gray-200 flex items-center justify-center w-full lg:w-1/2">
             <form className="space-y-6" onSubmit={handleSubmit} encType="multipart/form-data">
                 <div>
@@ -195,7 +197,10 @@ const ProfileForm: React.FC = () => {
                         </button>
                     </div>
                 </form>
+                
             </div>
+            
+            </>
         );
     };
     
