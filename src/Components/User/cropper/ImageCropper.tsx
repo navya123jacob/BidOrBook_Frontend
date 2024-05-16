@@ -75,7 +75,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ closeModal, updateAvatar })
           imgRef.current.height
         )
       );
-      const dataUrl = previewCanvasRef.current.toDataURL();
+      const dataUrl = previewCanvasRef.current.toDataURL('image/jpeg', 0.8);
       console.log(dataUrl); 
       updateAvatar(dataUrl);
       closeModal();

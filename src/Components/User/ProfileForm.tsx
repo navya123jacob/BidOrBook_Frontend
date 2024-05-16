@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { useClientprofileMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 import { setCredentials } from '../../redux/slices/Reducers/ClientReducer';
-
+import Modal from './cropper/Modal';
 
 const ProfileForm: React.FC = () => {
     const userInfo = useSelector((state: RootState) => state.client.userInfo);
     const [clientprofile, { isLoading }] = useClientprofileMutation();
+    console.log(isLoading)
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
     const dispatch = useDispatch()
+    const avatarUrl = useRef<string>(
+        userInfo.data.message.profile
+  );
+  
     const [formData, setFormData] = useState({
         _id: userInfo.data.message._id,
         Fname: userInfo.data.message.Fname,
@@ -24,16 +30,27 @@ const ProfileForm: React.FC = () => {
         phone: '',
         image: '',
     });
+    const updateAvatar = (imgSrc: string) => {
+    avatarUrl.current = imgSrc;
+    console.log(avatarUrl.current)
+    const byteCharacters = atob(imgSrc.split(',')[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'image/png' }); 
+
+    const file = new File([blob], 'avatar.png', { type: 'image/png' });
+    
+    setFormData({ ...formData, image: file });
+  };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setFormData({ ...formData, image: e.target.files[0] });
-        }
-    };
+    
 
     const validateForm = () => {
         let valid = true;
@@ -80,6 +97,7 @@ const ProfileForm: React.FC = () => {
         }else {
             newErrors.image = '';
         }
+        console.log(formData.image)
 
         setErrors(newErrors);
         return valid;
@@ -169,35 +187,40 @@ const ProfileForm: React.FC = () => {
                     </div>
     
                     <div>
-                        <label htmlFor="image" className="block text-sm font-medium text-gray-700"> Profile Image </label>
-                        <div className="mt-1">
-                            <input
-                                id="image"
-                                name="image"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                className={`block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 ${errors.image ? 'border-red-500' : ''}`}
-                            />
-                            {errors.image && <span className="text-red-500">{errors.image}</span>}
-                            {formData.image ? (
-                                <img src={URL.createObjectURL(formData.image)} alt="Profile" className="mt-2 w-24 h-24 rounded-full mx-auto" />
-                            ) : userInfo?.data?.message?.profile ? (
-                                <img src={userInfo.data.message.profile} alt="Profile" className="mt-2 w-24 h-24 rounded-full mx-auto" />
-                            ) : null}
-                        </div>
-                    </div>
+                <label htmlFor="image" className="block text-sm font-medium text-gray-700"> Profile Image </label>
+                <div className="mt-1">
+                    <button
+                        onClick={() => {
+                            setModalOpen(true)
+                        }}
+                        className="block w-full px-5 py-3 text-white text-neutral-600 placeholder-gray-100 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-500 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                    >
+                        Change Profile Picture
+                    </button>
+                    {errors.image && <span className="text-red-500">{errors.image}</span>}
+                    
+                        <img src={avatarUrl.current} alt="Profile" className="mt-2 w-24 h-24 rounded-full mx-auto" />
+                    
+                </div>
+            </div>
     
                     <div>
-                        <button
-                            type="submit"
-                            className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-950 rounded-xl hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                            Update
-                        </button>
+                    <button
+    type="submit"
+    className={`flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+        isLoading ? 'bg-teal-900 hover:bg-gray-600' : 'bg-gray-800 hover:bg-blue-900'
+    }`}
+>
+    {isLoading ? 'Updating....' : 'Update'}
+</button>
                     </div>
                 </form>
-                
+                {modalOpen && (
+        <Modal
+          updateAvatar={updateAvatar}
+          closeModal={() => setModalOpen(false)}
+        />
+      )} 
             </div>
             
             </>
