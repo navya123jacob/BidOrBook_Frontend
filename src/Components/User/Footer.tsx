@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
         <section className="bg-white mt-3 bg-opacity-20">
             <div className="max-w-screen-xl px-4 py-6 mx-auto space-y-1 overflow-hidden sm:px-6 lg:px-8">
             <div className="flex justify-center ">
-                    <img src='src/assets/Logo2.png' alt="Company Logo" className="w-10 h-auto" /> {/* Use the imported logo */}
+                    <img src='src/assets/Logo2.png' alt="Company Logo" className="w-10 h-auto" /> 
                 </div>
                 <nav className="flex flex-wrap justify-center -mx-5 -my-2">
                     <div className="px-5 py-2">

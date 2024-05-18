@@ -99,7 +99,6 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ closeModal, updateAvatar })
           <ReactCrop
             crop={crop}
             onChange={(pixelCrop: PixelCrop, percentCrop: PercentCrop) => setCrop(percentCrop)}
-            circularCrop
             keepSelection
             aspect={ASPECT_RATIO}
             minWidth={MIN_DIMENSION}

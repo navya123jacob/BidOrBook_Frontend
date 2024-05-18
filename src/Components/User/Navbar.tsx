@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/Reducers/ClientReducer';
 import { RootState } from '../../redux/slices/Reducers/types';
+
 const navigation = [
   { name: 'Home', to: '/' },
   { name: 'About', to: '/about' },

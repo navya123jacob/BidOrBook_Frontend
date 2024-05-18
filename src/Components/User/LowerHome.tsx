@@ -11,21 +11,19 @@ const LowerHome = () => {
     const handleResize = () => {
       const width = window.innerWidth;
       if (width <= 401) {
-        setCaptionPosition('bottom-0'); // For screens less than or equal to 401px
+        setCaptionPosition('bottom-0'); 
       } else if (width <= 971) {
-        setCaptionPosition('top-0'); // For screens between 401px and 971px
+        setCaptionPosition('top-0'); 
       } else {
-        setCaptionPosition('top-1/2 transform -translate-y-1/2'); // For screens larger than 971px
+        setCaptionPosition('top-1/2 transform -translate-y-1/2'); 
       }
     };
 
-    // Check the screen size on initial render
+    
     handleResize();
 
-    // Add event listener to update state on window resize
     window.addEventListener('resize', handleResize);
 
-    // Clean up event listener on component unmount
     return () => {
       window.removeEventListener('resize', handleResize);
     };

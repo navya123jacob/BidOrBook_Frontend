@@ -84,13 +84,6 @@ body{
       background-color: hsl(199, 100%, 38%);
     }
   
-    /* .card-3::after {
-      background-color: hsl(119, 59%, 64%);
-    }
-  
-    .card-4::after {
-      background-color: hsl(49, 83%, 69%);
-    } */
   
     .visual {
       background-color: black;
@@ -146,6 +139,38 @@ body{
     background-position: center;
     background-repeat: no-repeat;
   }
+
+
+
+  /* Seller Profile */
+  .pb-full {
+    padding-bottom: 100%;
+  }
+  
+  /* hide search icon on search focus */
+  .search-bar:focus + .fa-search{
+    display: none;
+  }
+  
+  @media screen and (min-width: 768px) {
+    .post:hover .overlay {
+      display: block;
+    }
+  }
+
+
+
+  /* group profile */
+.transition-transform {
+  transition: transform 0.5s;
+}
+
+
+  
+
+
+   
+  
 
 
   

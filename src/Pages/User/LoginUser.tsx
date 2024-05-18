@@ -17,8 +17,6 @@ const LoginUser = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-  const [phone, setPhone] = useState("");
   const [category, setCategory] = useState("");
   const [login, { isLoading, isError, error }] = useLoginMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);

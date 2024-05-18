@@ -19,6 +19,7 @@ const ProfileForm: React.FC = () => {
     Lname: userInfo.data.message.Lname,
     email: userInfo.data.message.email,
     phone: userInfo.data.message.phone,
+    description: userInfo.data.message.description || "",
     image: null as File | null,
   });
 
@@ -26,6 +27,7 @@ const ProfileForm: React.FC = () => {
     Fname: "",
     Lname: "",
     phone: "",
+    description: "",
     image: "",
   });
   const updateAvatar = (imgSrc: string) => {
@@ -44,9 +46,11 @@ const ProfileForm: React.FC = () => {
     setFormData({ ...formData, image: file });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  
 
   const validateForm = () => {
     let valid = true;
@@ -87,6 +91,14 @@ const ProfileForm: React.FC = () => {
     } else {
       newErrors.phone = "";
     }
+
+    if (formData.description && formData.description.trim() === "") {
+      newErrors.description = "Description is required";
+      valid = false;
+    } else {
+      newErrors.description = "";
+    }
+
     if (
       formData.image &&
       ![
@@ -116,11 +128,12 @@ const ProfileForm: React.FC = () => {
       formDataToSend.append("Fname", formData.Fname);
       formDataToSend.append("Lname", formData.Lname);
       formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("description", formData.description);
+      console.log('form data',formData)
       if (formData.image) {
         formDataToSend.append("image", formData.image);
       }
       const response: any = await clientprofile(formDataToSend);
-      console.log("userInfo", userInfo);
       console.log("response", response);
       if (response.data) {
         let newuserInfo = JSON.parse(JSON.stringify(userInfo));
@@ -231,6 +244,31 @@ const ProfileForm: React.FC = () => {
               )}
             </div>
           </div>
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {" "}
+              Bio{" "}
+            </label>
+            <div className="mt-1">
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                className={`block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-300 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 ${
+                  errors.description ? "border-red-500" : ""
+                }`}
+              ></textarea>
+              {errors.description && (
+                <span className="text-red-500">{errors.description}</span>
+              )}
+            </div>
+          </div>
+
 
           <div>
             <label

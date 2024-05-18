@@ -42,6 +42,14 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }),     
+        createpost: builder.mutation({
+            query: (user) => ({
+                url: '/createpost',
+                method: 'POST',
+                body: user,
+                
+            }),
+        }),     
         
 
     })
@@ -52,6 +60,7 @@ export const {
     useLoginMutation,
     useResendOtpMutation,
     useVerifyOtpMutation,
-    useClientprofileMutation
+    useClientprofileMutation,
+    useCreatepostMutation
    
 } = adminApiSlice
