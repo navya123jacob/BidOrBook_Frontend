@@ -120,7 +120,9 @@ export const SignupUser = () => {
 
   return (
     <>
+      <header className="absolute inset-x-0 top-0 z-50">
       <Navbar />
+      </header>
       <section className="flex justify-center items-center min-h-screen signupsection">
         <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
           <div className="justify-center mx-auto text-left align-bottom transition-all transform rounded-lg sm:align-middle sm:max-w-2xl sm:w-full">

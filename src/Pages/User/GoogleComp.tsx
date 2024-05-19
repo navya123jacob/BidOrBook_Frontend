@@ -66,13 +66,14 @@ const GoogleComp = () => {
       }
   
       const formData = {
-        fname: user?.given_name,
-        lname: user?.family_name,
+        Fname: user?.given_name,
+        Lname: user?.family_name,
         email: user?.email,
         password,
         is_google: true,
         phone: mobile
       };
+      console.log('formdata',formData)
   
       const newUser:any = await signup(formData);
       if(newUser?.error){

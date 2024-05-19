@@ -23,7 +23,9 @@ const ClientProfilePage: React.FC = () => {
   };
   return (
     <>
+      <header className="absolute inset-x-0 top-0 z-50">
       <Navbar />
+      </header>
       <main className="profile-page h-screen ">
         <section className="relative block h-500-px">
           <div

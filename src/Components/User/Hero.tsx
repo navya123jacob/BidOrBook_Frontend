@@ -24,7 +24,9 @@ export const Hero = () => {
     <>
     
     <div className={`bg-white ${!userInfo.client && 'bg-center'}`} style={{backgroundImage: `url(${userInfo.client ? "/src/assets/ClientHome.webp" : "/src/assets/ArtPho/ArtPhoHome.jpg"})`, height:'90vh', backgroundSize:'cover'}}>
-      <Navbar></Navbar>
+    <header className="absolute inset-x-0 top-0 z-50">
+      <Navbar />
+      </header>
 
       <div className="relative isolate px-6 pt-14 lg:px-8">
         <div

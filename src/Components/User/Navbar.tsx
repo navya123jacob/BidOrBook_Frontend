@@ -23,7 +23,7 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
+    <>
       <nav className="flex items-center justify-between p-6 lg:px-8 text-white" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link to="/" className="-m-1.5 p-1.5">
@@ -114,7 +114,7 @@ export const Navbar = () => {
           </div>
         </Dialog.Panel>
       </Dialog>
-    </header>
+    </>
   );
 };
 
