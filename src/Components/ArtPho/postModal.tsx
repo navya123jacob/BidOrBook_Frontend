@@ -15,9 +15,11 @@ interface PostData {
 interface PostModalProps {
   
   onClose: () => void;
+  setUsersWithPosts: React.Dispatch<React.SetStateAction<any[]>>;
+  usersWithPosts:any[]
 }
 
-const PostModal: React.FC<PostModalProps> = ({  onClose }) => {
+const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersWithPosts }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [createPost, { isLoading }] = useCreatepostMutation();
   const avatarUrl = useRef<string>('');
@@ -59,6 +61,8 @@ const PostModal: React.FC<PostModalProps> = ({  onClose }) => {
       formData.append('userid',userInfo.data.message._id)
       const response=await createPost(formData)
       console.log(response)
+      if('data' in response){
+      setUsersWithPosts([response.data.post,...usersWithPosts])}
       onClose();
     }
   };

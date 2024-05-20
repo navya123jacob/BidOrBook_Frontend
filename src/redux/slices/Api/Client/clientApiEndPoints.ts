@@ -58,6 +58,14 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }),     
+        deletePost: builder.mutation({
+            query: (user) => ({
+                url: '/deletepost',
+                method: 'DELETE',
+                body: user,
+                
+            }),
+        }),     
         
 
     })
@@ -70,6 +78,7 @@ export const {
     useVerifyOtpMutation,
     useClientprofileMutation,
     useCreatepostMutation,
-    useAllpostMutation
+    useAllpostMutation,
+    useDeletePostMutation
    
 } = adminApiSlice

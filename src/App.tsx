@@ -7,7 +7,7 @@ import HomeArtPho from './Pages/User/ArtPho/HomeArtPho';
 import { SignupUser } from './Pages/User/SignupUser';
 import ClientProfilePage from './Pages/User/ClientProfilePage';
 import { ProtectedArtistRoute, ProtectedClientRoute } from './Components/Protected';
-import ProfilePageSeller from './Pages/User/ArtPho/ArtPhoProfile';
+import ProfilePageSeller from './Pages/User/ArtPho/SellerSingleProfile';
 
 import ProfilesSellers from './Pages/User/ArtPho/ProfilesSellers';
 
