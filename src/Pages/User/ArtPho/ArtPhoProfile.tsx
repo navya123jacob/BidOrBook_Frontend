@@ -2,19 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../../../Components/User/Footer';
-import PostModal from '../../../Components/ArtPho/postModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/slices/Reducers/types';
 import { Navbar } from '../../../Components/User/Navbar';
 import PostDetailModal from '../../../Components/ArtPho/PostDetailModal';
-
+import { useAllpostMutation } from '../../../redux/slices/Api/Client/clientApiEndPoints';
+import PostModal from '../../../Components/ArtPho/postModal';
 const ProfilePageSeller: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [posts, setPosts] = useState(userInfo.data.message.posts || []);
   const [page, setPage] = useState(1);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
+  const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
+  const [allpost, { isLoading }] = useAllpostMutation();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await allpost({ userid: userInfo.data.message._id });
+        if ('data' in response) {
+          setUsersWithPosts(response.data.posts); 
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const fetchMorePosts = () => {
     setTimeout(() => {
@@ -44,6 +61,9 @@ const ProfilePageSeller: React.FC = () => {
 
   return (
     <>
+      <header className='bg-gray-950 bg-opacity-80'>
+        <Navbar />
+      </header>
       <main className="bg-black text-white min-h-screen">
         <div className="lg:w-8/12 lg:mx-auto mb-8">
           <header className="flex flex-wrap items-center p-4 md:py-8">
@@ -120,14 +140,14 @@ const ProfilePageSeller: React.FC = () => {
               </li>
             </ul>
             <div className="flex flex-wrap -mx-px md:-mx-3">
-              {userInfo.data.message.posts.map((post: any, index: number) => (
+              {usersWithPosts.map((post: any, index: number) => (
                 <div key={index} className="w-1/3 p-px md:px-3">
                   <a href="#" onClick={() => handlePostClick(post)}>
                     <article className="post bg-gray-100 text-white relative pb-full md:mb-6">
                       <img className="w-full h-full absolute left-0 top-0 object-cover" src={post.image} alt="image" />
                       <i className="fas fa-square absolute right-0 top-0 m-1"></i>
                       <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
-                        <div className="flex justify-center items-center space-x-4 h-full">
+                      <div className="flex justify-center items-center space-x-4 h-full">
                           <span className="p-2">
                             <i className="fas fa-heart"></i> {post.likes}
                           </span>
@@ -161,3 +181,4 @@ const ProfilePageSeller: React.FC = () => {
 };
 
 export default ProfilePageSeller;
+
