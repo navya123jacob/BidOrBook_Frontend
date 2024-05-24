@@ -8,7 +8,6 @@ import Modal from "./cropper/Modal";
 const ProfileForm: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [clientprofile, { isLoading }] = useClientprofileMutation();
-  console.log(isLoading);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const avatarUrl = useRef<string>(userInfo.data.message.profile);
@@ -139,7 +138,7 @@ const ProfileForm: React.FC = () => {
         let newuserInfo = JSON.parse(JSON.stringify(userInfo));
         newuserInfo.data.message = { ...response.data.user };
         dispatch(setCredentials({ ...newuserInfo }));
-        console.log(newuserInfo, "new");
+        
       }
     }
   };

@@ -13,6 +13,7 @@ import ProfilesSellers from './Pages/User/ArtPho/ProfilesSellers';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  
 
   return (
     <BrowserRouter>

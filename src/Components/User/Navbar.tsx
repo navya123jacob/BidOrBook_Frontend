@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/Reducers/ClientReducer';
 import { RootState } from '../../redux/slices/Reducers/types';
-
+import { useLogoutMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 const navigation = [
   { name: 'Home', to: '/' },
   { name: 'About', to: '/about' },
@@ -14,10 +14,13 @@ const navigation = [
 ];
 
 export const Navbar = () => {
+  const [logoutApi] = useLogoutMutation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
  const userInfo=useSelector((state:RootState)=>state.client.userInfo)
-  const handleLogout = () => {
+  const handleLogout = async() => {
+    dispatch(logout());
+    await logoutApi(undefined).unwrap();
     dispatch(logout());
     
   };

@@ -1,4 +1,3 @@
-import { ArrowLeftEndOnRectangleIcon, ArrowLongDownIcon } from "@heroicons/react/24/outline";
 import { apiSlice } from "./clientApi";
 const CLIENT_URL = '/users';
 
@@ -30,6 +29,38 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 url: '/verifyotp',
                 method: 'POST',
                 body: user,
+                
+            }),
+        }),     
+        forgotpassword: builder.mutation({
+            query: (user) => ({
+                url: '/forgotpassword',
+                method: 'POST',
+                body: user,
+                
+            }),
+        }),     
+        setpassword: builder.mutation({
+            query: (user) => ({
+                url: '/setpassword',
+                method: 'POST',
+                body: user,
+                
+            }),
+        }),     
+        verifyotp2: builder.mutation({
+            query: (user) => ({
+                url: '/verifyotp2',
+                method: 'POST',
+                body: user,
+                
+            }),
+        }),     
+        forgotresendOtp: builder.mutation({
+            query: () => ({
+                url: '/forgotresendOtp',
+                method: 'GET'
+                
                 
             }),
         }),     
@@ -67,6 +98,14 @@ export const adminApiSlice = apiSlice.injectEndpoints({
             }),
         }),     
         
+        logout: builder.mutation({
+            query: () => ({
+                url: '/logout',
+                method: 'GET',
+            }),
+        }),
+   
+        
 
     })
 })
@@ -79,6 +118,11 @@ export const {
     useClientprofileMutation,
     useCreatepostMutation,
     useAllpostMutation,
-    useDeletePostMutation
+    useDeletePostMutation,
+    useLogoutMutation,
+    useForgotpasswordMutation,
+    useVerifyotp2Mutation,
+    useSetpasswordMutation,
+    useForgotresendOtpMutation
    
 } = adminApiSlice
