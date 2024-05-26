@@ -12,6 +12,7 @@ const ProfilesSellers = () => {
 
   return (
     <>
+    
       <header className={`${translateUp ? 'bg-gray-900 bg-opacity-80' : ''} absolute inset-x-0 top-0 z-50`}>
         <Navbar />
       </header>

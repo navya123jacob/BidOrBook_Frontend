@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../User/cropper/Modal';
 import { useCreatepostMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
 import { useSelector } from 'react-redux';
@@ -13,13 +13,12 @@ interface PostData {
 }
 
 interface PostModalProps {
-  
   onClose: () => void;
   setUsersWithPosts: React.Dispatch<React.SetStateAction<any[]>>;
-  usersWithPosts:any[]
+  usersWithPosts: any[];
 }
 
-const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersWithPosts }) => {
+const PostModal: React.FC<PostModalProps> = ({ onClose, setUsersWithPosts, usersWithPosts }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [createPost, { isLoading }] = useCreatepostMutation();
   const avatarUrl = useRef<string>('');
@@ -36,8 +35,6 @@ const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersW
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setPostData({ ...postData, [name]: value });
-
-    
     setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
@@ -50,19 +47,18 @@ const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersW
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async(e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       const formData = new FormData();
       formData.append('name', postData.name);
       formData.append('description', postData.description);
       if (file) formData.append('image', file);
-      console.log(file)
-      formData.append('userid',userInfo.data.message._id)
-      const response=await createPost(formData)
-      console.log(response)
-      if('data' in response){
-      setUsersWithPosts([response.data.post,...usersWithPosts])}
+      formData.append('userid', userInfo.data.message._id);
+      const response = await createPost(formData);
+      if ('data' in response) {
+        setUsersWithPosts([response.data.post, ...usersWithPosts]);
+      }
       onClose();
     }
   };
@@ -76,15 +72,22 @@ const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersW
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: 'image/png' });
-
     const newFile = new File([blob], 'newpost.png', { type: 'image/png' });
     setFile(newFile);
-   
   };
 
   return (
+    
+    
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      <div className="bg-white bg-opacity-95 text-gray-800 p-6 rounded-lg w-96">
+      <div className="relative bg-white bg-opacity-95 text-gray-800 p-6 rounded-lg w-96">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-2 right-2 p-1 rounded-full bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none"
+        >
+          <FontAwesomeIcon icon={faTimes} />
+        </button>
         <h2 className="text-lg font-semibold mb-4">Create Post</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -96,7 +99,6 @@ const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersW
               value={postData.name}
               onChange={handleChange}
               className={`block w-full mt-1 p-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 ${errors.name ? 'border-red-500' : ''}`}
-             
             />
             {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
           </div>
@@ -109,7 +111,6 @@ const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersW
               onChange={handleChange}
               rows={4}
               className={`block w-full mt-1 p-2 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 ${errors.description ? 'border-red-500' : ''}`}
-              
             ></textarea>
             {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
           </div>
@@ -147,6 +148,7 @@ const PostModal: React.FC<PostModalProps> = ({  onClose,setUsersWithPosts,usersW
         />
       )}
     </div>
+    
   );
 };
 
