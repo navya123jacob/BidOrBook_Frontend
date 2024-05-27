@@ -7,34 +7,30 @@ import HomeArtPho from './Pages/User/ArtPho/HomeArtPho';
 import { SignupUser } from './Pages/User/SignupUser';
 import ClientProfilePage from './Pages/User/ClientProfilePage';
 import { ProtectedArtistRoute, ProtectedClientRoute } from './Components/Protected';
-import ProfilePageSeller from './Pages/User/ArtPho/SellerSingleProfile';
-
-import ProfilesSellers from './Pages/User/ArtPho/ProfilesSellers';
+import ProfilesSellers from './Pages/User/ArtPho/Sellers';
+import ProfilePageSeller from './Pages/User/ArtPho/SellerProfile';
+import ProfileSellerClientSide from './Pages/User/SellerProfileClientside';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  
 
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        
         <Route path="/signup" element={!userInfo ? <SignupUser /> : <Navigate to="/" />} />
         <Route path="/" element={!userInfo ? <LoginUser /> : (userInfo.client === true ? <HomeUser /> : <HomeArtPho />)} />
 
 
         <Route element={<ProtectedArtistRoute />}>
-          {/*  artist-specific routes here */}
-          <Route path="/artpho/profile" element={<ProfilePageSeller/>}/>
-          
+        <Route path="/artpho/profile" element={ <ProfilePageSeller />} />
         </Route>
 
         <Route element={<ProtectedClientRoute />}>
-          {/* client-specific routes  */}
-         
+          {/* client-specific routes */}
           <Route path="/profile" element={<ClientProfilePage />} />
-          <Route path="/groupprofiles" element={<ProfilesSellers/>}/>
+          <Route path="/groupprofiles" element={<ProfilesSellers />} />
+          <Route path="/artprof/client/:id" element={ <ProfileSellerClientSide />} />
         </Route>
 
         {/* Fallback route */}

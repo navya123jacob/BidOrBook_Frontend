@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Navbar } from '../../../Components/User/Navbar';
 import HeroSection from '../../../Components/ArtPho/Group/Hero';
 import GallerySection from '../../../Components/ArtPho/Group/Category';
 
+
 const ProfilesSellers = () => {
+  
+
     const [translateUp, setTranslateUp] = useState<'Photographer' | 'Artist' | null>(null);
 
     const handleTranslateUp = (category: 'Photographer' | 'Artist' | null) => {

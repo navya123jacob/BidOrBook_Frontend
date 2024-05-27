@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useAllpostMutation } from "../../../redux/slices/Api/Client/clientApiEndPoints";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/slices/Reducers/types";
+import { Link } from "react-router-dom";
 
 interface Post {
   image: string;
   description: string;
-  name:string
+  name: string;
 }
 
 interface User {
@@ -15,6 +16,7 @@ interface User {
   description: string;
   Fname: string;
   Lname: string;
+  _id:string
 }
 
 interface GallerySectionProps {
@@ -35,11 +37,11 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const formdata: { category: "Photographer" | "Artist" | null; usernotid: any; searchPlaceholder?: string } = { 
-          category: translateUp, 
-          usernotid: userInfo?.data?.message?._id 
+        const formdata: { category: "Photographer" | "Artist" | null; usernotid?: string; searchPlaceholder?: string } = {
+          category: translateUp,
+          usernotid: userInfo?.data?.message?._id,
         };
-    
+
         if (searchPlaceholder) {
           formdata.searchPlaceholder = searchPlaceholder;
         }
@@ -66,7 +68,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
             <div className="w-full h-[200px] bg-transparent flex flex-col justify-between items-center">
               <div className="flex flex-col justify-center items-center mt-10">
                 <button
-                  className="focus:outline-none  px-4 py-2 rounded-md text-gray-800"
+                  className="focus:outline-none px-4 py-2 rounded-md text-gray-800"
                   onClick={handleBackButtonClick}
                 >
                   <img
@@ -93,68 +95,73 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                       value={searchPlaceholder}
                       onChange={(e) => setSearchPlaceholder(e.target.value)}
                     />
-                    <button
-                      type="submit"
-                      className="px-[7px] py-[7px] bg-gray-900  text-white rounded-md font-semibold"
-                    >
-                      Search
-                    </button>
                   </div>
                 </form>
               </div>
             </div>
           </section>
 
-          {usersWithPosts.map((user, index) => (
-            <div
-              key={index}
-              className="max-w-screen-xl bg-opacity-20 bg-white p-5 mx-auto"
-            >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-0 lg:grid-rows-2">
-                <div
-                  className="relative flex items-end justify-start w-full text-left bg-center bg-cover cursor-pointer h-60 md:col-span-2 lg:row-span-2 lg:h-full group"
-                  style={{ backgroundImage: `url(${user.profile})` }}
-                >
-                  <div className="absolute top-0 left-0 right-0 flex items-center justify-between mx-5 mt-3">
-                    <a
-                      rel="noopener noreferrer"
-                      href="#"
-                      className="px-3 py-2 text-s font-bold tracking-wider uppercase hover:underline"
-                    >
-                      {user?.Fname} {user?.Lname}
-                    </a>
-                    <div className="flex flex-col justify-start text-center text-gray-800">
-                      <span className="text-3xl font-semibold leading-none tracking-wide">
-                        31
-                      </span>
-                      <span className="leading-none uppercase">Jul</span>
-                    </div>
-                  </div>
-                  <h2 className="z-10 p-5">
-                    <a
-                      rel="noopener noreferrer"
-                      href="#"
-                      className="font-medium text-md lg:text-2xl lg:font-semibold bg-black text-white bg-opacity-50"
-                    >
-                      {user?.description}
-                    </a>
-                  </h2>
+          {isLoading || usersWithPosts.length === 0 ? (
+            <div className="flex justify-center items-center h-full">
+              {isLoading ? (
+                <span className="loader"></span>
+              ) : (
+               
+                <div>
+                <h2 className="text-white text-xl">
+                  NO {translateUp?.toUpperCase()}'S FOUND
+                </h2>
+                <span className="loader"></span>
+                
                 </div>
-                {user.posts.slice(0, 4).map((post, postIndex) => (
-                  <>
+                
+              )}
+            </div>
+          ) : (
+            usersWithPosts.map((user, index) => (
+              <div
+                key={index}
+                className="max-w-screen-xl bg-opacity-20 bg-white p-5 mx-auto"
+              >
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-0 lg:grid-rows-2">
+                  <Link
+                    className="relative flex items-end justify-start w-full text-left bg-center bg-cover cursor-pointer h-60 md:col-span-2 lg:row-span-2 lg:h-full group"
+                    style={{ backgroundImage: `url(${user.profile})` }}
+                    to={`/artprof/client/${user._id}`} 
+                  >
+                    <div className="absolute top-0 left-0 right-0 flex items-center justify-between mx-5 mt-3">
+                      <Link
+                        rel="noopener noreferrer"
+                        to={`/artprof/client/${user._id}`} 
+                        className="px-3 py-2 text-s font-bold tracking-wider uppercase hover:underline"
+                      >
+                        {user?.Fname} {user?.Lname}
+                      </Link>
+                    </div>
+                    <h2 className="z-10 p-5">
+                      <Link
+                        rel="noopener noreferrer"
+                        to={`/artprof/client/${user._id}`} 
+                        className="font-medium text-md lg:text-2xl lg:font-semibold bg-black text-white bg-opacity-50"
+                      >
+                        {user?.description}
+                      </Link>
+                    </h2>
+                  </Link>
+                  {user.posts.slice(0, 4).map((post, postIndex) => (
                     <div
                       key={postIndex}
                       className="relative flex items-end justify-start w-full text-left bg-center bg-cover cursor-pointer h-60 group"
                       style={{ backgroundImage: `url(${post.image})` }}
                     >
                       <div className="absolute top-0 left-0 right-0 flex items-center justify-between mx-5 mt-3">
-                        <a
+                        <Link
                           rel="noopener noreferrer"
-                          href="#"
-                          className="px-3 py-2 text-xs font-semibold tracking-wider uppercase hover:underline dark:text-gray-800"
+                          to={`/artprof/client/${user._id}`} 
+                          className="px-3 py-2 text-xs font-bold tracking-wider uppercase hover:underline dark:text-gray-800"
                         >
                           {post?.name}
-                        </a>
+                        </Link>
                         <div className="flex flex-col justify-start text-center text-gray-800">
                           <span className="text-3xl font-semibold leading-none tracking-wide">
                             04
@@ -163,20 +170,20 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                         </div>
                       </div>
                       <h2 className="z-10 p-5">
-                        <a
+                        <Link
                           rel="noopener noreferrer"
-                          href="#"
+                          to={`/artprof/client/${user._id}`} 
                           className="font-medium text-md text-white"
                         >
                           {post?.description}
-                        </a>
+                        </Link>
                       </h2>
                     </div>
-                  </>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </>

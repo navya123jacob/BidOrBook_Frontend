@@ -6,18 +6,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/Reducers/ClientReducer';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { useLogoutMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
-const navigation = [
-  { name: 'Home', to: '/' },
-  { name: 'About', to: '/about' },
-  { name: 'Contact', to: '/contact' },
-  { name: 'Profile', to: '/profile' },
-];
+
 
 export const Navbar = () => {
+  const userInfo=useSelector((state:RootState)=>state.client.userInfo)
+  const navigation = [
+    { name: 'Home', to: '/' },
+    { name: 'About', to: '/about' },
+    { name: 'Contact', to: '/contact' },
+  ];
+  
+  if (userInfo) {
+    if (userInfo.client) {
+      navigation.push({ name: 'Profile', to: '/profile' });
+    } else {
+      navigation.push({ name: 'Profile', to: '/artpho/profile' });
+    }
+  }
   const [logoutApi] = useLogoutMutation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
- const userInfo=useSelector((state:RootState)=>state.client.userInfo)
   const handleLogout = async() => {  
     await logoutApi(undefined).unwrap();
     dispatch(logout());    
@@ -31,7 +39,7 @@ export const Navbar = () => {
             <span className="sr-only">Your Company</span>
             <img
               className="h-8 w-auto"
-              src="src/assets/Logo2.png"
+              src="https://res.cloudinary.com/dvgwqkegd/image/upload/v1716207599/Logo2_t9jslm.png"
               alt=""
             />
           </Link>
@@ -72,7 +80,7 @@ export const Navbar = () => {
               <span className="sr-only">Your Company</span>
               <img
                 className="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                src="https://res.cloudinary.com/dvgwqkegd/image/upload/v1716207599/Logo2_t9jslm.png"
                 alt=""
               />
             </Link>

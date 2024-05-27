@@ -88,7 +88,14 @@ export const adminApiSlice = apiSlice.injectEndpoints({
                 body: user,
                 
             }),
-        }),     
+        }), 
+        
+        singleUserPost: builder.mutation({
+            query: (userId: string) => ({
+                url: `/singleposts/${userId}`, 
+                method: 'POST',
+            }),
+        }),    
         deletePost: builder.mutation({
             query: (user) => ({
                 url: '/deletepost',
@@ -105,7 +112,14 @@ export const adminApiSlice = apiSlice.injectEndpoints({
             }),
         }),
    
-        
+        checkavailability: builder.mutation({
+            query: (dates) => ({
+                url: '/checkavailability',
+                method: 'POST',
+                body: dates,
+                
+            }),
+        }), 
 
     })
 })
@@ -123,6 +137,8 @@ export const {
     useForgotpasswordMutation,
     useVerifyotp2Mutation,
     useSetpasswordMutation,
-    useForgotresendOtpMutation
+    useForgotresendOtpMutation,
+    useSingleUserPostMutation,
+    useCheckavailabilityMutation
    
 } = adminApiSlice

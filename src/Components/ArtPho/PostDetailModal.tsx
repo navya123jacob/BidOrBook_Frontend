@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/slices/Reducers/types';
 
 interface PostDetailModalProps {
   post: {
@@ -10,10 +12,11 @@ interface PostDetailModalProps {
     _id: string;
   };
   onClose: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDelete }) => {
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [showLikes, setShowLikes] = useState(false);
   const [likesList, setLikesList] = useState<string[]>([]);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -30,7 +33,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
 
   const handleConfirmDelete = () => {
     setShowConfirmDelete(false);
-    onDelete();
+    onDelete?.();
   };
 
   const handleCancelDelete = () => {
@@ -54,12 +57,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
           <span className="cursor-pointer" onClick={handleLikesClick}>
             {post.likes} Likes
           </span>
-          <button
+          {!userInfo.client && (<button
             className="bg-red-500 text-white px-2 py-1 rounded"
             onClick={handleDeleteClick}
           >
             Delete
-          </button>
+          </button>)}
         </div>
       </div>
 
