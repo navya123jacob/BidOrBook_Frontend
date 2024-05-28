@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/Reducers/ClientReducer';
 import { RootState } from '../../redux/slices/Reducers/types';
-import { useLogoutMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
+import { useLogoutMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 
 
 export const Navbar = () => {

@@ -6,9 +6,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/slices/Reducers/types';
 import { Navbar } from '../../../Components/User/Navbar';
 import PostDetailModal from '../../../Components/ArtPho/PostDetailModal';
-import { useAllpostMutation } from '../../../redux/slices/Api/Client/clientApiEndPoints';
+import { useAllpostMutation } from '../../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import PostModal from '../../../Components/ArtPho/postModal';
-import { useDeletePostMutation } from '../../../redux/slices/Api/Client/clientApiEndPoints';
+import { useDeletePostMutation } from '../../../redux/slices/Api/EndPoints/clientApiEndPoints';
 
 const ProfilePageSeller: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);

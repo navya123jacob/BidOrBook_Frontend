@@ -1,6 +1,6 @@
 import  { useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
-import { useSignupMutation } from "../../redux/slices/Api/Client/clientApiEndPoints";
+import { useSignupMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useAuth0 } from "@auth0/auth0-react";

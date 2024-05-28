@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAllpostMutation } from "../../../redux/slices/Api/Client/clientApiEndPoints";
+import { useAllpostMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/slices/Reducers/types";
 import { Link } from "react-router-dom";

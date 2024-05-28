@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useResendOtpMutation, useVerifyOtpMutation, useVerifyotp2Mutation, useSetpasswordMutation, useLoginMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
+import { useResendOtpMutation, useVerifyOtpMutation, useVerifyotp2Mutation, useSetpasswordMutation, useLoginMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { setCredentials } from '../../redux/slices/Reducers/ClientReducer';
-import { useForgotresendOtpMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
+import { useForgotresendOtpMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 interface OtpProps {
     setOtp: React.Dispatch<React.SetStateAction<boolean>>;
     forgot?: boolean;

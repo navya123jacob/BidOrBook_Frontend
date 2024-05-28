@@ -7,7 +7,7 @@ import { RootState } from '../../redux/slices/Reducers/types';
 import { Navbar } from './Navbar';
 import HomeBody from './HomeBody';
 import { useEffect } from 'react';
-import { useSignupMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
+import { useSignupMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 
 
 export const Hero = () => {

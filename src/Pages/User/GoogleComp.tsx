@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
-import { useSignupMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
+import { useSignupMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
 // google response type

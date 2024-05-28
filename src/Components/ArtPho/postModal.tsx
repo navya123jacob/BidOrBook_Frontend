@@ -2,7 +2,7 @@ import React, { useState, ChangeEvent, FormEvent, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../User/cropper/Modal';
-import { useCreatepostMutation } from '../../redux/slices/Api/Client/clientApiEndPoints';
+import { useCreatepostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
 

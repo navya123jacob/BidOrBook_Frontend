@@ -4,12 +4,11 @@ import { useSelector } from 'react-redux';
 import { RootState } from './../../redux/slices/Reducers/types';
 import { Navbar } from './../../Components/User/Navbar';
 import PostDetailModal from './../../Components/ArtPho/PostDetailModal';
-import { useAllpostMutation } from './../../redux/slices/Api/Client/clientApiEndPoints';
-import { useSingleUserPostMutation } from './../../redux/slices/Api/Client/clientApiEndPoints';
+import { useAllpostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { useParams } from 'react-router-dom';
 import { User } from '../../types/user';
 import DatePickerModal from '../../Components/User/DatePickerModal';
-import Datepicker from "react-tailwindcss-datepicker";
 
 const SellerProfileClientside: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -107,7 +106,7 @@ const handleValueChange = (newValue: any) => {
                 {userInfo.client && (
                   <button
                    
-                    onClick={handleBookClick} // Open date picker modal when clicked
+                    onClick={handleBookClick}
                     className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                   >
                     Book
@@ -184,13 +183,11 @@ const handleValueChange = (newValue: any) => {
         </div>
       </main>
 
-      {/* Date Picker Modal */}
       {isDatePickerModalOpen && (
   <DatePickerModal onClose={() => setIsDatePickerModalOpen(false)} value={value} handleValueChange={handleValueChange} artistId={id} />
 )}
 
 
-      {/* Post Detail Modal */}
       {isPostDetailModalOpen && selectedPost && (
         <PostDetailModal
           post={selectedPost}

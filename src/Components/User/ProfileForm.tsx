@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
-import { useClientprofileMutation } from "../../redux/slices/Api/Client/clientApiEndPoints";
+import { useClientprofileMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
 import Modal from "./cropper/Modal";
 

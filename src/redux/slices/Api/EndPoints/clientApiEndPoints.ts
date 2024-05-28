@@ -1,7 +1,7 @@
-import { apiSlice } from "./clientApi";
+import { apiSlice } from "../clientApi";
 const CLIENT_URL = '/users';
 
-export const adminApiSlice = apiSlice.injectEndpoints({
+export const UserApiSlice = apiSlice.injectEndpoints({
     endpoints:(builder) => ({
         signup: builder.mutation({
             query: (user) => ({
@@ -112,14 +112,7 @@ export const adminApiSlice = apiSlice.injectEndpoints({
             }),
         }),
    
-        checkavailability: builder.mutation({
-            query: (dates) => ({
-                url: '/checkavailability',
-                method: 'POST',
-                body: dates,
-                
-            }),
-        }), 
+        
 
     })
 })
@@ -139,6 +132,6 @@ export const {
     useSetpasswordMutation,
     useForgotresendOtpMutation,
     useSingleUserPostMutation,
-    useCheckavailabilityMutation
    
-} = adminApiSlice
+   
+} = UserApiSlice
