@@ -17,8 +17,9 @@ interface DatePickerModalProps {
 const DatePickerModal: React.FC<DatePickerModalProps> = ({ onClose, value, handleValueChange, artistId }) => {
   const [checkAvailability] = useCheckavailabilityMutation();
   const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(null);
-  const [singleDate, setSingleDate] = useState<Date | null>(null);
-  const [dates, setDates] = useState<Date[]>([]);
+  const [dates, setDates] = useState<(Date | null)[]>([]);
+  const [selectedRange, setSelectedRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [color, setColor] = useState<number>(0); // Added color state
 
   const handleCheckAvailability = async () => {
     const startDate = new Date(value.startDate);
@@ -34,7 +35,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({ onClose, value, handl
       const response = await checkAvailability(dates).unwrap();
       const unavailableDates = response.map((date: string) => new Date(date));
       setDates(unavailableDates);
-      
+
       const totalDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       if (response.length === totalDays) {
         setAvailabilityMessage('No available slots');
@@ -48,27 +49,30 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({ onClose, value, handl
     }
   };
 
-  const handleSingleDateChange = (date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
-  // Here, 'date' represents the selected start date of the range
-  // You may handle the start date accordingly
-  setSingleDate(date);
-  if (date && dates.some(unavailableDate => unavailableDate.toDateString() === date.toDateString())) {
-    setAvailabilityMessage('Date is already booked');
-  } else {
-    setAvailabilityMessage('Request Booking');
-  }
-};
+  const handleSingleDateChange = (dates: [Date | null, Date | null]) => {
+    setSelectedRange(dates);
+    setColor(prevColor => prevColor + 1); 
+    const [startDate, endDate] = dates;
+
+    if (startDate && dates.some(unavailableDate => unavailableDate && unavailableDate.toDateString() === startDate.toDateString())) {
+      setAvailabilityMessage('Start date is already booked');
+    } else if (endDate && dates.some(unavailableDate => unavailableDate && unavailableDate.toDateString() === endDate.toDateString())) {
+      setAvailabilityMessage('End date is already booked');
+    } else {
+      setAvailabilityMessage('Request Booking');
+    }
+  };
 
   const handleRequestBooking = () => {
-    if (singleDate) {
-      console.log('Request booking for date:', singleDate);
+    if (selectedRange[0]) {
+      console.log('Request booking for date:', selectedRange[0]);
       // Implement booking request logic here
     }
   };
 
   const highlightWithRanges = [
     {
-      "react-datepicker__day--highlighted-custom-1": dates
+      "react-datepicker__day--highlighted-custom-1": dates.filter(date => date !== null) as Date[]
     }
   ];
 
@@ -83,21 +87,23 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({ onClose, value, handl
         {availabilityMessage && (
           <>
             <div className="p-4">
-            <DatePicker
-                selected={singleDate}
+              <DatePicker
+                key={color} // Added key to force re-render
+                selected={selectedRange[0]}
                 onChange={handleSingleDateChange}
                 startDate={new Date(value.startDate)}
                 endDate={new Date(value.endDate)}
                 highlightDates={highlightWithRanges}
                 inline
                 dayClassName={date =>
-                  dates.some(unavailableDate => unavailableDate.toDateString() === date.toDateString())
+                  dates.some(unavailableDate => unavailableDate && unavailableDate.toDateString() === date.toDateString())
                     ? "bg-red-500 text-white"
-                    : singleDate && date.toDateString() === singleDate.toDateString()
+                    : selectedRange[0] && date.toDateString() === (selectedRange[0]?.toDateString())
+                    ? "bg-green-500 text-white"
+                    : selectedRange[1] && date.toDateString() === (selectedRange[1]?.toDateString())
                     ? "bg-green-500 text-white"
                     : ""
                 }
-                
                 selectsRange
               />
             </div>
