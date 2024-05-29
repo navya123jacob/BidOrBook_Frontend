@@ -46,13 +46,21 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
     };
 
     try {
-      const response = await checkAvailability(dates).unwrap();
-      const unavailable = response.map((date: string) => new Date(date));
-      console.log(unavailable, response);
-      setUnavailableDates(unavailable);
+      const response: string[] = await checkAvailability(dates).unwrap();
 
-      if (response.length === 0) {
-        setAvailabilityMessage("All slots are available");
+      const filteredDates: any = response.filter((date) => {
+        const dateObj = new Date(date);
+        return dateObj >= startDate && dateObj <= endDate;
+      });
+
+      setUnavailableDates(filteredDates);
+
+      const totalDays =
+        Math.ceil(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        ) + 1;
+      if (response.length === totalDays) {
+        setAvailabilityMessage("No slots are available");
       } else {
         setAvailabilityMessage("Red Slots are unavailable");
       }
@@ -60,41 +68,54 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       console.error("Error checking availability:", error);
     }
   };
+  
 
   const handleRequestBooking = async () => {
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
-
+  
+    const totalDays =
+      Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+      ) + 1;
+  
+    if (unavailableDates.length === totalDays) {
+      console.log("no");
+      return;
+    }
+  
     const datesInRange: Date[] = [];
-
+  
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
+      
       if (
         !unavailableDates.some(
-          (date) => date.toDateString() === currentDate.toDateString()
+          (date) => new Date(date).toDateString() === currentDate.toDateString()
         )
       ) {
         datesInRange.push(new Date(currentDate));
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
+  
     setSelectedDates(datesInRange);
     console.log(datesInRange);
-
+  
     if (datesInRange.length > 0) {
       const formData = {
         artistId: artistId,
         clientId: userInfo?.data?.message?._id,
-        startDate: datesInRange,
+        dates: datesInRange,
       };
       const response = await makeBookingreq(formData);
-      console.log(response);
-      if('data' in response){
-
+      
+      if ("data" in response) {
+        onClose()
       }
     }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -114,15 +135,23 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
                 startDate={new Date(value.startDate)}
                 endDate={new Date(value.endDate)}
                 inline
-                dayClassName={(date) =>
-                  date < new Date() ||
-                  unavailableDates.some(
-                    (unavailableDate) =>
-                      unavailableDate.toDateString() === date.toDateString()
-                  )
+                dayClassName={(date) => {
+                  const currentDate = new Date(date);
+                  const today = new Date();
+                  const isDateBeforeToday = currentDate < today;
+
+                  const isUnavailable =
+                    isDateBeforeToday ||
+                    unavailableDates.some(
+                      (unavailableDate) =>
+                        currentDate.toDateString() ===
+                        new Date(unavailableDate).toDateString()
+                    );
+
+                  return isUnavailable
                     ? "bg-red-500 text-white cursor-not-allowed"
-                    : ""
-                }
+                    : "";
+                }}
                 selectsStart
               />
             </div>

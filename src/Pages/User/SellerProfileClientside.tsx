@@ -17,7 +17,7 @@ const SellerProfileClientside: React.FC = () => {
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
-  const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false); // State variable for date picker modal
+  const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false); 
   const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
   const [allpost, { isLoading }] = useAllpostMutation();
   const [singleUserPost]=useSingleUserPostMutation();
@@ -25,7 +25,7 @@ const SellerProfileClientside: React.FC = () => {
 //   date
 const [value, setValue] = useState({
   startDate: new Date(),
-  endDate: new Date(new Date().getFullYear(), 11, 31) // Setting endDate to the end of the current year
+  endDate: new Date(new Date().getFullYear(), 11, 31) 
 });
 
 
