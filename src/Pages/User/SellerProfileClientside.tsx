@@ -4,13 +4,14 @@ import { useSelector } from 'react-redux';
 import { RootState } from './../../redux/slices/Reducers/types';
 import { Navbar } from './../../Components/User/Navbar';
 import PostDetailModal from './../../Components/ArtPho/PostDetailModal';
-import { useAllpostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { useParams } from 'react-router-dom';
 import { User } from '../../types/user';
 import DatePickerModal from '../../Components/User/DatePickerModal';
-
+import { useBookingsreqMutation ,useBookingsConfirmMutation} from '../../redux/slices/Api/EndPoints/bookingEndpoints';
 const SellerProfileClientside: React.FC = () => {
+  const [bookingsreq,{isLoading:bookreq}]=useBookingsreqMutation()
+  const [bookingsConfirm,{isLoading:bookconf}]=useBookingsConfirmMutation()
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [otheruser, setOtheruser] = useState<User | null>(null);
   const { id } = useParams<{ id: string }>();
@@ -19,9 +20,9 @@ const SellerProfileClientside: React.FC = () => {
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
   const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false); 
   const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
-  const [allpost, { isLoading }] = useAllpostMutation();
-  const [singleUserPost]=useSingleUserPostMutation();
-
+  const [singleUserPost,{isLoading}]=useSingleUserPostMutation();
+ const [bookingReqData,setBookingReqData]=useState<number>(0);
+ const [bookingConfirmData,setBookingConfirmData]=useState<number>(0);
 //   date
 const [value, setValue] = useState({
   startDate: new Date(),
@@ -68,8 +69,25 @@ const handleValueChange = (newValue: any) => {
   }, []);
 
   useEffect(() => {
-   console.log(value)
-  }, [value]);
+    const fetchBookings = async () => {
+      try {
+        
+        const response = await bookingsreq({artistId:id,len:true});
+        if ('data' in response) {
+          setBookingReqData(response.data?.bookings.length);
+        } 
+        const response2=await bookingsConfirm({artistId:id,len:true})
+        if ('data' in response2) {
+        setBookingConfirmData(response2.data?.bookings.length);
+        }
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+      }
+    };
+
+    fetchBookings();
+  }, [bookingReqData,bookingConfirmData]);
+
 
  
   const handlePostClick = (post: any) => {
@@ -118,14 +136,16 @@ const handleValueChange = (newValue: any) => {
                   <span className="font-semibold">{usersWithPosts.length}</span> posts
                 </li>
                 <li>
-                  <span className="font-semibold">{otheruser?.bookings.length}</span> Booked
+                  <span className="font-semibold">{bookingReqData}</span> Booking Requests
                 </li>
+               
                 <li>
                   <span className="font-semibold">{otheruser?.marked.length}</span> Marked By
                 </li>
                 <li>
-                  <span className="font-semibold">{otheruser?.bookings.length}</span> Booking Requests
+                  <span className="font-semibold">{bookingConfirmData}</span> Booked
                 </li>
+                
               </ul>
               <div className="hidden md:block">
                 <h1 className="font-semibold">{otheruser?.Fname}</h1>
@@ -143,13 +163,14 @@ const handleValueChange = (newValue: any) => {
                 <span className="font-semibold text-gray-800 block">{usersWithPosts.length}</span> posts
               </li>
               <li>
-                <span className="font-semibold text-gray-800 block">{otheruser?.bookings.length}</span> Booked
+                <span className="font-semibold text-gray-800 block">{bookingReqData}</span> Booking Requests
               </li>
               <li>
                 <span className="font-semibold text-gray-800 block">{otheruser?.marked.length}</span> Marked By
               </li>
+              
               <li>
-                <span className="font-semibold text-gray-800 block">{otheruser?.bookings.length}</span> Booking Requests
+                <span className="font-semibold text-gray-800 block">{bookingConfirmData}</span> Booked
               </li>
             </ul>
             <ul className="flex items-center justify-around md:justify-center space-x-12 uppercase tracking-widest font-semibold text-xs text-gray-600 border-t">
@@ -182,12 +203,17 @@ const handleValueChange = (newValue: any) => {
           </div>
         </div>
       </main>
-
       {isDatePickerModalOpen && (
-  <DatePickerModal onClose={() => setIsDatePickerModalOpen(false)} value={value} handleValueChange={handleValueChange} artistId={id} />
-)}
-
-
+        <DatePickerModal
+          onClose={() => setIsDatePickerModalOpen(false)}
+          value={value}
+          handleValueChange={handleValueChange}
+          artistId={id}
+          bookingReqData={bookingReqData}
+          setBookingReqData={setBookingReqData}
+          category={otheruser?.category|| ""}
+        />
+      )}
       {isPostDetailModalOpen && selectedPost && (
         <PostDetailModal
           post={selectedPost}

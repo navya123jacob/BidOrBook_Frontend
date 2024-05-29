@@ -20,6 +20,22 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
+        bookingsreq: builder.mutation({
+            query: (data) => ({
+                url: '/bookingsreq',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
+        bookingsConfirm: builder.mutation({
+            query: (data) => ({
+                url: '/bookingsConfirmed',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
 
     })
 })
@@ -27,6 +43,8 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
 export const {
     
     useCheckavailabilityMutation,
-    useMakeBookingreqMutation
+    useMakeBookingreqMutation,
+    useBookingsreqMutation,
+    useBookingsConfirmMutation
    
 } = BookingApiSlice
