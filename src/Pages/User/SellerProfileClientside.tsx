@@ -8,10 +8,11 @@ import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clie
 import { useParams } from 'react-router-dom';
 import { User } from '../../types/user';
 import DatePickerModal from '../../Components/User/DatePickerModal';
-import { useBookingsreqMutation ,useBookingsConfirmMutation} from '../../redux/slices/Api/EndPoints/bookingEndpoints';
+import { useBookingsreqMutation ,useBookingsConfirmMutation,useMarkedMutation} from '../../redux/slices/Api/EndPoints/bookingEndpoints';
 const SellerProfileClientside: React.FC = () => {
-  const [bookingsreq,{isLoading:bookreq}]=useBookingsreqMutation()
-  const [bookingsConfirm,{isLoading:bookconf}]=useBookingsConfirmMutation()
+  const [bookingsreq]=useBookingsreqMutation()
+  const [bookingsConfirm]=useBookingsConfirmMutation()
+  const [marked]=useMarkedMutation()
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [otheruser, setOtheruser] = useState<User | null>(null);
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ const SellerProfileClientside: React.FC = () => {
   const [singleUserPost,{isLoading}]=useSingleUserPostMutation();
  const [bookingReqData,setBookingReqData]=useState<number>(0);
  const [bookingConfirmData,setBookingConfirmData]=useState<number>(0);
+ const [markedData,setMarkedData]=useState<number>(0);
 //   date
 const [value, setValue] = useState({
   startDate: new Date(),
@@ -71,14 +73,19 @@ const handleValueChange = (newValue: any) => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        
         const response = await bookingsreq({artistId:id,len:true});
         if ('data' in response) {
           setBookingReqData(response.data?.bookings.length);
         } 
-        const response2=await bookingsConfirm({artistId:id,len:true})
+        
+        const response2 = await bookingsConfirm({artistId:id,len:true})
         if ('data' in response2) {
-        setBookingConfirmData(response2.data?.bookings.length);
+          setBookingConfirmData(response2.data?.bookings.length);
+        }
+        
+        const response3 = await marked({artistId:id,len:true})
+        if ('data' in response3) {
+          setMarkedData(response3.data?.bookings.length);
         }
       } catch (err) {
         console.error("Error fetching bookings:", err);
@@ -140,7 +147,7 @@ const handleValueChange = (newValue: any) => {
                 </li>
                
                 <li>
-                  <span className="font-semibold">{otheruser?.marked.length}</span> Marked By
+                  <span className="font-semibold">{markedData}</span> Marked By
                 </li>
                 <li>
                   <span className="font-semibold">{bookingConfirmData}</span> Booked
@@ -166,7 +173,7 @@ const handleValueChange = (newValue: any) => {
                 <span className="font-semibold text-gray-800 block">{bookingReqData}</span> Booking Requests
               </li>
               <li>
-                <span className="font-semibold text-gray-800 block">{otheruser?.marked.length}</span> Marked By
+                <span className="font-semibold text-gray-800 block">{markedData}</span> Marked By
               </li>
               
               <li>
@@ -211,7 +218,10 @@ const handleValueChange = (newValue: any) => {
           artistId={id}
           bookingReqData={bookingReqData}
           setBookingReqData={setBookingReqData}
+          markedData={markedData}
+         setMarkedData={setMarkedData}
           category={otheruser?.category|| ""}
+          
         />
       )}
       {isPostDetailModalOpen && selectedPost && (

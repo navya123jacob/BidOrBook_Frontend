@@ -19,6 +19,8 @@ interface DatePickerModalProps {
   artistId: string | undefined;
   bookingReqData: number;
   setBookingReqData: React.Dispatch<React.SetStateAction<number>>;
+  markedData: number;
+  setMarkedData: React.Dispatch<React.SetStateAction<number>>;
   category:string
 }
 
@@ -29,6 +31,8 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
   artistId,
   bookingReqData,
   setBookingReqData,
+  markedData,
+  setMarkedData,
   category
 }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -65,7 +69,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
         Math.ceil(
           (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
         ) + 1;
-      if (response.length === totalDays) {
+      if (filteredDates.length === totalDays) {
         setAvailabilityMessage("No slots are available");
       } else {
         setAvailabilityMessage(
@@ -106,6 +110,40 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
     }
 
     setSelectedDates(datesInRange);
+    
+
+    if (datesInRange.length > 0) {
+      const formData = {
+        artistId: artistId,
+        clientId: userInfo?.data?.message?._id,
+        dates: datesInRange,
+        marked:false
+      };
+      const response = await makeBookingreq(formData);
+      
+      if ("data" in response) {
+        setBookingReqData(bookingReqData + 1);
+        onClose();
+      } else {
+        setAvailabilityMessage("Error");
+        onClose();
+      }
+    }
+  };
+  const handleMark = async () => {
+    const startDate = new Date(value.startDate);
+    const endDate = new Date(value.endDate);
+
+
+    const datesInRange: Date[] = [];
+
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      datesInRange.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    setSelectedDates(datesInRange);
     console.log(datesInRange);
 
     if (datesInRange.length > 0) {
@@ -113,11 +151,12 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
         artistId: artistId,
         clientId: userInfo?.data?.message?._id,
         dates: datesInRange,
+        marked:true
       };
       const response = await makeBookingreq(formData);
 
       if ("data" in response) {
-        setBookingReqData(bookingReqData + 1);
+        setMarkedData(markedData+1)
         onClose();
       } else {
         setAvailabilityMessage("Error");
@@ -182,7 +221,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
               </button>):(
                 <>
                  <button
-                onClick={handleRequestBooking}
+                onClick={handleMark}
                 className={`${
                   req ? "bg-green-600" : "bg-green-700"
                 } hover:bg-green-700 text-white py-2 px-4 rounded`}
