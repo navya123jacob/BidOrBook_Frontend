@@ -1,17 +1,19 @@
 import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
-import { useClientprofileMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useClientprofileMutation,useForgotpasswordMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
 import Modal from "./cropper/Modal";
-
+import Otp from "./Otp";
 const ProfileForm: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [clientprofile, { isLoading }] = useClientprofileMutation();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const avatarUrl = useRef<string>(userInfo.data.message.profile);
-
+  const [forgotpassword]=useForgotpasswordMutation()
+  const [otp,setOtp]=useState(false)
   const [formData, setFormData] = useState({
     _id: userInfo.data.message._id,
     Fname: userInfo.data.message.Fname,
@@ -29,6 +31,7 @@ const ProfileForm: React.FC = () => {
     description: "",
     image: "",
   });
+
   const updateAvatar = (imgSrc: string) => {
     avatarUrl.current = imgSrc;
     console.log(avatarUrl.current);
@@ -48,8 +51,6 @@ const ProfileForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
-  
 
   const validateForm = () => {
     let valid = true;
@@ -128,7 +129,7 @@ const ProfileForm: React.FC = () => {
       formDataToSend.append("Lname", formData.Lname);
       formDataToSend.append("phone", formData.phone);
       formDataToSend.append("description", formData.description);
-      console.log('form data',formData)
+      console.log('form data', formData)
       if (formData.image) {
         formDataToSend.append("image", formData.image);
       }
@@ -138,15 +139,23 @@ const ProfileForm: React.FC = () => {
         let newuserInfo = JSON.parse(JSON.stringify(userInfo));
         newuserInfo.data.message = { ...response.data.user };
         dispatch(setCredentials({ ...newuserInfo }));
-        
       }
     }
+  };
+
+  const handlePasswordChange = async() => {
+   
+    setPasswordModalOpen(false);
+    const response: any = await forgotpassword({ email:formData.email});
+      if('data' in response){
+      setOtp(true)
+      }
   };
 
   return (
     <>
       <div className="bg-gray-200 flex items-center justify-center w-full lg:w-1/2">
-        <form
+        {!otp ?(<form
           className="space-y-6"
           onSubmit={handleSubmit}
           encType="multipart/form-data"
@@ -268,7 +277,6 @@ const ProfileForm: React.FC = () => {
             </div>
           </div>
 
-
           <div>
             <label
               htmlFor="image"
@@ -279,6 +287,7 @@ const ProfileForm: React.FC = () => {
             </label>
             <div className="mt-1">
               <button
+                type="button"
                 onClick={() => {
                   setModalOpen(true);
                 }}
@@ -297,7 +306,23 @@ const ProfileForm: React.FC = () => {
               />
             </div>
           </div>
-
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => setPasswordModalOpen(true)}
+                className="block w-full px-5 py-3 text-red-800 text-neutral-600 placeholder-gray-100 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-300 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+              >
+                Change Password
+              </button>
+            </div>
+          </div>
           <div>
             <button
               type="submit"
@@ -310,12 +335,33 @@ const ProfileForm: React.FC = () => {
               {isLoading ? "Updating...." : "Update"}
             </button>
           </div>
-        </form>
+        </form>):( <Otp setOtp={setOtp} forgot={true} profile={true} />)}
         {modalOpen && (
           <Modal
             updateAvatar={updateAvatar}
             closeModal={() => setModalOpen(false)}
           />
+        )}
+        {passwordModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white text-black p-6 rounded-lg shadow-lg">
+              <p>Are you sure you want to change your password?</p>
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setPasswordModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordChange}
+                  className="px-4 py-2 bg-gray-700 text-white rounded-lg"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </>

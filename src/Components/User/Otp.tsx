@@ -8,13 +8,14 @@ import { useForgotresendOtpMutation } from '../../redux/slices/Api/EndPoints/cli
 interface OtpProps {
     setOtp: React.Dispatch<React.SetStateAction<boolean>>;
     forgot?: boolean;
+    profile?:boolean;
 }
 
 interface NewOtpData {
     data?: string;
 }
 
-const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false }) => {
+const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false,profile=false }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [timer, setTimer] = useState(120);
@@ -151,6 +152,25 @@ const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false }) => {
             }
         }
     };
+    const handleChangeProfilePassword = async () => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+        if (!regex.test(newPassword)) {
+            setResendMessage("Invalid password");
+            setTimeout(() => setResendMessage(null), 3000);
+            return;
+        }
+        
+        let response: any = await setpassword({ password: newPassword });
+        console.log(response);
+        if ('error' in response) {
+            setResendMessage(response.error?.data?.data?.message);
+        } else {
+          
+                toast.success('Password changed successfully');
+              setOtp(false)
+            
+        }
+    };
 
     return (
         <div className="bg-white bg-opacity-50 p-4 rounded-lg shadow-md">
@@ -218,7 +238,7 @@ const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false }) => {
                     </div>
                 </form>
             ) : (
-                <>
+                !profile?(<>
                     <form className="shadow-md px-4 py-6">
                         <div className="mb-6">
                             <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">New Password</label>
@@ -261,7 +281,29 @@ const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false }) => {
                             <span className="ml-2 text-gray-700">Artist/Photographer</span>
                         </label>
                     </div>
-                </>
+                </>):
+                (<>
+                    <form className="shadow-md px-4 py-6">
+                        <div className="mb-6">
+                            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">New Password</label>
+                            <input
+                                type="password"
+                                id="new-password"
+                                className="w-full px-3 py-2 text-gray-700 border rounded-md focus:border-teal-500 focus:ring-teal-500"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                        </div>
+                        <button
+                            className="bg-blue-950 rounded-xl hover:bg-gray-800 m-2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            type="button"
+                            onClick={handleChangeProfilePassword}
+                        >
+                            Change Password
+                        </button>
+                    </form>
+                   
+                </>)
             )}
             <div className="mt-4 text-center text-gray-600">Timer: {timer} seconds</div>
             <div className="text-sm text-red-600 mt-2">
