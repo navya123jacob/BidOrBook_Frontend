@@ -9,8 +9,14 @@ import PostDetailModal from '../../../Components/ArtPho/PostDetailModal';
 import { useAllpostMutation } from '../../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import PostModal from '../../../Components/ArtPho/postModal';
 import { useDeletePostMutation } from '../../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { Booking } from '../../../types/booking';
+import { useBookingsreqMutation, useBookingsConfirmMutation, useMarkedMutation } from '../../../redux/slices/Api/EndPoints/bookingEndpoints';
+import BookingRequestModal from '../../../Components/ArtPho/Group/BookingRequestModal';
 
 const ProfilePageSeller: React.FC = () => {
+  const [bookingsreq] = useBookingsreqMutation();
+  const [bookingsConfirm] = useBookingsConfirmMutation();
+  const [marked] = useMarkedMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -19,6 +25,11 @@ const ProfilePageSeller: React.FC = () => {
   const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
   const [allpost, { isLoading }] = useAllpostMutation();
   const [deletePost] = useDeletePostMutation();
+  const [bookingReqData, setBookingReqData] = useState<Booking[]>([]);
+  const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
+  const [markedData, setMarkedData] = useState<Booking[]>([]);
+  const [isBookingRequestModalOpen, setIsBookingRequestModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,6 +69,37 @@ const ProfilePageSeller: React.FC = () => {
     setIsPostDetailModalOpen(false);
   };
 
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await bookingsreq({ artistId: userInfo.data.message._id });
+        if ('data' in response) {
+          setBookingReqData(response.data?.bookings);
+          
+        }
+
+        const response2 = await bookingsConfirm({ artistId: userInfo.data.message._id });
+        if ('data' in response2) {
+          setBookingConfirmData(response2.data?.bookings);
+        }
+
+        const response3 = await marked({ artistId: userInfo.data.message._id });
+        if ('data' in response3) {
+          setMarkedData(response3.data?.bookings);
+        }
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
+  const handleBookingRequestClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsBookingRequestModalOpen(true);
+  };
+
   return (
     <>
       <header className='bg-gray-950 bg-opacity-80'>
@@ -94,14 +136,14 @@ const ProfilePageSeller: React.FC = () => {
                 <li>
                   <span className="font-semibold">{usersWithPosts.length}</span> posts
                 </li>
-                <li>
-                  <span className="font-semibold">{userInfo.data.message.bookings.length}</span> Booked
+                <li onClick={() => handleBookingRequestClick(bookingReqData[0])}>
+                  <span className="font-semibold">{bookingReqData.length}</span> Booking Requests
                 </li>
                 <li>
-                  <span className="font-semibold">{userInfo.data.message.marked.length}</span> Marked By
+                  <span className="font-semibold">{markedData.length}</span> Marked By
                 </li>
                 <li>
-                  <span className="font-semibold">{userInfo.data.message.bookings.length}</span> Booking Requests
+                  <span className="font-semibold">{bookingConfirmData.length}</span> Booked
                 </li>
               </ul>
               <div className="hidden md:block">
@@ -120,13 +162,13 @@ const ProfilePageSeller: React.FC = () => {
                 <span className="font-semibold text-gray-800 block">{usersWithPosts.length}</span> posts
               </li>
               <li>
-                <span className="font-semibold text-gray-800 block">{userInfo.data.message.bookings.length}</span> Booked
+                <span className="font-semibold text-gray-800 block">{bookingReqData.length}</span> Booking Requests
               </li>
               <li>
-                <span className="font-semibold text-gray-800 block">{userInfo.data.message.marked.length}</span> Marked By
+                <span className="font-semibold text-gray-800 block">{markedData.length}</span> Marked By
               </li>
               <li>
-                <span className="font-semibold text-gray-800 block">{userInfo.data.message.bookings.length}</span> Booking Requests
+                <span className="font-semibold text-gray-800 block">{bookingConfirmData.length}</span> Booked
               </li>
             </ul>
             <ul className="flex items-center justify-around md:justify-center space-x-12 uppercase tracking-widest font-semibold text-xs text-gray-600 border-t">
@@ -175,6 +217,13 @@ const ProfilePageSeller: React.FC = () => {
           onDelete={() => handleDeletePost(selectedPost._id)}
         />
       )}
+
+      <BookingRequestModal
+        isOpen={isBookingRequestModalOpen}
+        onClose={() => setIsBookingRequestModalOpen(false)}
+        bookings={bookingReqData}
+      />
+
       <Footer />
     </>
   );

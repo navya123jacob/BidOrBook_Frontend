@@ -129,6 +129,7 @@ const handleValueChange = (newValue: any) => {
                   {otheruser?.Fname} {otheruser?.Lname}
                 </h2>
                 {userInfo.client && (
+                  <>
                   <button
                    
                     onClick={handleBookClick}
@@ -136,6 +137,14 @@ const handleValueChange = (newValue: any) => {
                   >
                     Book
                   </button>
+                  <button
+                   
+                    onClick={handleBookClick}
+                    className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    DM
+                  </button>
+                  </>
                 )}
               </div>
               <ul className="hidden md:flex space-x-8 mb-4">
