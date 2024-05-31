@@ -26,7 +26,8 @@ export const Navbar = () => {
   const [logoutApi] = useLogoutMutation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
-  const handleLogout = async() => {  
+  const handleLogout = async() => { 
+       
     await logoutApi(undefined).unwrap();
     dispatch(logout());    
   };

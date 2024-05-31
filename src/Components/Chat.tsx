@@ -1,49 +1,83 @@
-import React, { useContext, useState,useEffect } from 'react';
-import SocketContext from '../Contexts/Socket/Context';
+import React, { useState, useEffect } from 'react';
+import Modal from 'react-modal';
+import { io } from 'socket.io-client';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/slices/Reducers/types';
+import { useSendMessageMutation } from '../redux/slices/Api/EndPoints/clientApiEndPoints';
 
-const Chat: React.FC = () => {
-    const { SocketState, SocketDispatch } = useContext(SocketContext);
-    const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState<{ uid: string, text: string }[]>([]);
+interface ChatComponentProps {
+  receiverId: string;
+  onClose: () => void;
+  isOpen: boolean;
+}
 
-    useEffect(() => {
-        if (SocketState.socket) {
-            SocketState.socket.on('chat_message', (message: { uid: string, text: string }) => {
-                setMessages((prevMessages) => [...prevMessages, message]);
-            });
+const socket = io('http://localhost:8888');
 
-            return () => {
-                SocketState.socket?.off('chat_message');
-            };
-        }
-    }, [SocketState.socket]);
+const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen }) => {
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<any[]>([]);
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [sendMessage] = useSendMessageMutation();
 
-    const sendMessage = () => {
-        const uid = SocketState.uid;
-        if (uid && SocketState.socket) {
-            SocketState.socket.emit('chat_message', { uid, text: message });
-            setMessage('');
-        }
-    };
+  useEffect(() => {
+    if (isOpen) {
+      const senderId = userInfo?.data?.message?._id;
+      socket.emit('handshake', { senderId, receiverId }, (roomId: string, users: string[]) => {
+        console.log(`Joined room: ${roomId}`);
+      });
 
-    return (
-        <div>
-            <div>
-                {messages.map((msg, index) => (
-                    <div key={index}>
-                        <strong>{msg.uid}</strong>: {msg.text}
-                    </div>
-                ))}
-            </div>
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' ? sendMessage() : null}
-            />
-            <button onClick={sendMessage}>Send</button>
+      socket.on('chat_message', (msg) => {
+        setMessages((prevMessages) => [...prevMessages, msg]);
+      });
+
+      return () => {
+        socket.emit('leaveRoom', { senderId, receiverId });
+        socket.off('chat_message');
+      };
+    }
+  }, [receiverId, userInfo, isOpen]);
+
+  const handleSendMessage = async () => {
+    if (message.trim()) {
+      const msgData = {
+        senderId: userInfo?.data?.message?._id,
+        receiverId,
+        text: message,
+        createdAt: new Date(),
+      };
+      socket.emit('chat_message', msgData);
+      await sendMessage(msgData);
+      setMessage('');
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Chat Modal" className="chat-modal" overlayClassName="chat-modal-overlay">
+      <div className="chat-container">
+        <div className="chat-header">
+          <h2>Chat with {receiverId}</h2>
+          <button onClick={onClose}>Close</button>
         </div>
-    );
+        <div className="chat-messages">
+          {messages.map((msg, index) => (
+            <div key={index} className={msg.senderId === userInfo?.data?.message?._id ? 'my-message' : 'other-message'}>
+              <p>{msg.text}</p>
+              <span>{new Date(msg.createdAt).toLocaleTimeString()}</span>
+            </div>
+          ))}
+        </div>
+        <div className="chat-input">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type a message"
+          />
+          <button onClick={handleSendMessage}>Send</button>
+        </div>
+      </div>
+    </Modal>
+  );
 };
 
-export default Chat;
+export default ChatComponent;

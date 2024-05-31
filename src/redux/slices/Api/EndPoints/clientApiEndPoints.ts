@@ -111,7 +111,19 @@ export const UserApiSlice = apiSlice.injectEndpoints({
             }),
         }),
    
-        
+        sendMessage: builder.mutation({
+            query: (message) => ({
+                url: '/sendMessage',
+                method: 'POST',
+                body: message,
+            }),
+        }),
+        getMessages: builder.query({
+            query: ({ senderId, receiverId }) => ({
+                url: `/getMessages/${senderId}/${receiverId}`,
+                method: 'GET',
+            }),
+        }),
 
     })
 })
@@ -131,6 +143,8 @@ export const {
     useSetpasswordMutation,
     useForgotresendOtpMutation,
     useSingleUserPostMutation,
+    useGetMessagesQuery,
+    useSendMessageMutation
    
    
 } = UserApiSlice

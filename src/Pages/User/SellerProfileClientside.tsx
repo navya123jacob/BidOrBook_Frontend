@@ -8,36 +8,37 @@ import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clie
 import { useParams } from 'react-router-dom';
 import { User } from '../../types/user';
 import DatePickerModal from '../../Components/User/DatePickerModal';
-import { useBookingsreqMutation ,useBookingsConfirmMutation,useMarkedMutation} from '../../redux/slices/Api/EndPoints/bookingEndpoints';
+import { useBookingsreqMutation, useBookingsConfirmMutation, useMarkedMutation } from '../../redux/slices/Api/EndPoints/bookingEndpoints';
+import ChatComponent from '../../Components/Chat';
+
 const SellerProfileClientside: React.FC = () => {
-  const [bookingsreq]=useBookingsreqMutation()
-  const [bookingsConfirm]=useBookingsConfirmMutation()
-  const [marked]=useMarkedMutation()
+  const [bookingsreq] = useBookingsreqMutation();
+  const [bookingsConfirm] = useBookingsConfirmMutation();
+  const [marked] = useMarkedMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [otheruser, setOtheruser] = useState<User | null>(null);
   const { id } = useParams<{ id: string }>();
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
-  const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false); 
+  const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false); // State to handle chat modal
   const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
-  const [singleUserPost,{isLoading}]=useSingleUserPostMutation();
- const [bookingReqData,setBookingReqData]=useState<number>(0);
- const [bookingConfirmData,setBookingConfirmData]=useState<number>(0);
- const [markedData,setMarkedData]=useState<number>(0);
-//   date
-const [value, setValue] = useState({
-  startDate: new Date(),
-  endDate: new Date(new Date().getFullYear(), 11, 31) 
-});
+  const [singleUserPost, { isLoading }] = useSingleUserPostMutation();
+  const [bookingReqData, setBookingReqData] = useState<number>(0);
+  const [bookingConfirmData, setBookingConfirmData] = useState<number>(0);
+  const [markedData, setMarkedData] = useState<number>(0);
 
+  const [value, setValue] = useState({
+    startDate: new Date(),
+    endDate: new Date(new Date().getFullYear(), 11, 31),
+  });
 
-const handleValueChange = (newValue: any) => {
-    console.log("newValue:", newValue);
+  const handleValueChange = (newValue: any) => {
+    console.log('newValue:', newValue);
     setValue(newValue);
-};
+  };
 
-  
   useEffect(() => {
     if (id) {
       const fetchData = async () => {
@@ -58,7 +59,6 @@ const handleValueChange = (newValue: any) => {
     }
   }, [id, singleUserPost]);
 
- 
   const handleScroll = () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
       setPage((prevPage) => prevPage + 1);
@@ -73,39 +73,40 @@ const handleValueChange = (newValue: any) => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await bookingsreq({artistId:id,len:true});
+        const response = await bookingsreq({ artistId: id, len: true });
         if ('data' in response) {
           setBookingReqData(response.data?.bookings.length);
-        } 
-        
-        const response2 = await bookingsConfirm({artistId:id,len:true})
+        }
+
+        const response2 = await bookingsConfirm({ artistId: id, len: true });
         if ('data' in response2) {
           setBookingConfirmData(response2.data?.bookings.length);
         }
-        
-        const response3 = await marked({artistId:id,len:true})
+
+        const response3 = await marked({ artistId: id, len: true });
         if ('data' in response3) {
           setMarkedData(response3.data?.bookings.length);
         }
       } catch (err) {
-        console.error("Error fetching bookings:", err);
+        console.error('Error fetching bookings:', err);
       }
     };
 
     fetchBookings();
-  }, [bookingReqData,bookingConfirmData]);
+  }, [id, bookingsreq, bookingsConfirm, marked]);
 
-
- 
   const handlePostClick = (post: any) => {
     setSelectedPost(post);
     setIsPostDetailModalOpen(true);
   };
 
- 
   const handleBookClick = () => {
-    setIsDatePickerModalOpen(true); 
-    
+    setIsDatePickerModalOpen(true);
+  };
+
+  const handleDMClick = () => {
+    console.log('DM button clicked'); 
+    setIsChatOpen(true);
   };
 
   return (
@@ -130,20 +131,18 @@ const handleValueChange = (newValue: any) => {
                 </h2>
                 {userInfo.client && (
                   <>
-                  <button
-                   
-                    onClick={handleBookClick}
-                    className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-                  >
-                    Book
-                  </button>
-                  <button
-                   
-                    onClick={handleBookClick}
-                    className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-                  >
-                    DM
-                  </button>
+                    <button
+                      onClick={handleBookClick}
+                      className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    >
+                      Book
+                    </button>
+                    <button
+                      onClick={handleDMClick} 
+                      className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    >
+                      DM
+                    </button>
                   </>
                 )}
               </div>
@@ -154,14 +153,12 @@ const handleValueChange = (newValue: any) => {
                 <li>
                   <span className="font-semibold">{bookingReqData}</span> Booking Requests
                 </li>
-               
                 <li>
                   <span className="font-semibold">{markedData}</span> Marked By
                 </li>
                 <li>
                   <span className="font-semibold">{bookingConfirmData}</span> Booked
                 </li>
-                
               </ul>
               <div className="hidden md:block">
                 <h1 className="font-semibold">{otheruser?.Fname}</h1>
@@ -184,7 +181,6 @@ const handleValueChange = (newValue: any) => {
               <li>
                 <span className="font-semibold text-gray-800 block">{markedData}</span> Marked By
               </li>
-              
               <li>
                 <span className="font-semibold text-gray-800 block">{bookingConfirmData}</span> Booked
               </li>
@@ -228,9 +224,8 @@ const handleValueChange = (newValue: any) => {
           bookingReqData={bookingReqData}
           setBookingReqData={setBookingReqData}
           markedData={markedData}
-         setMarkedData={setMarkedData}
-          category={otheruser?.category|| ""}
-          
+          setMarkedData={setMarkedData}
+          category={otheruser?.category || ""}
         />
       )}
       {isPostDetailModalOpen && selectedPost && (
@@ -239,7 +234,9 @@ const handleValueChange = (newValue: any) => {
           onClose={() => setIsPostDetailModalOpen(false)}
         />
       )}
-
+      {isChatOpen && id && (
+        <ChatComponent receiverId={otheruser?._id || ''} onClose={() => setIsChatOpen(false)} isOpen={isChatOpen} />
+      )}
       <Footer />
     </>
   );
