@@ -162,7 +162,7 @@ const SellerProfileClientside: React.FC = () => {
               </ul>
               <div className="hidden md:block">
                 <h1 className="font-semibold">{otheruser?.Fname}</h1>
-                <p>{userInfo.data.message.description}</p>
+                <p>{otheruser?.description}</p>
               </div>
             </div>
             <div className="md:hidden text-sm my-2">

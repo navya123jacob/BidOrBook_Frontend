@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useResendOtpMutation, useVerifyOtpMutation, useVerifyotp2Mutation, useSetpasswordMutation, useLoginMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { setCredentials } from '../../redux/slices/Reducers/ClientReducer';
 import { useForgotresendOtpMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 interface OtpProps {
@@ -11,9 +11,6 @@ interface OtpProps {
     profile?:boolean;
 }
 
-interface NewOtpData {
-    data?: string;
-}
 
 const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false,profile=false }) => {
     const navigate = useNavigate();
@@ -48,9 +45,10 @@ const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false,profile=false }) => {
 
     const resendotpfn = async () => {
         try {
-            const newotp: (NewOtpData | any) = await resendOtp({});
-            if (newotp.data) {
-                setResendMessage(newotp.data);
+            const newotp = await resendOtp({});
+            console.log(newotp)
+            if ('data' in newotp) {
+                setResendMessage(newotp.data.message);
                 setTimer(120);
                 setTimeout(() => setResendMessage(null), 3000);
             }
@@ -100,7 +98,7 @@ const Otp: React.FC<OtpProps> = ({ setOtp, forgot = false,profile=false }) => {
             const response=await forgotresendOtp(undefined)
             
             if('data' in response){
-                setResendMessage(response?.data);
+                setResendMessage(response?.data?.message);
             }
             
             setTimer(120)
