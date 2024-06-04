@@ -1,7 +1,8 @@
 
 export interface ClientState {
     userInfo: any; 
-    document: string | null; 
+    document: string | null;
+    bookings:number 
   }
 
  export interface RootState {

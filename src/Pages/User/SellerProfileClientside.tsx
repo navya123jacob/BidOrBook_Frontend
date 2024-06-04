@@ -14,7 +14,9 @@ import { Booking } from '../../types/booking';
 import BookingDetailModal from '../../Components/User/BookingDetailsClient';
 import ConfirmationModal from '../../Components/User/CancelConfirmModal';
 
+
 const SellerProfileClientside: React.FC = () => {
+  const bookinglen = useSelector((state: RootState) => state.client.bookings);
   const [cancelbooking]=useCancelbookingMutation()
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -57,6 +59,7 @@ const SellerProfileClientside: React.FC = () => {
       const fetchData = async () => {
         try {
           const response = await singleUserPost(id);
+          
           if ('data' in response) {
             setOtheruser(response.data);
             setUsersWithPosts(response.data.posts);
@@ -73,6 +76,7 @@ const SellerProfileClientside: React.FC = () => {
   }, [id, singleUserPost]);
 
   useEffect(() => {
+    
     if (queryData) {
       setSingle(queryData); 
     }
@@ -133,6 +137,7 @@ const SellerProfileClientside: React.FC = () => {
     setIsBookingDetailModalOpen(false);
     setIsConfirmationModalOpen(false);
     setSingle(null)
+    
    }
   };
 
@@ -216,7 +221,7 @@ const SellerProfileClientside: React.FC = () => {
               </li>
             </ul>
             <ul className="flex items-center justify-around md:justify-center space-x-12 uppercase tracking-widest font-semibold text-xs text-gray-600 border-t">
-              <li className="md:border-t md:-mt-px md:text-gray-700">
+              <li className=" md:-mt-px md:text-gray-700">
                 <a className="inline-block p-3" href="#"></a>
               </li>
             </ul>

@@ -4,9 +4,10 @@ import { ClientState } from './types';
 const userInfoFromLocalStorage = localStorage.getItem('userInfo');
 
 const userInfo = userInfoFromLocalStorage ? JSON.parse(userInfoFromLocalStorage) : null;
-const initialState: ClientState = { // Use the defined type for initialState
+const initialState: ClientState = { 
   userInfo,
   document: null,
+  bookings:0
 };
 
 const ClientSlice = createSlice({
@@ -24,9 +25,12 @@ const ClientSlice = createSlice({
     setDocument: (state, action: PayloadAction<string>) => { 
       state.document = action.payload;
     },
+    setBookings:(state, action: PayloadAction<number>) => { 
+      state.bookings = action.payload;
+    },
   },
 });
 
-export const { setCredentials, logout, setDocument } = ClientSlice.actions;
+export const { setCredentials, logout, setDocument,setBookings } = ClientSlice.actions;
 
 export default ClientSlice.reducer;

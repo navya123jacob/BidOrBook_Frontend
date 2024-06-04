@@ -18,6 +18,8 @@ const ProfilePageSeller: React.FC = () => {
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  // const bookinglen = useSelector((state: RootState) => state.client.bookings);
+  // console.log(bookinglen)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -73,6 +75,7 @@ const ProfilePageSeller: React.FC = () => {
     const fetchBookings = async () => {
       try {
         const response = await bookingsreq({ artistId: userInfo.data.message._id });
+        
         if ('data' in response) {
           setBookingReqData(response.data?.bookings);
           

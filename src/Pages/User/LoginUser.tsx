@@ -2,13 +2,12 @@ import  { useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
 import { useLoginMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
+import { setCredentials,setBookings } from "../../redux/slices/Reducers/ClientReducer";
 import { Link } from "react-router-dom";
 import { useForgotpasswordMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import Otp from "../../Components/User/Otp";
 const LoginUser = () => {
-
-  
+ 
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,6 +92,7 @@ const LoginUser = () => {
             
         }
         dispatch(setCredentials({ ...response }));
+        dispatch(setBookings(response.data.message.bookings.length))
         
       }
     } catch (error) {
