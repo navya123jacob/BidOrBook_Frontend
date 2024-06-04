@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 import {
   useCheckavailabilityMutation,
@@ -8,6 +8,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
+import { Booking } from "../../types/booking";
 
 interface DatePickerModalProps {
   onClose: () => void;
@@ -17,10 +18,7 @@ interface DatePickerModalProps {
   };
   handleValueChange: (newValue: DateValueType | null) => void;
   artistId: string | undefined;
-  bookingReqData: number;
-  setBookingReqData: React.Dispatch<React.SetStateAction<number>>;
-  markedData: number;
-  setMarkedData: React.Dispatch<React.SetStateAction<number>>;
+  setSingle: React.Dispatch<React.SetStateAction<Booking | null>>;
   category:string
 }
 
@@ -29,11 +27,8 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
   value,
   handleValueChange,
   artistId,
-  bookingReqData,
-  setBookingReqData,
-  markedData,
-  setMarkedData,
-  category
+  category,
+  setSingle
 }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [makeBookingreq, { isLoading: req }] = useMakeBookingreqMutation();
@@ -122,7 +117,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       const response = await makeBookingreq(formData);
       
       if ("data" in response) {
-        setBookingReqData(bookingReqData + 1);
+        setSingle(response.data)
         onClose();
       } else {
         setAvailabilityMessage("Error");
@@ -156,7 +151,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       const response = await makeBookingreq(formData);
 
       if ("data" in response) {
-        setMarkedData(markedData+1)
+        setSingle(response.data)
         onClose();
       } else {
         setAvailabilityMessage("Error");

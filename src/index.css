@@ -257,6 +257,7 @@ body{
   padding-bottom: 10px;
   margin-bottom: 10px;
   color: black;
+  font-weight: 600;
 }
 
 .chat-messages {
@@ -317,6 +318,30 @@ body{
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.chat-header img.profile-image {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.modal-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modal-body td, .modal-body th {
+  border: 1px solid white;
+  padding: 8px;
+}
+
+
+.profile-image {
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
 }
 
 

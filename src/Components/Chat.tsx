@@ -9,11 +9,14 @@ interface ChatComponentProps {
   receiverId: string;
   onClose: () => void;
   isOpen: boolean;
+  Fname:string;
+   Lname:string;
+  profile:string;
 }
 
 const socket = io('http://localhost:8888');
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen }) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen,Fname,Lname,profile }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -79,8 +82,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
     <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Chat Modal" className="chat-modal" overlayClassName="chat-modal-overlay">
       <div className="chat-container">
         <div className="chat-header">
-          <h2>Chat with {receiverId}</h2>
-          <button onClick={onClose}>Close</button>
+          <img src={profile} alt={`${Fname} ${Lname}`} className="profile-image" />
+          <h2 className="semi-bold">{Fname} {Lname}</h2>
+          <button onClick={onClose}><i className="fa fa-close"></i></button>
         </div>
         <div className="chat-messages">
           {isLoading ? (
@@ -110,5 +114,6 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
     </Modal>
   );
 };
+
 
 export default ChatComponent;

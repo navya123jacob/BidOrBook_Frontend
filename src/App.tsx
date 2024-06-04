@@ -19,18 +19,17 @@ function App(): JSX.Element {
       <Routes>
         {/* Public Routes */}
         <Route path="/signup" element={!userInfo ? <SignupUser /> : <Navigate to="/" />} />
-        <Route path="/" element={!userInfo ? <LoginUser /> : (userInfo.client === true ? <HomeUser /> : <HomeArtPho />)} />
-
+        <Route path="/" element={!userInfo ? <LoginUser /> : (userInfo.client ? <HomeUser /> : <HomeArtPho />)} />
 
         <Route element={<ProtectedArtistRoute />}>
-        <Route path="/artpho/profile" element={ <ProfilePageSeller />} />
+          <Route path="/artpho/profile" element={<ProfilePageSeller />} />
         </Route>
 
         <Route element={<ProtectedClientRoute />}>
           {/* client-specific routes */}
           <Route path="/profile" element={<ClientProfilePage />} />
           <Route path="/groupprofiles" element={<ProfilesSellers />} />
-          <Route path="/artprof/client/:id" element={ <ProfileSellerClientSide />} />
+          <Route path="/artprof/client/:id" element={<ProfileSellerClientSide />} />
         </Route>
 
         {/* Fallback route */}

@@ -44,16 +44,31 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
-
-    })
-})
-
-export const {
-    
-    useCheckavailabilityMutation,
-    useMakeBookingreqMutation,
-    useBookingsreqMutation,
-    useBookingsConfirmMutation,
-    useMarkedMutation
+      
+        SingleBooking: builder.query({
+            query: ({ artistId, clientId }) => ({
+              url: `/bookings/${artistId}/${clientId}`,
+              method: 'GET',
+            }),
+          }),
+          cancelbooking: builder.mutation({
+            query: (data) => ({
+                url: '/cancel-booking',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
+        }),
+      });
+      
+      export const {
+        useCheckavailabilityMutation,
+        useMakeBookingreqMutation,
+        useBookingsreqMutation,
+        useBookingsConfirmMutation,
+        useMarkedMutation,
+        useSingleBookingQuery,
+        useCancelbookingMutation
    
 } = BookingApiSlice
