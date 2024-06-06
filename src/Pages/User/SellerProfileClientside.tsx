@@ -1,56 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import Footer from './../../Components/User/Footer';
+import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Footer from './../../Components/User/Footer';
 import { RootState } from './../../redux/slices/Reducers/types';
 import { Navbar } from './../../Components/User/Navbar';
 import PostDetailModal from './../../Components/ArtPho/PostDetailModal';
-import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
-import { useParams } from 'react-router-dom';
-import { User } from '../../types/user';
 import DatePickerModal from '../../Components/User/DatePickerModal';
-import { useBookingsConfirmMutation, useSingleBookingQuery,useCancelbookingMutation } from '../../redux/slices/Api/EndPoints/bookingEndpoints';
 import ChatComponent from '../../Components/Chat';
-import { Booking } from '../../types/booking';
 import BookingDetailModal from '../../Components/User/BookingDetailsClient';
 import ConfirmationModal from '../../Components/User/CancelConfirmModal';
-
+import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { useBookingsConfirmMutation, useSingleBookingQuery, useCancelbookingMutation } from '../../redux/slices/Api/EndPoints/bookingEndpoints';
+import { User } from '../../types/user';
+import { Booking } from '../../types/booking';
 
 const SellerProfileClientside: React.FC = () => {
   const bookinglen = useSelector((state: RootState) => state.client.bookings);
-  const [cancelbooking]=useCancelbookingMutation()
-  const [bookingsConfirm] = useBookingsConfirmMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const [otheruser, setOtheruser] = useState<User | null>(null);
   const { id } = useParams<{ id: string }>();
+
+  const [otheruser, setOtheruser] = useState<User | null>(null);
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
   const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
-  const [singleUserPost, { isLoading }] = useSingleUserPostMutation();
-  const { data: queryData} = useSingleBookingQuery(
-    {
-      artistId: otheruser?._id || '',
-      clientId: userInfo?.data?.message?._id || '',
-    },
-    {
-      skip: !otheruser?._id || !userInfo?.data?.message?._id,
-    }
-  );
-
   const [bookingConfirmData, setBookingConfirmData] = useState<number>(0);
-  const [Single, setSingle] = useState<Booking|null>(null);
-  const [value, setValue] = useState({
-    startDate: new Date(),
-    endDate: new Date(new Date().getFullYear(), 11, 31),
-  });
-
+  const [singleBooking, setSingleBooking] = useState<Booking | null>(null);
+  const [value, setValue] = useState({ startDate: new Date(), endDate: new Date(new Date().getFullYear(), 11, 31) });
   const [isBookingDetailModalOpen, setIsBookingDetailModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
+  const [singleUserPost, { isLoading }] = useSingleUserPostMutation();
+  const [cancelbooking] = useCancelbookingMutation();
+  const [bookingsConfirm] = useBookingsConfirmMutation();
+  const { data: queryData } = useSingleBookingQuery(
+    { artistId: otheruser?._id || '', clientId: userInfo?.data?.message?._id || '' },
+    { skip: !otheruser?._id || !userInfo?.data?.message?._id }
+  );
+
   const handleValueChange = (newValue: any) => {
-    console.log('newValue:', newValue);
     setValue(newValue);
   };
 
@@ -59,7 +49,6 @@ const SellerProfileClientside: React.FC = () => {
       const fetchData = async () => {
         try {
           const response = await singleUserPost(id);
-          
           if ('data' in response) {
             setOtheruser(response.data);
             setUsersWithPosts(response.data.posts);
@@ -68,7 +57,6 @@ const SellerProfileClientside: React.FC = () => {
           console.error('Error fetching data:', error);
         }
       };
-
       fetchData();
     } else {
       console.error('User ID is undefined');
@@ -76,19 +64,17 @@ const SellerProfileClientside: React.FC = () => {
   }, [id, singleUserPost]);
 
   useEffect(() => {
-    
     if (queryData) {
-      setSingle(queryData); 
+      setSingleBooking(queryData);
     }
   }, [queryData]);
 
-  const handleScroll = () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
-
   useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -96,15 +82,14 @@ const SellerProfileClientside: React.FC = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response2 = await bookingsConfirm({ artistId: id, len: true });
-        if ('data' in response2) {
-          setBookingConfirmData(response2.data?.bookings.length);
+        const response = await bookingsConfirm({ artistId: id, len: true });
+        if ('data' in response) {
+          setBookingConfirmData(response.data?.bookings.length);
         }
       } catch (err) {
         console.error('Error fetching bookings:', err);
       }
     };
-
     fetchBookings();
   }, [id, bookingsConfirm]);
 
@@ -118,27 +103,26 @@ const SellerProfileClientside: React.FC = () => {
   };
 
   const handleDMClick = () => {
-    console.log('DM button clicked');
     setIsChatOpen(true);
   };
 
-  const SeeStatus = () => {
+  const seeStatus = () => {
     setIsBookingDetailModalOpen(true);
   };
 
   const handleCancelBooking = () => {
-    
     setIsConfirmationModalOpen(true);
   };
-  const BookingCancel = async() => {
-   const response=await cancelbooking({bookingId:Single?._id,userId:otheruser?._id || ''})
-   
-   if('data' in response){
-    setIsBookingDetailModalOpen(false);
-    setIsConfirmationModalOpen(false);
-    setSingle(null)
-    
-   }
+
+  const bookingCancel = async () => {
+    if (singleBooking) {
+      const response = await cancelbooking({ bookingId: singleBooking._id, userId: otheruser?._id || '' });
+      if ('data' in response) {
+        setIsBookingDetailModalOpen(false);
+        setIsConfirmationModalOpen(false);
+        setSingleBooking(null);
+      }
+    }
   };
 
   return (
@@ -163,7 +147,7 @@ const SellerProfileClientside: React.FC = () => {
                 </h2>
                 {userInfo.client && (
                   <>
-                    {!Single  ? (
+                    {!singleBooking ? (
                       <button
                         onClick={handleBookClick}
                         className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
@@ -172,14 +156,14 @@ const SellerProfileClientside: React.FC = () => {
                       </button>
                     ) : (
                       <button
-                        onClick={SeeStatus}
+                        onClick={seeStatus}
                         className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                       >
-                        {Single.status === 'pending'
+                        {singleBooking.status === 'pending'
                           ? 'Booking Requested'
-                          : Single.status === 'confirmed'
+                          : singleBooking.status === 'confirmed'
                           ? 'Booking Accepted'
-                          : Single.status === 'marked'
+                          : singleBooking.status === 'marked'
                           ? 'Marked'
                           : 'Booked'}
                       </button>
@@ -257,7 +241,7 @@ const SellerProfileClientside: React.FC = () => {
           handleValueChange={handleValueChange}
           artistId={id}
           category={otheruser?.category || ""}
-        setSingle={setSingle}
+          setSingle={setSingleBooking}
         />
       )}
       {isPostDetailModalOpen && selectedPost && (
@@ -267,28 +251,33 @@ const SellerProfileClientside: React.FC = () => {
         />
       )}
       {isChatOpen && id && (
-        <ChatComponent receiverId={otheruser?._id || ''} onClose={() => setIsChatOpen(false)} isOpen={isChatOpen} Fname={otheruser?.Fname || ''} Lname={otheruser?.Lname || ''} profile={otheruser?.profile || ''} />
+        <ChatComponent
+          receiverId={otheruser?._id || ''}
+          onClose={() => setIsChatOpen(false)}
+          isOpen={isChatOpen}
+          Fname={otheruser?.Fname || ''}
+          Lname={otheruser?.Lname || ''}
+          profile={otheruser?.profile || ''}
+        />
       )}
-      {isBookingDetailModalOpen && Single && (
-  <BookingDetailModal
-    booking={Single}
-    onClose={() => setIsBookingDetailModalOpen(false)}
-    onCancel={handleCancelBooking}
-    artist={otheruser}
-  />
-)}
-{isConfirmationModalOpen && (
-  <ConfirmationModal
-    message="Are you sure you want to cancel this booking?"
-    onConfirm={BookingCancel}
-    onCancel={() => setIsConfirmationModalOpen(false)}
-  />
-)}
+      {isBookingDetailModalOpen && singleBooking && (
+        <BookingDetailModal
+          booking={singleBooking}
+          onClose={() => setIsBookingDetailModalOpen(false)}
+          onCancel={handleCancelBooking}
+          artist={otheruser}
+        />
+      )}
+      {isConfirmationModalOpen && (
+        <ConfirmationModal
+          message="Are you sure you want to cancel this booking?"
+          onConfirm={bookingCancel}
+          onCancel={() => setIsConfirmationModalOpen(false)}
+        />
+      )}
       <Footer />
     </>
   );
 };
 
 export default SellerProfileClientside;
-
-

@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 import {
   useCheckavailabilityMutation,
@@ -19,7 +19,7 @@ interface DatePickerModalProps {
   handleValueChange: (newValue: DateValueType | null) => void;
   artistId: string | undefined;
   setSingle: React.Dispatch<React.SetStateAction<Booking | null>>;
-  category:string
+  category: string;
 }
 
 const DatePickerModal: React.FC<DatePickerModalProps> = ({
@@ -28,7 +28,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
   handleValueChange,
   artistId,
   category,
-  setSingle
+  setSingle,
 }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [makeBookingreq, { isLoading: req }] = useMakeBookingreqMutation();
@@ -38,9 +38,35 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
     null
   );
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [formData, setFormData] = useState({
+    event: "",
+    location: {
+      district: "",
+      state: "",
+      country: "",
+    },
+  });
+  const [errors, setErrors] = useState({
+    event: "",
+    district: "",
+    state: "",
+    country: "",
+  });
+
+  const validateForm = () => {
+    const newErrors: any = {};
+    if (!formData.event) newErrors.event = "Event is required";
+    if (!formData.location.district)
+      newErrors.district = "District is required";
+    if (!formData.location.state) newErrors.state = "State is required";
+    if (!formData.location.country) newErrors.country = "Country is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleCheckAvailability = async () => {
+    if (!validateForm()) return;
+
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
 
@@ -77,6 +103,8 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
   };
 
   const handleRequestBooking = async () => {
+    if (!validateForm()) return;
+
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
 
@@ -104,20 +132,23 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    setSelectedDates(datesInRange);
-    
-
     if (datesInRange.length > 0) {
-      const formData = {
+      const requestData = {
         artistId: artistId,
         clientId: userInfo?.data?.message?._id,
         dates: datesInRange,
-        marked:false
+        marked: false,
+        event: formData.event,
+        location: {
+          district: formData.location.district,
+          state: formData.location.state,
+          country: formData.location.country,
+        },
       };
-      const response = await makeBookingreq(formData);
-      
+      const response = await makeBookingreq(requestData);
+
       if ("data" in response) {
-        setSingle(response.data)
+        setSingle(response.data);
         onClose();
       } else {
         setAvailabilityMessage("Error");
@@ -125,10 +156,12 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       }
     }
   };
+
   const handleMark = async () => {
+    if (!validateForm()) return;
+
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
-
 
     const datesInRange: Date[] = [];
 
@@ -138,20 +171,24 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    setSelectedDates(datesInRange);
-    console.log(datesInRange);
 
     if (datesInRange.length > 0) {
-      const formData = {
+      const markData = {
         artistId: artistId,
         clientId: userInfo?.data?.message?._id,
         dates: datesInRange,
-        marked:true
+        marked: true,
+        event: formData.event,
+        location: {
+          district: formData.location.district,
+          state: formData.location.state,
+          country: formData.location.country,
+        },
       };
-      const response = await makeBookingreq(formData);
+      const response = await makeBookingreq(markData);
 
       if ("data" in response) {
-        setSingle(response.data)
+        setSingle(response.data);
         onClose();
       } else {
         setAvailabilityMessage("Error");
@@ -160,12 +197,91 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      location: {
+        ...formData.location,
+        [name]: value,
+      },
+    });
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white bg-opacity-75 p-4 rounded-lg max-w-lg mx-auto text-gray-800 relative ">
+      <div className="bg-white bg-opacity-75 p-4 rounded-lg max-w-lg mx-auto text-gray-800 relative">
         {!availabilityMessage && (
           <div className="p-4">
             <Datepicker value={value} onChange={handleValueChange} />
+            <div>
+              <label>
+                Event:
+                <input
+                  type="text"
+                  name="event"
+                  value={formData.event}
+                  onChange={handleInputChange}
+                  className="block border border-gray-300 rounded p-2 w-full"
+                />
+                {errors.event && (
+                  <span className="text-red-500">{errors.event}</span>
+                )}
+              </label>
+            </div>
+            <div>
+              <label>
+                District:
+                <input
+                  type="text"
+                  name="district"
+                  value={formData.location.district}
+                  onChange={handleLocationChange}
+                  className="block border border-gray-300 rounded p-2 w-full"
+                />
+                {errors.district && (
+                  <span className="text-red-500">{errors.district}</span>
+                )}
+              </label>
+            </div>
+            <div>
+              <label>
+                State:
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.location.state}
+                  onChange={handleLocationChange}
+                  className="block border border-gray-300 rounded p-2 w-full"
+                />
+                {errors.state && (
+                  <span className="text-red-500">{errors.state}</span>
+                )}
+              </label>
+            </div>
+            <div>
+              <label>
+                Country:
+                <input
+                  type="text"
+                  name="country"
+                  value={formData.location.country}
+                  onChange={handleLocationChange}
+                  className="block border border-gray-300 rounded p-2 w-full"
+                />
+                {errors.country && (
+                  <span className="text-red-500">{errors.country}</span>
+                )}
+              </label>
+            </div>
           </div>
         )}
         {availabilityMessage && (
@@ -206,26 +322,25 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
               />
             </div>
             <div className="mt-4 text-center">
-             {availabilityMessage!="No slots are available"?( <button
-                onClick={handleRequestBooking}
-                className={`${
-                  req ? "bg-green-600" : "bg-green-700"
-                } hover:bg-green-700 text-white py-2 px-4 rounded`}
-              >
-                {req ? "Requesting..." : "Request Booking"}
-              </button>):(
-                <>
-                 <button
-                onClick={handleMark}
-                className={`${
-                  req ? "bg-green-600" : "bg-green-700"
-                } hover:bg-green-700 text-white py-2 px-4 rounded`}
-              >
-                {req ? "Marking..." : "Mark Artist"}
-              </button>
-              
-              </>
-            )}
+              {availabilityMessage !== "No slots are available" ? (
+                <button
+                  onClick={handleRequestBooking}
+                  className={`${
+                    req ? "bg-green-600" : "bg-green-700"
+                  } hover:bg-green-700 text-white py-2 px-4 rounded`}
+                >
+                  {req ? "Requesting..." : "Request Booking"}
+                </button>
+              ) : (
+                <button
+                  onClick={handleMark}
+                  className={`${
+                    req ? "bg-green-600" : "bg-green-700"
+                  } hover:bg-green-700 text-white py-2 px-4 rounded`}
+                >
+                  {req ? "Marking..." : "Mark Artist"}
+                </button>
+              )}
             </div>
           </>
         )}
@@ -240,7 +355,6 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
               {check ? "Checking..." : "Check Availability"}
             </button>
           )}
-          
           <button
             onClick={onClose}
             className="ml-4 bg-gray-700 hover:bg-gray-700 text-white py-2 px-4 rounded"
@@ -257,10 +371,14 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
             <span className="text-blue-700">
               {availabilityMessage.split("\n")[1]}
             </span>
-            {availabilityMessage=="No slots are available" && 
-            <span className="text-gray-700">
-              You can mark for later.<br/>The {category} will notify you <br></br> if they are free on these dates.
-            </span>}
+            {availabilityMessage === "No slots are available" && (
+              <span className="text-gray-700">
+                You can mark for later.
+                <br />
+                The {category} will notify you <br /> if they are free on these
+                dates.
+              </span>
+            )}
           </div>
         )}
       </div>

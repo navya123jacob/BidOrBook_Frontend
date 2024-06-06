@@ -59,6 +59,22 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
+        updatebooking: builder.mutation({
+            query: (data) => ({
+                url: '/update-booking',
+                method: 'PUT',
+                body: data,
+                
+            }),
+        }), 
+        cancelPaymentReq: builder.mutation({
+            query: (data) => ({
+                url: '/cancelPaymentReq',
+                method: 'DELETE',
+                body: data,
+                
+            }),
+        }), 
         }),
       });
       
@@ -69,6 +85,8 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
         useBookingsConfirmMutation,
         useMarkedMutation,
         useSingleBookingQuery,
-        useCancelbookingMutation
+        useCancelbookingMutation,
+        useUpdatebookingMutation,
+        useCancelPaymentReqMutation
    
 } = BookingApiSlice

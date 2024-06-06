@@ -1,13 +1,12 @@
 import { User } from "./user";
 export interface Address {
-    address: string;
-    pincode: number;
+    
     state: string;
     district: string;
     country: string;
   }
   
-  export type BookingStatus = 'pending' | 'confirmed' | 'marked';
+  export type BookingStatus = 'pending' | 'confirmed' | 'marked'|'booked';
   
   export interface Booking {
     _id: string;
