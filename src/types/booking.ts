@@ -18,5 +18,6 @@ export interface Address {
     payment_method?: string;
     payment_date?: Date;
     date_of_booking: Date[];
+    amount:number
   }
   

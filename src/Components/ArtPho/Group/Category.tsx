@@ -127,12 +127,12 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                   <Link
                     className="relative flex items-end justify-start w-full text-left bg-center bg-cover cursor-pointer h-60 md:col-span-2 lg:row-span-2 lg:h-full group"
                     style={{ backgroundImage: `url(${user.profile})` }}
-                    to={`/artprof/client/${user._id}`} 
+                    to={`/artprof/client?id=${user._id}`} 
                   >
                     <div className="absolute top-0 left-0 right-0 flex items-center justify-between mx-5 mt-3">
                       <Link
                         rel="noopener noreferrer"
-                        to={`/artprof/client/${user._id}`} 
+                        to={`/artprof/client?id=${user._id}`} 
                         className="px-3 py-2 text-s font-bold tracking-wider uppercase hover:underline"
                       >
                         {user?.Fname} {user?.Lname}
@@ -141,7 +141,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                     <h2 className="z-10 p-5">
                       <Link
                         rel="noopener noreferrer"
-                        to={`/artprof/client/${user._id}`} 
+                        to={`/artprof/client?id=${user._id}`} 
                         className="font-medium text-md lg:text-2xl lg:font-semibold bg-black text-white bg-opacity-50"
                       >
                         {user?.description}
@@ -157,7 +157,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                       <div className="absolute top-0 left-0 right-0 flex items-center justify-between mx-5 mt-3">
                         <Link
                           rel="noopener noreferrer"
-                          to={`/artprof/client/${user._id}`} 
+                          to={`/artprof/client?id=${user._id}`} 
                           className="px-3 py-2 text-xs font-bold tracking-wider uppercase hover:underline dark:text-gray-800"
                         >
                           {post?.name}
@@ -172,7 +172,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                       <h2 className="z-10 p-5">
                         <Link
                           rel="noopener noreferrer"
-                          to={`/artprof/client/${user._id}`} 
+                          to={`/artprof/client?id=${user._id}`} 
                           className="font-medium text-md text-white"
                         >
                           {post?.description}

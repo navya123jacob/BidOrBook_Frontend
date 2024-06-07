@@ -1,6 +1,11 @@
 import React from "react";
 import { Booking } from "../../types/booking";
 import { User } from "../../types/user";
+import {
+  useCreateCheckoutSessionMutation,
+  useWebhookMutation,
+} from "../../redux/slices/Api/EndPoints/bookingEndpoints";
+
 interface BookingDetailModalProps {
   booking: Booking;
   onClose: () => void;
@@ -14,7 +19,28 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   onCancel,
   artist,
 }) => {
-  
+  const [createCheckoutSession, { isLoading: isCreatingCheckoutSession }] =
+    useCreateCheckoutSessionMutation();
+const [handleWebhook]=useWebhookMutation()
+const handlePayClick = async () => {
+  try {
+    const response = await createCheckoutSession({
+      bookingId: booking._id,
+      amount: booking.amount,
+      artistId: booking.artistId,
+      clientId: booking.clientId,
+    }).unwrap();
+
+    if (response?.url) {
+      const decodedUrl = decodeURIComponent(response.url);
+      console.log(decodedUrl);
+      window.location.href = decodedUrl;
+    }
+  } catch (error) {
+    console.error("Error creating Stripe checkout session:", error);
+  }
+};
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-white bg-opacity-80 p-4 rounded-lg max-w-lg mx-auto text-gray-900 relative">
@@ -63,6 +89,13 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                     : "Booked"}
                 </td>
               </tr>
+              {booking.amount!=0 && (<tr>
+                <td>Payment Amount</td>
+                <td className="flex items-center">
+                  {booking.amount}
+                  
+                </td>
+              </tr>)}
             </tbody>
           </table>
         </div>
@@ -72,6 +105,16 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
         >
           Cancel
         </button>
+
+        {booking.status === "confirmed" && (
+          <button
+            className="bg-teal-900 hover:bg-teal-700 m-5 text-white font-bold py-2 px-4 my-5 rounded cancel-button"
+            onClick={handlePayClick}
+            disabled={isCreatingCheckoutSession}
+          >
+            {isCreatingCheckoutSession ? "Processing..." : "PAY"}
+          </button>
+        )}
       </div>
     </div>
   );

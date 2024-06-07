@@ -49,6 +49,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
     },
     event: "",
     payment_method: "",
+    amount:0
   });
 
   const [errors, setErrors] = useState({
@@ -58,6 +59,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       district: "",
       country: "",
     },
+    amount:""
   });
   const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(null);
 
@@ -75,6 +77,8 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         },
         event: booking.event || "",
         payment_method: booking.payment_method || "",
+        amount:booking.amount||0
+        
       });
     } else {
       setFormData({
@@ -89,6 +93,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         },
         event: "",
         payment_method: "",
+        amount:0
       });
     }
   }, [booking]);
@@ -100,21 +105,30 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         district: formData.location.district ? "" : "District is required",
         country: formData.location.country ? "" : "Country is required",
       },
+      amount: !formData.amount ? "Amount is required" :
+       !/^\d+$/.test(formData.amount.toString()) ? "Amount should contain only digits" :
+       formData.amount <= 200 ? "Amount must be greater than 200" : ""
+
     };
 
     setErrors(newErrors);
-
+console.log(newErrors)
     return !(
       newErrors.event ||
       newErrors.location.state ||
       newErrors.location.district ||
-      newErrors.location.country
+      newErrors.location.country||
+      newErrors.amount
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) {
+      
+      return
+    }
+    
       if (!availabilityMessage) {
         try {
           const response = await updatebooking(formData).unwrap();
@@ -128,13 +142,14 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       } else {
         handleSpecialSubmit();
       }
-    } else {
-      console.log("Form has errors and cannot be submitted");
-    }
+   
   };
 
   const handleSpecialSubmit = async () => {
- 
+    if (!validateForm()) {
+      
+      return
+    }
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
 
@@ -155,7 +170,8 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
           _id:formData._id, 
           event:formData.event, 
           location:formData.location,
-           date_of_booking:datesInRange
+           date_of_booking:datesInRange,
+           amount:formData.amount
           }
 
           const response = await updatebooking(requestData).unwrap();
@@ -237,24 +253,6 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
               )}
             </label>
             <label>
-              State:
-              <input
-                type="text"
-                placeholder="Enter state"
-                value={formData.location.state}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    location: { ...formData.location, state: e.target.value },
-                  })
-                }
-                className="block border border-gray-300 rounded p-2 w-full"
-              />
-              {errors.location.state && (
-                <span className="text-red-500">{errors.location.state}</span>
-              )}
-            </label>
-            <label>
               District:
               <input
                 type="text"
@@ -276,6 +274,25 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
               )}
             </label>
             <label>
+              State:
+              <input
+                type="text"
+                placeholder="Enter state"
+                value={formData.location.state}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    location: { ...formData.location, state: e.target.value },
+                  })
+                }
+                className="block border border-gray-300 rounded p-2 w-full"
+              />
+              {errors.location.state && (
+                <span className="text-red-500">{errors.location.state}</span>
+              )}
+            </label>
+           
+            <label>
               Country:
               <input
                 type="text"
@@ -291,6 +308,24 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
               />
               {errors.location.country && (
                 <span className="text-red-500">{errors.location.country}</span>
+              )}
+            </label>
+            <label>
+              Payment Amount:
+              <input
+                type="number"
+                placeholder="Enter country"
+                value={formData.amount}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    amount:parseFloat( e.target.value)
+                  })
+                }
+                className="block border border-gray-300 rounded p-2 w-full"
+              />
+              {errors.amount && (
+                <span className="text-red-500">{errors.amount}</span>
               )}
             </label>
             {!showDatePicker && (
@@ -382,7 +417,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
               <button
                 type="submit"
                 className="bg-gray-700 text-white py-2 px-4 rounded mt-4 m-5"
-                onClick={handleSpecialSubmit}
+                onClick={handleSubmit}
               >
             Request Payment
               </button>

@@ -75,6 +75,22 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
+        createCheckoutSession: builder.mutation({
+            query: (data) => ({
+                url: '/create-checkout-session',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
+        webhook: builder.mutation({
+            query: (data) => ({
+                url: '/webhook',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
         }),
       });
       
@@ -87,6 +103,8 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
         useSingleBookingQuery,
         useCancelbookingMutation,
         useUpdatebookingMutation,
-        useCancelPaymentReqMutation
+        useCancelPaymentReqMutation,
+        useCreateCheckoutSessionMutation,
+        useWebhookMutation
    
 } = BookingApiSlice

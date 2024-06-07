@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Footer from './../../Components/User/Footer';
 import { RootState } from './../../redux/slices/Reducers/types';
@@ -17,7 +17,8 @@ import { Booking } from '../../types/booking';
 const SellerProfileClientside: React.FC = () => {
   const bookinglen = useSelector((state: RootState) => state.client.bookings);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const id = searchParams.get('id')?? undefined;
 
   const [otheruser, setOtheruser] = useState<User | null>(null);
   const [page, setPage] = useState(1);
@@ -196,12 +197,12 @@ const SellerProfileClientside: React.FC = () => {
             </div>
           </header>
           <div className="px-px md:px-3">
-            <ul className="flex md:hidden justify-around space-x-8 border-t text-center p-2 text-gray-600 leading-snug text-sm">
+            <ul className="flex md:hidden justify-around space-x-8 border-t text-center p-2 text-white leading-snug text-sm">
               <li>
-                <span className="font-semibold text-gray-800 block">{usersWithPosts.length}</span> posts
+                <span className="font-semibold text-gray-100 block">{usersWithPosts.length}</span> posts
               </li>
               <li>
-                <span className="font-semibold text-gray-800 block">{bookingConfirmData}</span> Booked
+                <span className="font-semibold text-gray-100 block">{bookingConfirmData}</span> Booked
               </li>
             </ul>
             <ul className="flex items-center justify-around md:justify-center space-x-12 uppercase tracking-widest font-semibold text-xs text-gray-600 border-t">

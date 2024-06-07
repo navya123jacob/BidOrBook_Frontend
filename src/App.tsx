@@ -29,7 +29,7 @@ function App(): JSX.Element {
           {/* client-specific routes */}
           <Route path="/profile" element={<ClientProfilePage />} />
           <Route path="/groupprofiles" element={<ProfilesSellers />} />
-          <Route path="/artprof/client/:id" element={<ProfileSellerClientSide />} />
+          <Route path="/artprof/client" element={<ProfileSellerClientSide />} />
         </Route>
 
         {/* Fallback route */}
