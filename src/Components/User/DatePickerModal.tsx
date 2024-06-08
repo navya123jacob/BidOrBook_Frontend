@@ -72,6 +72,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
 
     const dates = {
       artistId: artistId,
+      bookingId:'',
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
     };
@@ -144,6 +145,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
           state: formData.location.state,
           country: formData.location.country,
         },
+        amount:0
       };
       const response = await makeBookingreq(requestData);
 

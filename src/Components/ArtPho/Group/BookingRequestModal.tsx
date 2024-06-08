@@ -20,6 +20,43 @@ const formatDate = (date: string | Date): string => {
   return dateObj.toLocaleDateString("en-GB");
 };
 
+const formatBookingDates = (dates: Date[]): string => {
+  if (!dates || dates.length === 0) return "";
+  
+  const formattedDates = dates
+    .map(date => new Date(date))
+    .sort((a:any, b:any) => a - b);
+
+  let dateRanges = [];
+  let currentRange:Date[] = [];
+
+  formattedDates.forEach((date:any, index) => {
+    const previousDate:any = formattedDates[index - 1];
+    if (previousDate && (date - previousDate) / (1000 * 60 * 60 * 24) === 1) {
+      currentRange.push(date);
+    } else {
+      if (currentRange.length > 0) {
+        dateRanges.push(currentRange);
+      }
+      currentRange = [date];
+    }
+  });
+
+  if (currentRange.length > 0) {
+    dateRanges.push(currentRange);
+  }
+
+  return dateRanges
+    .map(range => {
+      if (range.length > 1) {
+        return `${range[0].getDate()}/${range[0].getMonth() + 1}/${range[0].getFullYear()} to ${range[range.length - 1].getDate()}/${range[range.length - 1].getMonth() + 1}/${range[range.length - 1].getFullYear()}`;
+      } else {
+        return `${range[0].getDate()}/${range[0].getMonth() + 1}/${range[0].getFullYear()}`;
+      }
+    })
+    .join(", ");
+};
+
 const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   isOpen,
   onClose,
@@ -115,18 +152,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                           {`${booking.location.district}, ${booking.location.state}, ${booking.location.country}`}
                         </td>
                         <td className="px-2 py-4 border-r">
-                          {formatDate(booking.date_of_booking[0])}
-                          {booking.date_of_booking.length > 1 && (
-                            <>
-                              {" "}
-                              to{" "}
-                              {formatDate(
-                                booking.date_of_booking[
-                                  booking.date_of_booking.length - 1
-                                ]
-                              )}
-                            </>
-                          )}
+                          {formatBookingDates(booking.date_of_booking)}
                         </td>
                         <td className="px-2 py-4 border-r">{booking.event}</td>
                         <td className="px-2 py-4 flex justify-between items-center">

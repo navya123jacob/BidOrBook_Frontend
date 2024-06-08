@@ -31,7 +31,6 @@ export const SignupUser = () => {
     setSignupError("");
     let isValid = true;
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim() || !emailRegex.test(email)) {
       setEmailError("Enter a valid email address");
@@ -40,7 +39,6 @@ export const SignupUser = () => {
       setEmailError("");
     }
 
-    // Validate password format
     const passwordRegex =
       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{6,}$/;
     if (!password.trim() || !passwordRegex.test(password)) {
@@ -50,7 +48,6 @@ export const SignupUser = () => {
       setPasswordError("");
     }
 
-    // Validate first name and last name format
     const nameRegex = /^[a-zA-Z ]+$/;
     if (!Fname.trim() || !nameRegex.test(Fname)) {
       setFnameError("Please enter a valid first name ");
@@ -66,7 +63,6 @@ export const SignupUser = () => {
       setLnameError("");
     }
 
-    // Validate phone number format
     const phoneRegex = /^[0-9]{10}$/;
     if (!phone.trim() || !phoneRegex.test(phone) || phone === "0000000000") {
       setPhoneError("Please enter a valid phone number");
@@ -75,7 +71,6 @@ export const SignupUser = () => {
       setPhoneError("");
     }
 
-    // Validate user type selection
     if (category !== "Photographer" && category !== "Artist") {
       setSignupError("Please select");
       isValid = false;
@@ -99,6 +94,7 @@ export const SignupUser = () => {
         Lname,
         phone,
         category,
+        wallet:0
       });
       console.log(response)
       if (response?.error?.data?.message) {

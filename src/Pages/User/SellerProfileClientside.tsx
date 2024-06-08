@@ -15,7 +15,7 @@ import { User } from '../../types/user';
 import { Booking } from '../../types/booking';
 
 const SellerProfileClientside: React.FC = () => {
-  const bookinglen = useSelector((state: RootState) => state.client.bookings);
+ 
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [searchParams, setSearchParams] = useSearchParams();
   const id = searchParams.get('id')?? undefined;
@@ -117,7 +117,7 @@ const SellerProfileClientside: React.FC = () => {
 
   const bookingCancel = async () => {
     if (singleBooking) {
-      const response = await cancelbooking({ bookingId: singleBooking._id, userId: otheruser?._id || '' });
+      const response = await cancelbooking({ bookingId: singleBooking._id, userId: otheruser?._id || '',clientId:userInfo?.data?.message?._id||'',amount:singleBooking.amount,status:singleBooking.status });
       if ('data' in response) {
         setIsBookingDetailModalOpen(false);
         setIsConfirmationModalOpen(false);
@@ -157,6 +157,7 @@ const SellerProfileClientside: React.FC = () => {
                       </button>
                     ) : (
                       <button
+                      
                         onClick={seeStatus}
                         className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                       >
@@ -267,6 +268,8 @@ const SellerProfileClientside: React.FC = () => {
           onClose={() => setIsBookingDetailModalOpen(false)}
           onCancel={handleCancelBooking}
           artist={otheruser}
+          setChanges={setBookingConfirmData}
+          setSingle={setSingleBooking}
         />
       )}
       {isConfirmationModalOpen && (

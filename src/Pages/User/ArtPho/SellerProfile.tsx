@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../../../Components/User/Footer';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/slices/Reducers/types';
 import { Navbar } from '../../../Components/User/Navbar';
 import PostDetailModal from '../../../Components/ArtPho/PostDetailModal';
@@ -14,6 +14,7 @@ import { Booking } from '../../../types/booking';
 import { useBookingsreqMutation, useBookingsConfirmMutation, useMarkedMutation, useCancelbookingMutation } from '../../../redux/slices/Api/EndPoints/bookingEndpoints';
 import BookingRequestModal from '../../../Components/ArtPho/Group/BookingRequestModal';
 import ConfirmationModal from '../../../Components/User/CancelConfirmModal';
+import { setCredentials } from '../../../redux/slices/Reducers/ClientReducer';
 
 const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
@@ -33,10 +34,11 @@ const ProfilePageSeller: React.FC = () => {
   const [markedData, setMarkedData] = useState<Booking[]>([]);
   const [isBookingRequestModalOpen, setIsBookingRequestModalOpen] = useState(false);
   const [isMarkedByModalOpen, setIsMarkedByModalOpen] = useState(false);
+  const [isBookedModalOpen, setIsBookedModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [changes, setChanges] = useState<number>(0);
-
+  const dispatch=useDispatch()
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -108,6 +110,10 @@ const ProfilePageSeller: React.FC = () => {
     setSelectedBooking(booking);
     setIsMarkedByModalOpen(true);
   };
+  const handleMarkingBookedclick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsBookedModalOpen(true);
+  };
 
   
 
@@ -118,13 +124,27 @@ const ProfilePageSeller: React.FC = () => {
   const bookingCancel = async () => {
     if (selectedBooking) {
       try {
-        const response = await cancelbooking({ bookingId: selectedBooking._id, userId: userInfo.data.message._id });
+        const response = await cancelbooking({ bookingId: selectedBooking._id, userId: userInfo.data.message._id,clientId:selectedBooking.clientId._id ,amount:selectedBooking.amount,status:selectedBooking.status});
         if ('data' in response) {
 
           setBookingReqData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));
           setIsConfirmationModalOpen(false);
           setIsBookingRequestModalOpen(false);
           setSelectedBooking(null);
+          if (selectedBooking.amount !== 0) {
+            const newWalletBalance = userInfo.data.message.wallet + selectedBooking.amount;
+            const updatedUserInfo = {
+              ...userInfo,
+              data: {
+                ...userInfo.data,
+                message: {
+                  ...userInfo.data.message,
+                  wallet: newWalletBalance,
+                },
+              },
+            };
+            dispatch(setCredentials(updatedUserInfo));
+          }
         }
       } catch (err) {
         console.error("Error canceling booking:", err);
@@ -173,7 +193,7 @@ const ProfilePageSeller: React.FC = () => {
                 <li onClick={()=>handleMarkingRequestClick(markedData[0])}>
                   <span className="font-semibold">{markedData.length}</span> Marked By
                 </li>
-                <li>
+                <li onClick={()=>handleMarkingBookedclick(bookingConfirmData[0])}>
                   <span className="font-semibold">{bookingConfirmData.length}</span> Booked
                 </li>
               </ul>
@@ -246,6 +266,7 @@ const ProfilePageSeller: React.FC = () => {
           post={selectedPost}
           onClose={() => setIsPostDetailModalOpen(false)}
           onDelete={() => handleDeletePost(selectedPost._id)}
+          
         />
       )}
      
@@ -278,6 +299,19 @@ const ProfilePageSeller: React.FC = () => {
         onCancel={() => handleCancelBooking()}
        setChanges={setChanges}
        message="Marked Requests"
+       mark={true}
+        />
+        
+      )}
+      {isBookedModalOpen && (
+       
+        <BookingRequestModal
+        isOpen={isBookedModalOpen}
+        onClose={()=>{setIsBookedModalOpen(false)}}
+        bookings={bookingConfirmData}
+        onCancel={() => handleCancelBooking()}
+       setChanges={setChanges}
+       message="Booked"
        mark={true}
         />
         

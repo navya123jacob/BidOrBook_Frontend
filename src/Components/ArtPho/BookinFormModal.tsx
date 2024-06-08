@@ -1,20 +1,18 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Datepicker from "react-tailwindcss-datepicker";
 import { Booking } from "../../types/booking";
 import { User } from "../../types/user";
-import Datepicker from "react-tailwindcss-datepicker";
 import { useCheckavailabilityMutation, useUpdatebookingMutation } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
-
 
 interface BookingFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   booking: Booking | null;
   setChanges: Dispatch<SetStateAction<number>>;
-  
 }
 
 const BookingFormModal: React.FC<BookingFormModalProps> = ({
@@ -22,18 +20,14 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
   onClose,
   booking,
   setChanges,
- 
 }) => {
- 
   const [updatebooking] = useUpdatebookingMutation();
   const [checkAvailability] = useCheckavailabilityMutation();
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
+  const [initialunavailableDates, setInitialUnavailableDates] = useState<Date[]>([]);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [key, setKey] = useState(0);
   const [value, setValue] = useState({
-    startDate: new Date(),
-    endDate: new Date(new Date().getFullYear(), 11, 31),
-  });
-  const [dates, setDates] = useState({
     startDate: new Date(),
     endDate: new Date(new Date().getFullYear(), 11, 31),
   });
@@ -49,7 +43,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
     },
     event: "",
     payment_method: "",
-    amount:0
+    amount: 0
   });
 
   const [errors, setErrors] = useState({
@@ -59,7 +53,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       district: "",
       country: "",
     },
-    amount:""
+    amount: ""
   });
   const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(null);
 
@@ -77,8 +71,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         },
         event: booking.event || "",
         payment_method: booking.payment_method || "",
-        amount:booking.amount||0
-        
+        amount: booking.amount || 0
       });
     } else {
       setFormData({
@@ -93,10 +86,11 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         },
         event: "",
         payment_method: "",
-        amount:0
+        amount: 0
       });
     }
   }, [booking]);
+
   const validateForm = () => {
     const newErrors = {
       event: formData.event ? "" : "Event is required",
@@ -106,18 +100,17 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         country: formData.location.country ? "" : "Country is required",
       },
       amount: !formData.amount ? "Amount is required" :
-       !/^\d+$/.test(formData.amount.toString()) ? "Amount should contain only digits" :
-       formData.amount <= 200 ? "Amount must be greater than 200" : ""
-
+        !/^\d+$/.test(formData.amount.toString()) ? "Amount should contain only digits" :
+          formData.amount <= 200 ? "Amount must be greater than 200" : ""
     };
 
     setErrors(newErrors);
-console.log(newErrors)
+    console.log(newErrors);
     return !(
       newErrors.event ||
       newErrors.location.state ||
       newErrors.location.district ||
-      newErrors.location.country||
+      newErrors.location.country ||
       newErrors.amount
     );
   };
@@ -125,66 +118,114 @@ console.log(newErrors)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
-      
-      return
+      return;
     }
-    
-      if (!availabilityMessage) {
-        try {
-          const response = await updatebooking(formData).unwrap();
-          
-            setChanges(prevChanges => prevChanges + 1);
 
-          onClose();
-        } catch (error) {
-          console.error("Error updating booking:", error);
-        }
-      } else {
-        handleSpecialSubmit();
+    const datesInRange = formData.date_of_booking.filter(
+      (date) =>
+        !initialunavailableDates.some(
+          (unavailableDate) =>
+            new Date(date).toDateString() === new Date(unavailableDate).toDateString()
+        )
+    );
+
+    if (datesInRange.length === 0) {
+      console.log("No available dates to book.");
+      return;
+    }
+
+    const updatedFormData = { ...formData, date_of_booking: datesInRange };
+
+    if (!availabilityMessage) {
+      try {
+        const response = await updatebooking(updatedFormData).unwrap();
+        setChanges((prevChanges) => prevChanges + 1);
+        onClose();
+      } catch (error) {
+        console.error("Error updating booking:", error);
       }
-   
+    } else {
+      handleSpecialSubmit();
+    }
   };
 
   const handleSpecialSubmit = async () => {
     if (!validateForm()) {
-      
-      return
+      return;
     }
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
 
-      const datesInRange: Date[] = [];
-      let currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        if (
-          !unavailableDates.some((date) => new Date(date).toDateString() === currentDate.toDateString()) ||
-          formData.date_of_booking.some((date) => new Date(date).toDateString() === currentDate.toDateString())
-        ) {
-          datesInRange.push(new Date(currentDate));
-        }
-        
-        currentDate.setDate(currentDate.getDate() + 1);
+    const datesInRange: Date[] = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      if (
+        !unavailableDates.some(
+          (date) => new Date(date).toDateString() === currentDate.toDateString()
+        ) ||
+        formData.date_of_booking.some(
+          (date) => new Date(date).toDateString() === currentDate.toDateString()
+        )
+      ) {
+        datesInRange.push(new Date(currentDate));
       }
-      if (datesInRange.length > 0) {
-        const requestData = {
-          _id:formData._id, 
-          event:formData.event, 
-          location:formData.location,
-           date_of_booking:datesInRange,
-           amount:formData.amount
-          }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
 
-          const response = await updatebooking(requestData).unwrap();
-          
-            setChanges(prevChanges => prevChanges + 1);
+    if (datesInRange.length === 0) {
+      console.log("No available dates to book.");
+      return;
+    }
 
-          onClose();
-        };
+    const requestData = {
+      _id: formData._id,
+      event: formData.event,
+      location: formData.location,
+      date_of_booking: datesInRange,
+      amount: formData.amount,
+    };
 
-
+    try {
+      const response = await updatebooking(requestData).unwrap();
+      setChanges((prevChanges) => prevChanges + 1);
+      onClose();
+    } catch (error) {
+      console.error("Error updating booking:", error);
+    }
   };
 
-  const excludeDates = formData.date_of_booking.map((date) => new Date(date));
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const startDate = new Date(formData.date_of_booking[0]);
+      const endDate = new Date(formData.date_of_booking[formData.date_of_booking.length - 1]);
+  
+      const dates = {
+        artistId: userInfo.data.message._id,
+        bookingId: booking?._id,
+        startDate: formData.date_of_booking[0],
+        endDate: formData.date_of_booking[formData.date_of_booking.length - 1],
+      };
+  
+      try {
+        const response: string[] = await checkAvailability(dates).unwrap();
+  
+        const filteredDates: any = response.filter((date) => {
+          const dateObj = new Date(date);
+          return dateObj >= startDate && dateObj <= endDate;
+        });
+  
+        setInitialUnavailableDates(filteredDates);
+        setKey(prevKey => prevKey + 1);
+        
+      } catch (error) {
+        console.error("Error checking availability:", error);
+      }
+    };
+  
+    fetchData();
+  }, [formData.date_of_booking, userInfo.data.message._id, booking?._id]);
+  
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -205,6 +246,7 @@ console.log(newErrors)
 
     const dates = {
       artistId: userInfo.data.message._id,
+      bookingId:booking?._id,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
     };
@@ -218,8 +260,6 @@ console.log(newErrors)
       });
 
       setUnavailableDates(filteredDates);
-
-
       setAvailabilityMessage("Red Slots are unavailable\nBlue Slots are available");
     } catch (error) {
       console.error("Error checking availability:", error);
@@ -228,14 +268,14 @@ console.log(newErrors)
 
   return isOpen ? (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-auto">
-  <div className="bg-white bg-opacity-80 p-4 rounded-lg max-w-lg mx-auto text-gray-900 relative">
-    <div className="modal-header flex justify-between bg-modal-header rounded-t-lg p-4">
-      <h2 className="modal-title text-black">Booking Form</h2>
-      <button className="modal-close" onClick={onClose}>
-        <i className="fas fa-times text-black"></i>
-      </button>
-    </div>
-    <div className="modal-body bg-modal-body">
+      <div className="bg-white bg-opacity-80 p-4 rounded-lg max-w-lg mx-auto text-gray-900 relative">
+        <div className="modal-header flex justify-between bg-modal-header rounded-t-lg p-4">
+          <h2 className="modal-title text-black">Booking Form</h2>
+          <button className="modal-close" onClick={onClose}>
+            <i className="fas fa-times text-black"></i>
+          </button>
+        </div>
+        <div className="modal-body bg-modal-body">
           <form onSubmit={handleSubmit}>
             <label>
               Event:
@@ -291,7 +331,6 @@ console.log(newErrors)
                 <span className="text-red-500">{errors.location.state}</span>
               )}
             </label>
-           
             <label>
               Country:
               <input
@@ -314,12 +353,12 @@ console.log(newErrors)
               Payment Amount:
               <input
                 type="number"
-                placeholder="Enter country"
+                placeholder="Enter amount"
                 value={formData.amount}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    amount:parseFloat( e.target.value)
+                    amount: parseFloat(e.target.value)
                   })
                 }
                 className="block border border-gray-300 rounded p-2 w-full"
@@ -333,15 +372,32 @@ console.log(newErrors)
                 <label>
                   Date of Booking:
                   <DatePicker
+                   key={key}
                     selected={formData.date_of_booking[0]}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     startDate={formData.date_of_booking[0]}
-                    endDate={formData.date_of_booking[1]}
+                    endDate={formData.date_of_booking[formData.date_of_booking.length-1]}
                     selectsRange
                     inline
-                    excludeDates={excludeDates}
-                    className="block w-full border border-gray-300 rounded p-2"
+                    
+                    dayClassName={(date) => {
+                      const currentDate = new Date(date);
+                      
+                      const isUnavailable =
+                       
+                        initialunavailableDates.some(
+                          (unavailableDate) =>
+                            currentDate.toDateString() ===
+                            new Date(unavailableDate).toDateString() 
+                        );
+
+                      return isUnavailable
+                        ? "bg-red-500 text-white cursor-not-allowed"
+                        : "";
+                    }}
+                    selectsStart
                   />
+                  
                 </label>
                 <button
                   onClick={handleDateChangeButtonClick}
@@ -364,7 +420,7 @@ console.log(newErrors)
                 <div className="p-4">
                   <DatePicker
                     selected={null}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     disabled
                     startDate={new Date(value.startDate)}
                     endDate={new Date(value.endDate)}
@@ -379,8 +435,7 @@ console.log(newErrors)
                         unavailableDates.some(
                           (unavailableDate) =>
                             currentDate.toDateString() ===
-                              new Date(unavailableDate).toDateString() &&
-                            !formData.date_of_booking.includes(unavailableDate)
+                            new Date(unavailableDate).toDateString() 
                         );
 
                       return isUnavailable
@@ -393,24 +448,27 @@ console.log(newErrors)
               </>
             )}
 
-            {showDatePicker &&   (
+            {showDatePicker && (
               <div className="flex-col">
-               {!availabilityMessage &&( <><button
-                  onClick={() => {
-                    setShowDatePicker(false);
-                  }}
-                >
-                  <i className="fa fa-arrow-left" aria-hidden="true"></i>
-                </button>
-                <label>Select Date:</label>
-
-                <Datepicker value={value} onChange={handleValueChange} />
-                <button
-                  className="bg-gray-600 text-white py-2 px-4 rounded mt-4 ml-4"
-                  onClick={handleCheckAvailability}
-                >
-                  Check Availability
-                </button></>)}
+                {!availabilityMessage && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setShowDatePicker(false);
+                      }}
+                    >
+                      <i className="fa fa-arrow-left" aria-hidden="true"></i>
+                    </button>
+                    <label>Select Date:</label>
+                    <Datepicker value={value} onChange={handleValueChange} />
+                    <button
+                      className="bg-gray-600 text-white py-2 px-4 rounded mt-4 ml-4"
+                      onClick={handleCheckAvailability}
+                    >
+                      Check Availability
+                    </button>
+                  </>
+                )}
               </div>
             )}
             {(!showDatePicker || availabilityMessage) && (
@@ -419,7 +477,7 @@ console.log(newErrors)
                 className="bg-gray-700 text-white py-2 px-4 rounded mt-4 m-5"
                 onClick={handleSubmit}
               >
-            Request Payment
+                Request Payment
               </button>
             )}
           </form>

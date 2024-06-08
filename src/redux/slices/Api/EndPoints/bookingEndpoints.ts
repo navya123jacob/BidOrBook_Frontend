@@ -83,14 +83,15 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
-        webhook: builder.mutation({
+        wallet: builder.mutation({
             query: (data) => ({
-                url: '/webhook',
+                url: '/wallet-payment',
                 method: 'POST',
                 body: data,
                 
             }),
         }), 
+        
         }),
       });
       
@@ -105,6 +106,7 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
         useUpdatebookingMutation,
         useCancelPaymentReqMutation,
         useCreateCheckoutSessionMutation,
-        useWebhookMutation
+        useWalletMutation
+        
    
 } = BookingApiSlice
