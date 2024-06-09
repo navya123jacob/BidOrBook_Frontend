@@ -102,16 +102,16 @@ const ProfilePageSeller: React.FC = () => {
     fetchBookings();
   }, [bookingsreq, bookingsConfirm, marked,  changes]);
 
-  const handleBookingRequestClick = (booking: Booking) => {
-    setSelectedBooking(booking);
+  const handleBookingRequestClick = () => {
+    
     setIsBookingRequestModalOpen(true);
   };
-  const handleMarkingRequestClick = (booking: Booking) => {
-    setSelectedBooking(booking);
+  const handleMarkingRequestClick = () => {
+    
     setIsMarkedByModalOpen(true);
   };
-  const handleMarkingBookedclick = (booking: Booking) => {
-    setSelectedBooking(booking);
+  const handleMarkingBookedclick = () => {
+    
     setIsBookedModalOpen(true);
   };
 
@@ -122,12 +122,18 @@ const ProfilePageSeller: React.FC = () => {
   };
 
   const bookingCancel = async () => {
+    
     if (selectedBooking) {
       try {
         const response = await cancelbooking({ bookingId: selectedBooking._id, userId: userInfo.data.message._id,clientId:selectedBooking.clientId._id ,amount:selectedBooking.amount,status:selectedBooking.status});
+        console.log(response)
         if ('data' in response) {
-
-          setBookingReqData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));
+          if(selectedBooking.status=='pending' || selectedBooking.status=='confirmed'){
+          setBookingReqData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));}
+          if(selectedBooking.status=='marked'){
+          setMarkedData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));}
+          if(selectedBooking.status=='booked'){
+          setBookingConfirmData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));}
           setIsConfirmationModalOpen(false);
           setIsBookingRequestModalOpen(false);
           setSelectedBooking(null);
@@ -187,13 +193,13 @@ const ProfilePageSeller: React.FC = () => {
                 <li>
                   <span className="font-semibold">{usersWithPosts.length}</span> posts
                 </li>
-                <li onClick={() => handleBookingRequestClick(bookingReqData[0])}>
+                <li onClick={() => handleBookingRequestClick()}>
                   <span className="font-semibold">{bookingReqData.length}</span> Booking Requests
                 </li>
-                <li onClick={()=>handleMarkingRequestClick(markedData[0])}>
+                <li onClick={()=>handleMarkingRequestClick()}>
                   <span className="font-semibold">{markedData.length}</span> Marked By
                 </li>
-                <li onClick={()=>handleMarkingBookedclick(bookingConfirmData[0])}>
+                <li onClick={()=>handleMarkingBookedclick()}>
                   <span className="font-semibold">{bookingConfirmData.length}</span> Booked
                 </li>
               </ul>
@@ -212,13 +218,13 @@ const ProfilePageSeller: React.FC = () => {
               <li>
                 <span className="font-semibold block text-white">{usersWithPosts.length}</span> posts
               </li>
-              <li  onClick={() => handleBookingRequestClick(bookingReqData[0])}>
+              <li  onClick={() => handleBookingRequestClick()}>
                 <span className="font-semibold text-gray-200 block">{bookingReqData.length}</span> Booking Requests
               </li>
-              <li onClick={()=>handleMarkingRequestClick(markedData[0])}>
+              <li onClick={()=>handleMarkingRequestClick()}>
                 <span className="font-semibold text-gray-200 block">{markedData.length}</span> Marked By
               </li>
-              <li>
+              <li onClick={()=>handleMarkingBookedclick()}>
                 <span className="font-semibold text-gray-200 block">{bookingConfirmData.length}</span> Booked
               </li>
             </ul>
@@ -278,12 +284,14 @@ const ProfilePageSeller: React.FC = () => {
        setChanges={setChanges}
        message="Booking Request"
        mark={false}
+       selectedBooking={selectedBooking}
+       setSelectedBooking={setSelectedBooking}
       />
      
       {isConfirmationModalOpen && (
        
         <ConfirmationModal
-          message="Are you sure you want to cancel this booking?"
+          message="Are you baby?"
           onConfirm={bookingCancel}
           onCancel={() => setIsConfirmationModalOpen(false)}
         />
@@ -300,6 +308,8 @@ const ProfilePageSeller: React.FC = () => {
        setChanges={setChanges}
        message="Marked Requests"
        mark={true}
+       selectedBooking={selectedBooking}
+       setSelectedBooking={setSelectedBooking}
         />
         
       )}
@@ -313,6 +323,8 @@ const ProfilePageSeller: React.FC = () => {
        setChanges={setChanges}
        message="Booked"
        mark={true}
+       selectedBooking={selectedBooking}
+       setSelectedBooking={setSelectedBooking}
         />
         
       )}
