@@ -10,6 +10,7 @@ import { ProtectedArtistRoute, ProtectedClientRoute } from './Components/Protect
 import ProfilesSellers from './Pages/User/ArtPho/Sellers';
 import ProfilePageSeller from './Pages/User/ArtPho/SellerProfile';
 import ProfileSellerClientSide from './Pages/User/SellerProfileClientside';
+import AuctionProfilePage from './Pages/User/ArtPho/AuctionProfile';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -23,6 +24,7 @@ function App(): JSX.Element {
 
         <Route element={<ProtectedArtistRoute />}>
           <Route path="/artpho/profile" element={<ProfilePageSeller />} />
+          <Route path="/artpho/auction/:id" element={<AuctionProfilePage />} />
         </Route>
 
         <Route element={<ProtectedClientRoute />}>
