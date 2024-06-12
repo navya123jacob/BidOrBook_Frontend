@@ -12,7 +12,7 @@ const HomeBody = () => {
           {userInfo.client ? (
             <div className="relative group flex flex-col justify-center items-center p-5">
               <Link
-                to={userInfo.client ? "/auctions" : "/groupprofiles"}
+                to={!userInfo.client ? "/artpho/profile" : "/groupprofiles"}
                 className="group relative block w-full h-full mb-10"
               >
                 <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
@@ -54,6 +54,7 @@ const HomeBody = () => {
           ) : (
             <div className="relative group flex flex-col justify-center items-center p-5">
               <Link
+              
                 to="/artpho/profile"
                 className="group relative block w-full h-full mb-10"
               >
@@ -100,7 +101,8 @@ const HomeBody = () => {
           )}
           <div className="relative group flex flex-col justify-between items-center p-5">
             <Link
-              to={`/artpho/auction/${userInfo.data.message._id}`}
+              to={!userInfo.client ? `/artpho/auction/${userInfo.data.message._id}` : "/auctions"}
+            
               className="group relative block w-full h-full mb-10"
             >
               <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">

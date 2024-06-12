@@ -28,7 +28,7 @@ const AuctionProfilePage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await allAuctions({ userId: id??'' });
+        const response = await allAuctions({ userId: id??'',notId:'' });
         
         if ('data' in response) {
           setAuctions(response.data.auctions);

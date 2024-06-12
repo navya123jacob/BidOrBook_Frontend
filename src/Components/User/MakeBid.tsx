@@ -1,8 +1,9 @@
-import React, { useState, FormEvent, Dispatch, SetStateAction } from 'react';
+import React, { useState, FormEvent, Dispatch, SetStateAction, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { usePlacebidMutation } from '../../redux/slices/Api/EndPoints/auctionEndPoints';
 import { IAuction } from '../../types/auction';
+import { io } from 'socket.io-client';
 
 interface BiddingModalProps {
   initialBid: number;
@@ -10,28 +11,57 @@ interface BiddingModalProps {
   onClose: () => void;
   onBid: (amount: number) => void;
   auctionId: string;
-  SetselectedAuction:Dispatch<SetStateAction<IAuction|null>>;
+  SetselectedAuction: Dispatch<SetStateAction<IAuction | null>>;
 }
 
-const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, onBid, auctionId,SetselectedAuction }) => {
+const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, onBid, auctionId, SetselectedAuction }) => {
   const [bidAmount, setBidAmount] = useState<number>(initialBid + 1);
   const [error, setError] = useState<string>('');
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [placeBid, { isLoading }] = usePlacebidMutation();
+  const socket = io('http://localhost:8888');
+
+  useEffect(() => {
+    socket.connect();
+    socket.emit('join_auction', { auctionId });
+    socket.on('new_bid', (data) => {
+      console.log('New bid received:', data); 
+      
+        SetselectedAuction((prevAuction) => {
+          if (prevAuction) {
+            const updatedBids = [...prevAuction.bids, { userId: data.userId, amount: data.amount }];
+            updatedBids.sort((a, b) => b.amount - a.amount);
+            return {
+              ...prevAuction,
+              bids: updatedBids
+            };
+          }
+          console.log(prevAuction)
+          return prevAuction;
+        });
+       
+     
+    });
+
+    return () => {
+      socket.off('new_bid');
+    };
+  }, [auctionId, SetselectedAuction]);
 
   const handleBidSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const highestBid = bids.length > 0 ? Math.max(...bids.map(bid => bid.amount)) : initialBid;
+    const highestBid = bids.length > 0 ? bids[bids.length - 1].amount : initialBid;
 
     if (bidAmount > highestBid) {
       try {
-        let response=await placeBid({ auctionId,userId:userInfo.data.message._id,  amount: bidAmount }).unwrap();
-        if('auction' in response){
-        SetselectedAuction(response.auction)
-        onBid(bidAmount);
-        setBidAmount(highestBid + 1);
-        setError('');
-        onClose(); }
+        const response = await placeBid({ auctionId, userId: userInfo.data.message._id, amount: bidAmount }).unwrap();
+        if ('auction' in response) {
+          SetselectedAuction(response.auction);
+          onBid(bidAmount);
+          setBidAmount(bidAmount + 1);
+          setError('');
+          onClose();
+        }
       } catch (error) {
         setError('Failed to place bid. Please try again.');
       }
@@ -46,9 +76,9 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-2 right-2 p-1 rounded-full bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none"
+          className="absolute top-2 right-2 p-1 rounded-full"
         >
-          &times;
+         <i className="fa fa-close"></i>
         </button>
         <h2 className="text-lg font-semibold mb-4">Place a Bid</h2>
         {error && <div className="text-red-500 mb-2">{error}</div>}
@@ -62,7 +92,6 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
               value={bidAmount}
               onChange={(e) => setBidAmount(Number(e.target.value))}
               className="block w-full mt-1 p-2 border-gray-300 rounded-md"
-              
             />
           </div>
           <button

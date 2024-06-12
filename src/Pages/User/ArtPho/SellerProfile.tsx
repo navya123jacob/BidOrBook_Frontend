@@ -291,7 +291,7 @@ const ProfilePageSeller: React.FC = () => {
       {isConfirmationModalOpen && (
        
         <ConfirmationModal
-          message="Are you baby?"
+          message="Are you sure you want to cancel?"
           onConfirm={bookingCancel}
           onCancel={() => setIsConfirmationModalOpen(false)}
         />

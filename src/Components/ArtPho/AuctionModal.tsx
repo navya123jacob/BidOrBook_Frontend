@@ -61,7 +61,7 @@ const AuctionModal: React.FC<AuctionModalProps> = ({ onClose, setAuctions, aucti
     if (validateForm()) {
         
       const formData = new FormData();
-      formData.append('userid', auctionData.userid);
+      formData.append('userId', auctionData.userid);
       formData.append('name', auctionData.name);
       formData.append('description', auctionData.description);
       formData.append('endingdate', auctionData.endingdate);

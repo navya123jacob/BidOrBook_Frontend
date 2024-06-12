@@ -29,12 +29,12 @@ export const AuctionApiSlice = apiSlice.injectEndpoints({
             }),
         }), 
        
-    allAuctions: builder.mutation<any, { userId: string }>({
-      query: ({ userId }) => ({
-        url: `/auctions/user/${userId}`,
-        method: 'GET',
-      }),
-    }),
+        allAuctions: builder.mutation<any, { userId: string, notId: string }>({
+          query: ({ userId, notId }) => ({
+            url: `/auctions/user/${userId}?notId=${notId}`,
+            method: 'GET',
+          }),
+        }),
     deleteAuction: builder.mutation<any, { auctionId: string; userId: string }>({
       query: ({ auctionId, userId }) => ({
         url: `/auctions/${auctionId}`,

@@ -11,6 +11,7 @@ import ProfilesSellers from './Pages/User/ArtPho/Sellers';
 import ProfilePageSeller from './Pages/User/ArtPho/SellerProfile';
 import ProfileSellerClientSide from './Pages/User/SellerProfileClientside';
 import AuctionProfilePage from './Pages/User/ArtPho/AuctionProfile';
+import Auctions from './Pages/User/Auctions';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -32,6 +33,7 @@ function App(): JSX.Element {
           <Route path="/profile" element={<ClientProfilePage />} />
           <Route path="/groupprofiles" element={<ProfilesSellers />} />
           <Route path="/artprof/client" element={<ProfileSellerClientSide />} />
+          <Route path="/auctions" element={<Auctions />} />
         </Route>
 
         {/* Fallback route */}
