@@ -13,15 +13,17 @@ import ConfirmationModal from '../User/CancelConfirmModal';
 import { IAuction } from '../../types/auction';
 import BidsModal from '../BidModal';
 import { io } from 'socket.io-client';
+import { Link } from 'react-router-dom';
 interface AuctionDetailModalProps {
   auction: IAuction;
   onClose: () => void;
   onDelete: () => void;
   onOpenBiddingModal: () => void;
   SetselectedAuction: Dispatch<SetStateAction<IAuction | null>>;
+  profbut?:boolean
 }
 
-const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClose, onDelete, onOpenBiddingModal, SetselectedAuction }) => {
+const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClose, onDelete, onOpenBiddingModal, SetselectedAuction,profbut }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showBidsModal, setShowBidsModal] = useState(false);
@@ -75,6 +77,19 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
         return prevAuction;
       });
     });
+    socket.on('cancel_bid', (data) => {
+      console.log('Bid cancelled:', data);
+      SetselectedAuction((prevAuction) => {
+        if (prevAuction) {
+          const updatedBids = prevAuction.bids.filter(bid => bid.userId !== data.userId);
+          return {
+            ...prevAuction,
+            bids: updatedBids
+          };
+        }
+        return prevAuction;
+      });
+    });
 
     return () => {
       socket.off('new_bid');
@@ -117,6 +132,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
     try {
       const response: any = await cancelBidfn({ auctionId: auction._id, userId: userInfo.data.message._id }).unwrap();
       SetselectedAuction(response);
+      socket.emit('cancel_bid', { auctionId: auction._id, userId: userInfo.data.message._id });
       setCancelBid(false);
     } catch (error) {
       console.error('Error cancelling bid:', error);
@@ -168,6 +184,13 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
           <span className="absolute top-0 right-0 p-4">
             <button onClick={onClose}><i className="fa fa-close"></i></button>
           </span>
+          {profbut && (
+        <Link to={`/artpho/auction/${auction.userId}`}>
+          <button className="bg-gray-300 text-black px-4 py-2 my-4 rounded" >
+            Go to Profile
+          </button>
+        </Link>
+      )}
           <div>
             <h2 className="text-2xl mb-4">{auction.name}</h2>
             <img src={auction.image} alt={auction.name} className="w-full mb-4" />

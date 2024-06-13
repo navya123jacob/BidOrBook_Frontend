@@ -23,8 +23,8 @@ const Auctions: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await allAuctions({ userId:  '1',notId:userInfo.data.message._id });
-        console.log(response)
+        const response = await allAuctions({ userId: '1', notId: userInfo.data.message._id });
+        console.log(response);
         if ('data' in response) {
           setAuctions(response.data.auctions);
         }
@@ -35,7 +35,6 @@ const Auctions: React.FC = () => {
 
     fetchData();
   }, [allAuctions, userInfo.data.message._id, selectedAuction]);
-  
 
   const handleAuctionClick = (auction: any) => {
     setSelectedAuction(auction);
@@ -55,13 +54,13 @@ const Auctions: React.FC = () => {
 
   return (
     <>
-      <header className='bg-gray-950 bg-opacity-80'>
+      <header className='bg-gray-900 bg-opacity-80'>
         <Navbar />
       </header>
-      <div className="bg-black overflow-y-auto transform translate-y-0 transition-transform duration-300 h-screen">
+      <div className="bg-black transform translate-y-0 transition-transform duration-300 min-h-screen">
         <div className="container mx-auto py-12">
           <section className="w-full mb-4">
-            <div className="w-full h-[200px] bg-transparent flex flex-col justify-between items-center">
+            <div className="w-full h-auto bg-transparent flex flex-col justify-between items-center">
               <div className="flex flex-col justify-center items-center mt-1">
                 <Link to='/'
                   className="focus:outline-none px-4 py-2 rounded-md text-gray-800"
@@ -97,40 +96,46 @@ const Auctions: React.FC = () => {
           </section>
           
           <div className="flex flex-wrap -mx-px md:-mx-3">
-            {isLoading ? (
-              <span className="loader"></span>
-            ) : (
-              auctions.map((auction: any, index: number) => (
-                <div key={index} className="w-1/3 p-px md:px-3">
-                  <a href="#" onClick={() => handleAuctionClick(auction)}>
-                    <article className="post bg-gray-100 text-white relative pb-full md:mb-6">
-                      <img className="w-full h-full absolute left-0 top-0 object-cover" src={auction.image} alt="image" />
-                      <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
-                        <div className="flex justify-center items-center space-x-4 h-full"></div>
-                      </div>
-                    </article>
-                  </a>
-                </div>
-              ))
-            )}
-          </div>
+  {isLoading ? (
+    <span className="loader"></span>
+  ) : auctions.length === 0 ? (
+    <div className="w-full text-center text-white py-8">
+      No auctions
+    </div>
+  ) : (
+    auctions.map((auction: any, index: number) => (
+      <div key={index} className="w-1/3 p-px md:px-3">
+        <a href="#" onClick={() => handleAuctionClick(auction)}>
+          <article className="post bg-gray-100 text-white relative pb-full md:mb-6">
+            <img className="w-full h-full absolute left-0 top-0 object-cover" src={auction.image} alt="image" />
+            <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
+              <div className="flex justify-center items-center space-x-4 h-full"></div>
+            </div>
+          </article>
+        </a>
+      </div>
+    ))
+  )}
+</div>
+
         </div>
       </div>
 
       {isAuctionDetailModalOpen && selectedAuction && (
         <AuctionDetailModal
           auction={selectedAuction}
-          onClose={() => {setIsAuctionDetailModalOpen(false)}}
+          onClose={() => { setIsAuctionDetailModalOpen(false) }}
           onDelete={() => handleDeleteAuction(selectedAuction._id)}
           onOpenBiddingModal={() => setIsBiddingModalOpen(true)}
           SetselectedAuction={setSelectedAuction}
+          profbut={true}
         />
       )}
 
       {isBiddingModalOpen && (
         <BiddingModal
           initialBid={selectedAuction?.initial || 0}
-          bids={selectedAuction?.bids ||[]}
+          bids={selectedAuction?.bids || []}
           onClose={() => setIsBiddingModalOpen(false)}
           onBid={handleBid}
           auctionId={selectedAuction?._id || ''}

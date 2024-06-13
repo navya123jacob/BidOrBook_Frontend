@@ -95,6 +95,12 @@ export const UserApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
             }),
         }),    
+        SingleUser: builder.mutation({
+            query: (userId: string) => ({
+                url: `/SingleUser/${userId}`,
+                method: 'GET',
+            }),
+        }),    
         deletePost: builder.mutation({
             query: (user) => ({
                 url: '/deletepost',
@@ -145,7 +151,8 @@ export const {
     useForgotresendOtpMutation,
     useSingleUserPostMutation,
     useGetMessagesMutation,
-    useSendMessageMutation
+    useSendMessageMutation,
+    useSingleUserMutation
    
    
 } = UserApiSlice

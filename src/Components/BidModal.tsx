@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IAuction } from '../types/auction';
+import { RootState } from '../redux/slices/Reducers/types';
+import { useSelector } from 'react-redux';
+import UserDetailsModal from './ArtPho/BidUserDetail';
+import { useSingleUserMutation } from '../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { User } from '../types/user';
 
 interface BidsModalProps {
   auction: IAuction;
@@ -7,6 +12,24 @@ interface BidsModalProps {
 }
 
 const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose }) => {
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [isUserDetailsModalOpen, setUserDetailsModalOpen] = useState<boolean>(false);
+  const [fetchUser] = useSingleUserMutation();
+  
+
+  const handleViewClick = async (userId: string) => {
+    setSelectedUser(userId);
+   
+      setUserDetailsModalOpen(true);
+   
+  };
+
+  const handleCloseUserDetailsModal = () => {
+    setSelectedUser('');
+    setUserDetailsModalOpen(false);
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-auto bg-smoke-light flex">
       <div className="relative p-8 bg-white w-full max-w-md m-auto flex-col flex rounded-lg bg-opacity-95">
@@ -20,14 +43,25 @@ const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose }) => {
           ) : (
             <ul>
               {auction.bids && [...auction.bids].sort((a, b) => b.amount - a.amount).map((bid: any, index: number) => (
-                <li key={index}>
+                <li key={index} className="flex justify-between items-center">
                   {bid.userId === auction.userId ? <strong>Your bid</strong> : `User ${bid.userId}`}: ${bid.amount}
+                  {!userInfo.client && (
+                    <button onClick={() => handleViewClick(bid.userId)} className="text-blue-500 hover:underline">
+                      View
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </div>
       </div>
+      {isUserDetailsModalOpen  && (
+        <UserDetailsModal
+          id={selectedUser}
+          onClose={handleCloseUserDetailsModal}
+        />
+      )}
     </div>
   );
 };

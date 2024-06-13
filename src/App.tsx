@@ -22,10 +22,11 @@ function App(): JSX.Element {
         {/* Public Routes */}
         <Route path="/signup" element={!userInfo ? <SignupUser /> : <Navigate to="/" />} />
         <Route path="/" element={!userInfo ? <LoginUser /> : (userInfo.client ? <HomeUser /> : <HomeArtPho />)} />
-
+        <Route path="/artpho/auction/:id" element={userInfo ? <AuctionProfilePage /> : <Navigate to="/" />} />
+        
         <Route element={<ProtectedArtistRoute />}>
           <Route path="/artpho/profile" element={<ProfilePageSeller />} />
-          <Route path="/artpho/auction/:id" element={<AuctionProfilePage />} />
+          
         </Route>
 
         <Route element={<ProtectedClientRoute />}>
