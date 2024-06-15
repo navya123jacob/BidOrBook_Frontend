@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <section className="bg-white mt-3 bg-opacity-20">
+    <section className="bg-white  bg-opacity-20">
       <div className="max-w-screen-xl px-4 py-6 mx-auto space-y-1 overflow-hidden sm:px-6 lg:px-8">
         <div className="flex justify-center ">
           <img

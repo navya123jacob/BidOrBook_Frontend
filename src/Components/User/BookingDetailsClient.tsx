@@ -184,7 +184,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                 {booking.amount !== 0 && (
                   <tr>
                     <td>Payment Amount:</td>
-                    <td className="flex items-center">{booking.amount}</td>
+                    <td className="flex items-center">₹ {booking.amount}</td>
                   </tr>
                 )}
               </tbody>

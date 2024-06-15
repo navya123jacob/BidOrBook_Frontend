@@ -131,6 +131,12 @@ export const UserApiSlice = apiSlice.injectEndpoints({
                 body: data,
             }),
         }),
+        getUserChats: builder.query({
+            query: (userId) => ({
+              url: `/getUserChats/${userId}`,
+              method: 'GET',
+            }),
+          }),
 
     })
 })
@@ -152,7 +158,7 @@ export const {
     useSingleUserPostMutation,
     useGetMessagesMutation,
     useSendMessageMutation,
-    useSingleUserMutation
-   
+    useSingleUserMutation,
+    useGetUserChatsQuery
    
 } = UserApiSlice

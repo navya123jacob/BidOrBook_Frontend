@@ -54,9 +54,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
         <h2 className="text-xl font-bold mb-2">{post.name}</h2>
         <p className="text-lg font-semibold mb-2">{post.description}</p>
         <div className="flex justify-between items-center">
-          <span className="cursor-pointer" onClick={handleLikesClick}>
+          {/* <span className="cursor-pointer" onClick={handleLikesClick}>
             {post.likes} Likes
-          </span>
+          </span> */}
           {!userInfo.client && (<button
             className="bg-red-500 text-white px-2 py-1 rounded"
             onClick={handleDeleteClick}

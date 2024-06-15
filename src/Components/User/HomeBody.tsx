@@ -95,7 +95,7 @@ const HomeBody = () => {
                 services directly. Join us to turn your passion into a thriving
                 business and reach a wider audience of art enthusiasts and
                 potential clients. Your work deserves to be seen—let Bid or Book
-                be the platform that brings your creativity to life!
+                be the platform that brings your creativity to life.
               </figcaption>
             </div>
           )}

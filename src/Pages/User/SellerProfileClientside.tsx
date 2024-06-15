@@ -6,7 +6,7 @@ import { RootState } from './../../redux/slices/Reducers/types';
 import { Navbar } from './../../Components/User/Navbar';
 import PostDetailModal from './../../Components/ArtPho/PostDetailModal';
 import DatePickerModal from '../../Components/User/DatePickerModal';
-import ChatComponent from '../../Components/Chat';
+import ChatComponent from '../../Components/ChatSingle';
 import BookingDetailModal from '../../Components/User/BookingDetailsClient';
 import ConfirmationModal from '../../Components/User/CancelConfirmModal';
 import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
@@ -180,10 +180,10 @@ const SellerProfileClientside: React.FC = () => {
                 )}
               </div>
               <ul className="hidden md:flex space-x-8 mb-4">
-                <li>
+                <li className="hover:cursor-pointer">
                   <span className="font-semibold">{usersWithPosts.length}</span> posts
                 </li>
-                <li>
+                <li className="hover:cursor-pointer">
                   <span className="font-semibold">{bookingConfirmData}</span> Booked
                 </li>
               </ul>
@@ -199,10 +199,10 @@ const SellerProfileClientside: React.FC = () => {
           </header>
           <div className="px-px md:px-3">
             <ul className="flex md:hidden justify-around space-x-8 border-t text-center p-2 text-white leading-snug text-sm">
-              <li>
+              <li className="hover:cursor-pointer">
                 <span className="font-semibold text-gray-100 block">{usersWithPosts.length}</span> posts
               </li>
-              <li>
+              <li className="hover:cursor-pointer">
                 <span className="font-semibold text-gray-100 block">{bookingConfirmData}</span> Booked
               </li>
             </ul>
@@ -222,9 +222,9 @@ const SellerProfileClientside: React.FC = () => {
                         <img className="w-full h-full absolute left-0 top-0 object-cover" src={post.image} alt="image" />
                         <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
                           <div className="flex justify-center items-center space-x-4 h-full">
-                            <span className="p-2">
+                            {/* <span className="p-2">
                               <i className="fas fa-heart"></i> {post.likes}
-                            </span>
+                            </span> */}
                           </div>
                         </div>
                       </article>

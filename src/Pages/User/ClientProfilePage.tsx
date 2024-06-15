@@ -3,11 +3,83 @@ import { Navbar } from "../../Components/User/Navbar";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
 import ProfileForm from "../../Components/User/ProfileForm";
+import ChatsClient from "../../Components/User/ChatsClient";
+import ChatComponent from "../../Components/ChatSingle";
+import { useGetUserChatsQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { User } from "../../types/user";
+import { io } from "socket.io-client";
+import {
+  useBookingsreqMutation,
+  useBookingsConfirmMutation,
+  useMarkedMutation,
+} from "../../redux/slices/Api/EndPoints/bookingEndpoints";
+import { Booking } from "../../types/booking";
+import BookingViewModal from "../../Components/User/BookingViewModal";
+
+const socket = io("http://localhost:8888");
+interface PopulatedChat {
+  userId: User;
+  messages: any[];
+}
 
 const ClientProfilePage: React.FC = () => {
+  const [bookingsreq] = useBookingsreqMutation();
+  const [bookingsConfirm] = useBookingsConfirmMutation();
+  const [marked] = useMarkedMutation();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<PopulatedChat | null>(null);
+  const [chats, setChats] = useState<PopulatedChat[]>([]);
+  const [activeSection, setActiveSection] = useState("profile");
+  const [bookingReqData, setBookingReqData] = useState<Booking[]>([]);
+  const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
+  const [markedData, setMarkedData] = useState<Booking[]>([]);
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const {
+    data: mychats,
+    error: chatError,
+    isLoading: chatLoading,
+  } = useGetUserChatsQuery(userInfo.data.message._id);
+
   useEffect(() => {
-    const handleResize: any = () => {
+    const fetchBookings = async () => {
+      try {
+        const response = await bookingsreq({
+          artistId: userInfo.data.message._id,
+        });
+        if ("data" in response) {
+          setBookingReqData(response.data?.bookings);
+        }
+
+        const response2 = await bookingsConfirm({
+          artistId: userInfo.data.message._id,
+        });
+        if ("data" in response2) {
+          setBookingConfirmData(response2.data?.bookings);
+        }
+       
+
+        const response3 = await marked({ artistId: userInfo.data.message._id });
+        
+        if ("data" in response3) {
+          setMarkedData(response3.data?.bookings);
+        }
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+      }
+      
+    };
+
+    fetchBookings();
+  }, [bookingsreq, bookingsConfirm, marked]);
+  useEffect(() => {
+    if (mychats) {
+      setChats(mychats);
+    }
+  }, [mychats]);
+
+  useEffect(() => {
+    const handleResize = () => {
       setScreenWidth(window.innerWidth);
     };
 
@@ -16,11 +88,64 @@ const ClientProfilePage: React.FC = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-  const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const [activeSection, setActiveSection] = useState("profile");
+
+  useEffect(() => {
+    const senderId = userInfo?.data?.message?._id;
+
+    chats.forEach((chat) => {
+      const receiverId = chat.userId._id;
+      socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {
+        console.log(`Joined room: ${roomId}`);
+      });
+    });
+
+    socket.on("chat_message", (newMessage) => {
+      updateChats(newMessage);
+    });
+
+    return () => {
+      socket.off("chat_message");
+    };
+  }, [chats]);
+
+  const updateChats = (newMessage: any) => {
+    const updatedChats = chats.map((chat) => {
+      if (
+        chat.userId._id === newMessage.receiverId ||
+        chat.userId._id === newMessage.senderId
+      ) {
+        return {
+          ...chat,
+          messages: [...chat.messages, newMessage].sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          ),
+        };
+      }
+      return chat;
+    });
+
+    setChats(
+      updatedChats.sort((a, b) => {
+        const lastMessageA = a.messages[a.messages.length - 1];
+        const lastMessageB = b.messages[b.messages.length - 1];
+        return (
+          new Date(lastMessageB?.createdAt).getTime() -
+          new Date(lastMessageA?.createdAt).getTime()
+        );
+      })
+    );
+  };
+
   const handleSectionClick = (section: string) => {
     setActiveSection(section);
   };
+
+  const handleChatClick = (chat: PopulatedChat) => {
+    setSelectedChat(chat);
+    setIsChatModalOpen(false);
+  };
+
   return (
     <>
       <header className="absolute inset-x-0 top-0 z-50">
@@ -89,7 +214,7 @@ const ClientProfilePage: React.FC = () => {
                 <div className="mt-10 py-10 border-t border-blueGray-200 text-center">
                   <div className="flex flex-wrap justify-evenly">
                     <div
-                      className={`rounded-r-xl overflow-hidden bg-gray-200 ${
+                      className={`rounded-r-xl overflow-x-auto bg-gray-200 ${
                         screenWidth <= 1020
                           ? "flex flex-row w-full"
                           : "flex flex-col w-1/4"
@@ -208,14 +333,17 @@ const ClientProfilePage: React.FC = () => {
                                 ? "text-gray-800 font-bold"
                                 : "text-gray-500"
                             }`}
-                            onClick={() => handleSectionClick("chats")}
+                            onClick={() => {
+                              handleSectionClick("chats");
+                              setIsChatModalOpen(true);
+                            }}
                           >
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
                               <i className="bx bx-bell"></i>
                             </span>
                             <span className="text-sm font-medium">Chats</span>
                             <span className="ml-auto mr-6 text-sm bg-red-100 rounded-full px-3 py-px text-red-500">
-                              5
+                              {chats.length}
                             </span>
                           </button>
                         </li>
@@ -238,7 +366,20 @@ const ClientProfilePage: React.FC = () => {
                       </ul>
                     </div>
 
-                    {activeSection == "profile" && <ProfileForm />}
+                    {activeSection === "profile" && <ProfileForm />}
+                    {activeSection === "chats" && (
+                      <ChatsClient
+                        chats={chats}
+                        onChatClick={handleChatClick}
+                        setChats={setChats}
+                      />
+                    )}
+                    {activeSection === "marked" && (
+                      <BookingViewModal
+                       message='Marked Users'
+                       marked={markedData}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -246,6 +387,17 @@ const ClientProfilePage: React.FC = () => {
           </div>
         </section>
       </main>
+
+      {selectedChat && (
+        <ChatComponent
+          isOpen={!!selectedChat}
+          onClose={() => setSelectedChat(null)}
+          receiverId={selectedChat.userId._id}
+          Fname={selectedChat.userId.Fname}
+          Lname={selectedChat.userId.Lname}
+          profile={selectedChat.userId.profile}
+        />
+      )}
     </>
   );
 };

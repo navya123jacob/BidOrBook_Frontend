@@ -214,7 +214,8 @@ body{
 
 
 /* Styles for the chat modal */
-.chat-modal {
+
+.chat-component-modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -233,7 +234,7 @@ body{
   z-index: 1000;
 }
 
-.chat-modal-overlay {
+.chat-component-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -243,13 +244,13 @@ body{
   z-index: 999;
 }
 
-.chat-container {
+.chat-component-container {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.chat-header {
+.chat-component-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -260,7 +261,7 @@ body{
   font-weight: 600;
 }
 
-.chat-messages {
+.chat-component-messages {
   flex: 1;
   overflow-y: auto; 
   margin-bottom: 10px;
@@ -268,11 +269,11 @@ body{
   -ms-overflow-style: none;  
 }
 
-.chat-messages::-webkit-scrollbar {
+.chat-component-messages::-webkit-scrollbar {
   display: none; 
 }
 
-.my-message, .other-message {
+.chat-component-my-message, .chat-component-other-message {
   padding: 10px 20px;
   border-radius: 20px; 
   margin-bottom: 10px;
@@ -281,28 +282,28 @@ body{
   color: black;
 }
 
-.my-message {
+.chat-component-my-message {
   background-color: #c9e1f1;
   align-self: flex-end;
   text-align: right;
   margin-right: 0; 
 }
 
-.other-message {
+.chat-component-other-message {
   background-color: #a0c8bb;
   align-self: flex-start;
   text-align: left;
   margin-left: 0; 
 }
 
-.chat-input {
+.chat-component-input {
   display: flex;
   padding: 10px;
   background-color: #f5f5f5;
   border-top: 1px solid #ddd;
 }
 
-.chat-input input {
+.chat-component-input input {
   flex: 1;
   padding: 10px;
   border: 1px solid #ddd;
@@ -310,7 +311,7 @@ body{
   color: black;
 }
 
-.chat-input button {
+.chat-component-input button {
   padding: 10px;
   margin-left: 10px;
   background-color: #172c42;
@@ -320,7 +321,7 @@ body{
   cursor: pointer;
 }
 
-.chat-header img.profile-image {
+.chat-component-header img.profile-image {
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -337,24 +338,93 @@ body{
   padding: 8px;
 }
 
-
 .profile-image {
   height: 32px;
   width: 32px;
   border-radius: 50%;
 }
 
+/* Unique class names for Chats */
+.chats-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  outline: none;
+  max-height: 80%; 
+}
 
+.chats-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
+.chats-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
-  
+.chats-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px; 
+  padding-right: 10px; 
+}
 
+.chats-list::-webkit-scrollbar {
+  width: 0; 
+  background: transparent; 
+}
 
-   
-  
+.chats-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
 
+.chats-item-header {
+  display: flex;
+  align-items: center;
+}
 
-  
+.chats-item-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
 
+.chats-item-info {
+  display: flex;
+  flex-direction: column;
+}
 
-  
+.chats-item-time {
+  align-self: center;
+  font-size: 0.85em;
+  color: gray;
+}
+
+.chats-modal-close-button {
+  align-self: center;
+  padding: 10px 20px;
+  background-color: gray;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}

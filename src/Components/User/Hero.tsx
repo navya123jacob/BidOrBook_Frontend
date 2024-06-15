@@ -1,19 +1,14 @@
 
 
 
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import {  useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { Navbar } from './Navbar';
-import HomeBody from './HomeBody';
-import { useEffect } from 'react';
 import { useSignupMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 
 
 export const Hero = () => {
-  
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [signup] = useSignupMutation();
   const something=async(e:any)=>{

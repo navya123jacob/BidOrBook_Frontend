@@ -1,6 +1,6 @@
 import React, { SetStateAction, Dispatch, useState } from "react";
 import { Booking } from "../../../types/booking";
-import ChatComponent from "../../Chat";
+import ChatComponent from "../../ChatSingle";
 import BookingFormModal from "../BookinFormModal";
 import ConfirmationModal from "../../User/CancelConfirmModal";
 import { useCancelPaymentReqMutation } from "../../../redux/slices/Api/EndPoints/bookingEndpoints";

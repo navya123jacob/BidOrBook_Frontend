@@ -1,21 +1,31 @@
-
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Footer from '../../../Components/User/Footer';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../../redux/slices/Reducers/types';
-import { Navbar } from '../../../Components/User/Navbar';
-import PostDetailModal from '../../../Components/ArtPho/PostDetailModal';
-import { useAllpostMutation } from '../../../redux/slices/Api/EndPoints/clientApiEndPoints';
-import PostModal from '../../../Components/ArtPho/postModal';
-import { useDeletePostMutation } from '../../../redux/slices/Api/EndPoints/clientApiEndPoints';
-import { Booking } from '../../../types/booking';
-import { useBookingsreqMutation, useBookingsConfirmMutation, useMarkedMutation, useCancelbookingMutation } from '../../../redux/slices/Api/EndPoints/bookingEndpoints';
-import BookingRequestModal from '../../../Components/ArtPho/Group/BookingRequestModal';
-import ConfirmationModal from '../../../Components/User/CancelConfirmModal';
-import { setCredentials } from '../../../redux/slices/Reducers/ClientReducer';
-
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import Footer from "../../../Components/User/Footer";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../redux/slices/Reducers/types";
+import { Navbar } from "../../../Components/User/Navbar";
+import PostDetailModal from "../../../Components/ArtPho/PostDetailModal";
+import {
+  useAllpostMutation,
+  useDeletePostMutation,
+} from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import PostModal from "../../../Components/ArtPho/postModal";
+import { Booking } from "../../../types/booking";
+import {
+  useBookingsreqMutation,
+  useBookingsConfirmMutation,
+  useMarkedMutation,
+  useCancelbookingMutation,
+} from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
+import BookingRequestModal from "../../../Components/ArtPho/Group/BookingRequestModal";
+import ConfirmationModal from "../../../Components/User/CancelConfirmModal";
+import { setCredentials } from "../../../redux/slices/Reducers/ClientReducer";
+import { useGetUserChatsQuery } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import Chats from "../../../Components/Chats";
+import ChatComponent from "../../../Components/ChatSingle";
+import { io } from "socket.io-client";
+const socket = io("http://localhost:8888");
 const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
@@ -32,22 +42,39 @@ const ProfilePageSeller: React.FC = () => {
   const [bookingReqData, setBookingReqData] = useState<Booking[]>([]);
   const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
   const [markedData, setMarkedData] = useState<Booking[]>([]);
-  const [isBookingRequestModalOpen, setIsBookingRequestModalOpen] = useState(false);
+  const [isBookingRequestModalOpen, setIsBookingRequestModalOpen] =
+    useState(false);
   const [isMarkedByModalOpen, setIsMarkedByModalOpen] = useState(false);
   const [isBookedModalOpen, setIsBookedModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [changes, setChanges] = useState<number>(0);
-  const dispatch=useDispatch()
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [singleChatOpen, setSingleChatOpen] = useState(false);
+  const dispatch = useDispatch();
+  const [chats, setChats] = useState<any[]>([]);
+  const {
+    data: mychats,
+    error: chatError,
+    isLoading: chatLoading,
+  } = useGetUserChatsQuery(userInfo.data.message._id);
+  useEffect(() => {
+    if (mychats) {
+      setChats(mychats);
+      console.log(mychats);
+    }
+  }, [mychats]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await allpost({ userid: userInfo.data.message._id });
-        if ('data' in response) {
+        if ("data" in response) {
           setUsersWithPosts(response.data.posts);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -61,9 +88,56 @@ const ProfilePageSeller: React.FC = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  useEffect(() => {
+    const senderId = userInfo?.data?.message?._id;
+
+    chats.forEach((chat) => {
+      const receiverId = chat.userId._id;
+      socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {
+        console.log(`Joined room: ${roomId}`);
+      });
+    });
+
+    socket.on("chat_message", (newMessage) => {
+      updateChats(newMessage);
+    });
+
+    return () => {
+      socket.off("chat_message");
+    };
+  }, [chats]);
+
+  const updateChats = (newMessage: any) => {
+    const updatedChats = chats.map((chat) => {
+      if (
+        chat.userId._id === newMessage.receiverId ||
+        chat.userId._id === newMessage.senderId
+      ) {
+        return {
+          ...chat,
+          messages: [...chat.messages, newMessage].sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          ),
+        };
+      }
+      return chat;
+    });
+
+    setChats(
+      updatedChats.sort((a, b) => {
+        const lastMessageA = a.messages[a.messages.length - 1];
+        const lastMessageB = b.messages[b.messages.length - 1];
+        return (
+          new Date(lastMessageB?.createdAt).getTime() -
+          new Date(lastMessageA?.createdAt).getTime()
+        );
+      })
+    );
+  };
 
   const handlePostClick = (post: any) => {
     setSelectedPost(post);
@@ -71,27 +145,33 @@ const ProfilePageSeller: React.FC = () => {
   };
 
   const handleDeletePost = async (postId: string) => {
-    console.log('Deleting post with ID:', postId);
+    console.log("Deleting post with ID:", postId);
     await deletePost({ postId, userId: userInfo.data.message._id });
-    setUsersWithPosts((prevPosts) => prevPosts.filter(post => post._id !== postId));
+    setUsersWithPosts((prevPosts) =>
+      prevPosts.filter((post) => post._id !== postId)
+    );
     setIsPostDetailModalOpen(false);
   };
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await bookingsreq({ artistId: userInfo.data.message._id });
-        if ('data' in response) {
+        const response = await bookingsreq({
+          artistId: userInfo.data.message._id,
+        });
+        if ("data" in response) {
           setBookingReqData(response.data?.bookings);
         }
 
-        const response2 = await bookingsConfirm({ artistId: userInfo.data.message._id });
-        if ('data' in response2) {
+        const response2 = await bookingsConfirm({
+          artistId: userInfo.data.message._id,
+        });
+        if ("data" in response2) {
           setBookingConfirmData(response2.data?.bookings);
         }
 
         const response3 = await marked({ artistId: userInfo.data.message._id });
-        if ('data' in response3) {
+        if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
         }
       } catch (err) {
@@ -100,45 +180,60 @@ const ProfilePageSeller: React.FC = () => {
     };
 
     fetchBookings();
-  }, [bookingsreq, bookingsConfirm, marked,  changes]);
+  }, [bookingsreq, bookingsConfirm, marked, changes]);
 
   const handleBookingRequestClick = () => {
-    
     setIsBookingRequestModalOpen(true);
   };
+
   const handleMarkingRequestClick = () => {
-    
     setIsMarkedByModalOpen(true);
   };
+
   const handleMarkingBookedclick = () => {
-    
     setIsBookedModalOpen(true);
   };
-
-  
 
   const handleCancelBooking = () => {
     setIsConfirmationModalOpen(true);
   };
 
   const bookingCancel = async () => {
-    
     if (selectedBooking) {
       try {
-        const response = await cancelbooking({ bookingId: selectedBooking._id, userId: userInfo.data.message._id,clientId:selectedBooking.clientId._id ,amount:selectedBooking.amount,status:selectedBooking.status});
-        console.log(response)
-        if ('data' in response) {
-          if(selectedBooking.status=='pending' || selectedBooking.status=='confirmed'){
-          setBookingReqData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));}
-          if(selectedBooking.status=='marked'){
-          setMarkedData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));}
-          if(selectedBooking.status=='booked'){
-          setBookingConfirmData((prevData) => prevData.filter(booking => booking._id !== selectedBooking._id));}
+        const response = await cancelbooking({
+          bookingId: selectedBooking._id,
+          userId: userInfo.data.message._id,
+          clientId: selectedBooking.clientId._id,
+          amount: selectedBooking.amount,
+          status: selectedBooking.status,
+        });
+        console.log(response);
+        if ("data" in response) {
+          if (
+            selectedBooking.status == "pending" ||
+            selectedBooking.status == "confirmed"
+          ) {
+            setBookingReqData((prevData) =>
+              prevData.filter((booking) => booking._id !== selectedBooking._id)
+            );
+          }
+          if (selectedBooking.status == "marked") {
+            setMarkedData((prevData) =>
+              prevData.filter((booking) => booking._id !== selectedBooking._id)
+            );
+          }
+          if (selectedBooking.status == "booked") {
+            setBookingConfirmData((prevData) =>
+              prevData.filter((booking) => booking._id !== selectedBooking._id)
+            );
+          }
           setIsConfirmationModalOpen(false);
           setIsBookingRequestModalOpen(false);
           setSelectedBooking(null);
           if (selectedBooking.amount !== 0) {
-            const newWalletBalance = userInfo.data.message.wallet + selectedBooking.amount;
+            const newWalletBalance =
+              userInfo.data.message.wallet + selectedBooking.amount;
             const updatedUserInfo = {
               ...userInfo,
               data: {
@@ -157,16 +252,26 @@ const ProfilePageSeller: React.FC = () => {
       }
     }
   };
+
+  const handleChatClick = (chat: any) => {
+    setSelectedChat(chat);
+    setSingleChatOpen(true);
+  };
+
   return (
     <>
-      <header className='bg-gray-950 bg-opacity-80'>
+      <header className="bg-gray-950 bg-opacity-80">
         <Navbar />
       </header>
       <main className="bg-black text-white min-h-screen">
         <div className="lg:w-8/12 lg:mx-auto mb-8">
           <header className="flex flex-wrap items-center p-4 md:py-8">
             <div className="w-full flex justify-end items-center mb-4">
-              <FontAwesomeIcon icon={faPlus} className="text-3xl text-white" onClick={() => setIsModalOpen(true)} />
+              <FontAwesomeIcon
+                icon={faPlus}
+                className="text-3xl text-white"
+                onClick={() => setIsModalOpen(true)}
+              />
             </div>
             <div className="md:w-3/12 md:ml-16">
               <img
@@ -190,17 +295,39 @@ const ProfilePageSeller: React.FC = () => {
                 )}
               </div>
               <ul className="hidden md:flex space-x-8 mb-4">
-                <li>
-                  <span className="font-semibold">{usersWithPosts.length}</span> posts
+                <li className="hover:cursor-pointer">
+                  <span className="font-semibold">{usersWithPosts.length}</span>{" "}
+                  posts
                 </li>
-                <li onClick={() => handleBookingRequestClick()}>
-                  <span className="font-semibold">{bookingReqData.length}</span> Booking Requests
+                <li
+                  className="hover:cursor-pointer"
+                  onClick={() => handleBookingRequestClick()}
+                >
+                  <span className="font-semibold">{bookingReqData.length}</span>{" "}
+                  Booking Requests
                 </li>
-                <li onClick={()=>handleMarkingRequestClick()}>
-                  <span className="font-semibold">{markedData.length}</span> Marked By
+                <li
+                  className="hover:cursor-pointer"
+                  onClick={() => handleMarkingRequestClick()}
+                >
+                  <span className="font-semibold">{markedData.length}</span>{" "}
+                  Marked By
                 </li>
-                <li onClick={()=>handleMarkingBookedclick()}>
-                  <span className="font-semibold">{bookingConfirmData.length}</span> Booked
+                <li
+                  className="hover:cursor-pointer"
+                  onClick={() => handleMarkingBookedclick()}
+                >
+                  <span className="font-semibold">
+                    {bookingConfirmData.length}
+                  </span>{" "}
+                  Booked
+                </li>
+                <li
+                  className="hover:cursor-pointer"
+                  onClick={() => setIsChatModalOpen(true)}
+                >
+                  <span className="font-semibold">{chats?.length || 0}</span>{" "}
+                  Chats
                 </li>
               </ul>
               <div className="hidden md:block">
@@ -209,23 +336,55 @@ const ProfilePageSeller: React.FC = () => {
               </div>
             </div>
             <div className="md:hidden text-sm my-2">
-              <h1 className="font-semibold">{userInfo.data.message.Fname} {userInfo.data.message.Lname}</h1>
+              <h1 className="font-semibold">
+                {userInfo.data.message.Fname} {userInfo.data.message.Lname}
+              </h1>
               <p>{userInfo.data.message.description}</p>
             </div>
           </header>
           <div className="px-px md:px-3">
             <ul className="flex md:hidden justify-around space-x-8 border-t text-center p-2 text-white leading-snug text-sm">
-              <li>
-                <span className="font-semibold block text-white">{usersWithPosts.length}</span> posts
+              <li className="hover:cursor-pointer">
+                <span className="font-semibold block text-white ">
+                  {usersWithPosts.length}
+                </span>{" "}
+                posts
               </li>
-              <li  onClick={() => handleBookingRequestClick()}>
-                <span className="font-semibold text-gray-200 block">{bookingReqData.length}</span> Booking Requests
+              <li
+                className="hover:cursor-pointer"
+                onClick={() => handleBookingRequestClick()}
+              >
+                <span className="font-semibold text-gray-200 block">
+                  {bookingReqData.length}
+                </span>{" "}
+                Booking Requests
               </li>
-              <li onClick={()=>handleMarkingRequestClick()}>
-                <span className="font-semibold text-gray-200 block">{markedData.length}</span> Marked By
+              <li
+                className="hover:cursor-pointer"
+                onClick={() => handleMarkingRequestClick()}
+              >
+                <span className="font-semibold text-gray-200 block">
+                  {markedData.length}
+                </span>{" "}
+                Marked By
               </li>
-              <li onClick={()=>handleMarkingBookedclick()}>
-                <span className="font-semibold text-gray-200 block">{bookingConfirmData.length}</span> Booked
+              <li
+                className="hover:cursor-pointer"
+                onClick={() => handleMarkingBookedclick()}
+              >
+                <span className="font-semibold text-gray-200 block">
+                  {bookingConfirmData.length}
+                </span>{" "}
+                Booked
+              </li>
+              <li
+                className="hover:cursor-pointer"
+                onClick={() => setIsChatModalOpen(true)}
+              >
+                <span className="font-semibold text-gray-200 block">
+                  {chats?.length || 0}
+                </span>{" "}
+                Chats
               </li>
             </ul>
             <ul className="flex items-center justify-around md:justify-center space-x-12 uppercase tracking-widest font-semibold text-xs text-gray-600 border-t">
@@ -241,12 +400,16 @@ const ProfilePageSeller: React.FC = () => {
                   <div key={index} className="w-1/3 p-px md:px-3">
                     <a href="#" onClick={() => handlePostClick(post)}>
                       <article className="post bg-gray-100 text-white relative pb-full md:mb-6">
-                        <img className="w-full h-full absolute left-0 top-0 object-cover" src={post.image} alt="image" />
+                        <img
+                          className="w-full h-full absolute left-0 top-0 object-cover"
+                          src={post.image}
+                          alt="image"
+                        />
                         <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
                           <div className="flex justify-center items-center space-x-4 h-full">
-                            <span className="p-2">
+                            {/* <span className="p-2">
                               <i className="fas fa-heart"></i> {post.likes}
-                            </span>
+                            </span> */}
                           </div>
                         </div>
                       </article>
@@ -272,61 +435,76 @@ const ProfilePageSeller: React.FC = () => {
           post={selectedPost}
           onClose={() => setIsPostDetailModalOpen(false)}
           onDelete={() => handleDeletePost(selectedPost._id)}
-          
         />
       )}
-     
+
       <BookingRequestModal
         isOpen={isBookingRequestModalOpen}
         onClose={() => setIsBookingRequestModalOpen(false)}
         bookings={bookingReqData}
         onCancel={() => handleCancelBooking()}
-       setChanges={setChanges}
-       message="Booking Request"
-       mark={false}
-       selectedBooking={selectedBooking}
-       setSelectedBooking={setSelectedBooking}
+        setChanges={setChanges}
+        message="Booking Request"
+        mark={false}
+        selectedBooking={selectedBooking}
+        setSelectedBooking={setSelectedBooking}
       />
-     
+
       {isConfirmationModalOpen && (
-       
         <ConfirmationModal
           message="Are you sure you want to cancel?"
           onConfirm={bookingCancel}
           onCancel={() => setIsConfirmationModalOpen(false)}
         />
-        
       )}
-      
+
       {isMarkedByModalOpen && (
-       
         <BookingRequestModal
-        isOpen={isMarkedByModalOpen}
-        onClose={()=>{setIsMarkedByModalOpen(false)}}
-        bookings={markedData}
-        onCancel={() => handleCancelBooking()}
-       setChanges={setChanges}
-       message="Marked Requests"
-       mark={true}
-       selectedBooking={selectedBooking}
-       setSelectedBooking={setSelectedBooking}
+          isOpen={isMarkedByModalOpen}
+          onClose={() => setIsMarkedByModalOpen(false)}
+          bookings={markedData}
+          onCancel={() => handleCancelBooking()}
+          setChanges={setChanges}
+          message="Marked Requests"
+          mark={true}
+          selectedBooking={selectedBooking}
+          setSelectedBooking={setSelectedBooking}
         />
-        
       )}
+
       {isBookedModalOpen && (
-       
         <BookingRequestModal
-        isOpen={isBookedModalOpen}
-        onClose={()=>{setIsBookedModalOpen(false)}}
-        bookings={bookingConfirmData}
-        onCancel={() => handleCancelBooking()}
-       setChanges={setChanges}
-       message="Booked"
-       mark={true}
-       selectedBooking={selectedBooking}
-       setSelectedBooking={setSelectedBooking}
+          isOpen={isBookedModalOpen}
+          onClose={() => setIsBookedModalOpen(false)}
+          bookings={bookingConfirmData}
+          onCancel={() => handleCancelBooking()}
+          setChanges={setChanges}
+          message="Booked"
+          mark={true}
+          selectedBooking={selectedBooking}
+          setSelectedBooking={setSelectedBooking}
         />
-        
+      )}
+
+      {isChatModalOpen && (
+        <Chats
+          isOpen={isChatModalOpen}
+          onClose={() => setIsChatModalOpen(false)}
+          chats={chats}
+          onChatClick={handleChatClick}
+          setChats={setChats}
+        />
+      )}
+      {singleChatOpen && (
+        <ChatComponent
+          receiverId={selectedChat?.userId._id || ""}
+          onClose={() => setSingleChatOpen(false)}
+          isOpen={singleChatOpen}
+          Fname={selectedChat?.userId.Fname || ""}
+          Lname={selectedChat?.userId.Lname || ""}
+          profile={selectedChat?.userId.profile || ""}
+          setChats={setChats}
+        />
       )}
       <Footer />
     </>

@@ -7,7 +7,7 @@ import ReactCrop, {
   PixelCrop,
 } from "react-image-crop";
 import setCanvasPreview from "../../../setCanvasPreview";
-import 'react-image-crop/dist/ReactCrop.css'
+import 'react-image-crop/dist/ReactCrop.css';
 
 const ASPECT_RATIO = 1;
 const MIN_DIMENSION = 150;
@@ -26,7 +26,16 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ closeModal, updateAvatar })
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      setImgSrc("");
+      setCrop(undefined);
+      
+      return;
+    }
 
     const reader = new FileReader();
     reader.addEventListener("load", () => {

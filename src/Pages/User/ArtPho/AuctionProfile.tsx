@@ -16,7 +16,7 @@ import { IAuction } from "../../../types/auction";
 import { useParams } from "react-router-dom";
 import { useSingleUserMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { User } from "../../../types/user";
-import ChatComponent from "../../../Components/Chat";
+import ChatComponent from "../../../Components/ChatSingle";
 const AuctionProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [allAuctions, { isLoading }] = useAllAuctionsMutation();

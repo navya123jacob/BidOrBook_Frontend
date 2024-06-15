@@ -3,6 +3,7 @@ import { useAllpostMutation } from "../../../redux/slices/Api/EndPoints/clientAp
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/slices/Reducers/types";
 import { Link } from "react-router-dom";
+import Footer from "../../User/Footer";
 
 interface Post {
   image: string;
@@ -62,7 +63,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black overflow-y-auto transform translate-y-0 transition-transform duration-300 h-screen">
+      <div className="relative min-h-screen bg-black overflow-y-auto transform translate-y-0 transition-transform duration-300">
         <div className="container mx-auto py-12">
           <section className="w-full mb-4">
             <div className="w-full h-[200px] bg-transparent flex flex-col justify-between items-center">
@@ -162,12 +163,12 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                         >
                           {post?.name}
                         </Link>
-                        <div className="flex flex-col justify-start text-center text-gray-800">
+                        {/* <div className="flex flex-col justify-start text-center text-gray-800">
                           <span className="text-3xl font-semibold leading-none tracking-wide">
                             04
                           </span>
                           <span className="leading-none uppercase">Aug</span>
-                        </div>
+                        </div> */}
                       </div>
                       <h2 className="z-10 p-5">
                         <Link
@@ -186,6 +187,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
           )}
         </div>
       </div>
+      <Footer/>
     </>
   );
 };
