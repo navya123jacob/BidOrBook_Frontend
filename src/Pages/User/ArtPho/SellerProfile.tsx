@@ -157,20 +157,20 @@ const ProfilePageSeller: React.FC = () => {
     const fetchBookings = async () => {
       try {
         const response = await bookingsreq({
-          artistId: userInfo.data.message._id,
+          artistId: userInfo.data.message._id,clientId:''
         });
         if ("data" in response) {
           setBookingReqData(response.data?.bookings);
         }
 
         const response2 = await bookingsConfirm({
-          artistId: userInfo.data.message._id,
+          artistId: userInfo.data.message._id,clientId:''
         });
         if ("data" in response2) {
           setBookingConfirmData(response2.data?.bookings);
         }
 
-        const response3 = await marked({ artistId: userInfo.data.message._id });
+        const response3 = await marked({ artistId: userInfo.data.message._id,clientId:'' });
         if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
         }

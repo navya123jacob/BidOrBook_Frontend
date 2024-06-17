@@ -6,6 +6,7 @@ import ProfileForm from "../../Components/User/ProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
 import { useGetUserChatsQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useAuctionByBidderMutation, useDeleteAuctionMutation } from "../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { User } from "../../types/user";
 import { io } from "socket.io-client";
 import {
@@ -15,6 +16,10 @@ import {
 } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { Booking } from "../../types/booking";
 import BookingViewModal from "../../Components/User/BookingViewModal";
+import { IAuction } from "../../types/auction";
+import AuctionList from "../../Components/User/AuctionsViewModal";
+import AuctionDetailModal from "../../Components/ArtPho/AuctionDetail";
+import BiddingModal from "../../Components/User/MakeBid";
 
 const socket = io("http://localhost:8888");
 interface PopulatedChat {
@@ -34,7 +39,15 @@ const ClientProfilePage: React.FC = () => {
   const [bookingReqData, setBookingReqData] = useState<Booking[]>([]);
   const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
   const [markedData, setMarkedData] = useState<Booking[]>([]);
+  const [currentbids,setCurrentbids]=useState<IAuction[]>([])
+  const [isAuctionDetModalOpen, setIsAuctionDetModalOpen] =useState(false);
+  const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
+  const [purchased,setPurchased]=useState<IAuction[]>([])
+  const [selectedAuction, setSelectedAuction] = useState<IAuction | null>(null);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [bids, setBids] = useState<{ userId: string; amount: number }[]>([]);
+  const[AuctionByBidder] =useAuctionByBidderMutation()
+  const [deleteAuction] = useDeleteAuctionMutation();
   const {
     data: mychats,
     error: chatError,
@@ -45,21 +58,21 @@ const ClientProfilePage: React.FC = () => {
     const fetchBookings = async () => {
       try {
         const response = await bookingsreq({
-          artistId: userInfo.data.message._id,
+          clientId: userInfo.data.message._id,artistId:''
         });
         if ("data" in response) {
           setBookingReqData(response.data?.bookings);
         }
 
         const response2 = await bookingsConfirm({
-          artistId: userInfo.data.message._id,
+          clientId: userInfo.data.message._id,artistId:''
         });
         if ("data" in response2) {
           setBookingConfirmData(response2.data?.bookings);
         }
        
 
-        const response3 = await marked({ artistId: userInfo.data.message._id });
+        const response3 = await marked({ clientId: userInfo.data.message._id,artistId:'' });
         
         if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
@@ -136,6 +149,24 @@ const ClientProfilePage: React.FC = () => {
       })
     );
   };
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        const response = await AuctionByBidder({ clientId: userInfo.data.message._id });
+        if ('data' in response) {
+          const auctions = response.data.auctions;
+          const pendingBids = auctions.filter((auction: IAuction) => auction.payment === 'pending');
+          const paidBids = auctions.filter((auction: any) => auction.payment === 'paid');
+          setCurrentbids(pendingBids);
+          setPurchased(paidBids);
+        }
+      } catch (err) {
+        console.error('Error fetching auctions:', err);
+      }
+    };
+
+    fetchAuctions();
+  }, [AuctionByBidder, userInfo.data.message._id]);
 
   const handleSectionClick = (section: string) => {
     setActiveSection(section);
@@ -144,6 +175,26 @@ const ClientProfilePage: React.FC = () => {
   const handleChatClick = (chat: PopulatedChat) => {
     setSelectedChat(chat);
     setIsChatModalOpen(false);
+  };
+  const handleSelectAuction = (auction: IAuction) => {
+    setSelectedAuction(auction);
+  };
+  const handleDeleteAuction = async (auctionId: string) => {
+    await deleteAuction({ auctionId, userId: userInfo.data.message._id });
+    if(selectedAuction?.payment=='paid'){
+    setPurchased((prevAuctions) =>
+      prevAuctions.filter((auction) => auction._id !== auctionId)
+    );}
+    else{
+      setCurrentbids((prevAuctions) =>
+        prevAuctions.filter((auction) => auction._id !== auctionId)
+      );
+    }
+    setIsAuctionDetModalOpen(false);
+  };
+  const handleBid = (amount: number) => {
+    setBids([{ userId: userInfo.data.message._id, amount }, ...bids]);
+    setIsBiddingModalOpen(false);
   };
 
   return (
@@ -241,7 +292,7 @@ const ClientProfilePage: React.FC = () => {
                             <span className="text-sm font-medium">Profile</span>
                           </button>
                         </li>
-                        <li>
+                        {/* <li>
                           <button
                             type="button"
                             className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
@@ -255,6 +306,55 @@ const ClientProfilePage: React.FC = () => {
                               <i className="bx bx-shopping-bag"></i>
                             </span>
                             <span className="text-sm font-medium">Address</span>
+                          </button>
+                        </li> */}
+                        
+                        <li>
+                          <button
+                            type="button"
+                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
+                              activeSection === "marked"
+                                ? "text-gray-800 font-bold"
+                                : "text-gray-500"
+                            }`}
+                            onClick={() => handleSectionClick("marked")}
+                          >
+                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
+                              <i className="bx bx-shopping-bag"></i>
+                            </span>
+                            <span className="text-sm font-medium">Marked Bookings</span>
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            type="button"
+                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
+                              activeSection === "requested"
+                                ? "text-gray-800 font-bold"
+                                : "text-gray-500"
+                            }`}
+                            onClick={() => handleSectionClick("requested")}
+                          >
+                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
+                              <i className="bx bx-shopping-bag"></i>
+                            </span>
+                            <span className="text-sm font-medium">Requested bookings</span>
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            type="button"
+                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
+                              activeSection === "booked"
+                                ? "text-gray-800 font-bold"
+                                : "text-gray-500"
+                            }`}
+                            onClick={() => handleSectionClick("booked")}
+                          >
+                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
+                              <i className="bx bx-user"></i>
+                            </span>
+                            <span className="text-sm font-medium">Booked</span>
                           </button>
                         </li>
                         <li>
@@ -279,22 +379,6 @@ const ClientProfilePage: React.FC = () => {
                           <button
                             type="button"
                             className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
-                              activeSection === "marked"
-                                ? "text-gray-800 font-bold"
-                                : "text-gray-500"
-                            }`}
-                            onClick={() => handleSectionClick("marked")}
-                          >
-                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
-                              <i className="bx bx-shopping-bag"></i>
-                            </span>
-                            <span className="text-sm font-medium">Marked</span>
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            type="button"
-                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
                               activeSection === "purchased"
                                 ? "text-gray-800 font-bold"
                                 : "text-gray-500"
@@ -309,22 +393,7 @@ const ClientProfilePage: React.FC = () => {
                             </span>
                           </button>
                         </li>
-                        <li>
-                          <button
-                            type="button"
-                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
-                              activeSection === "booked"
-                                ? "text-gray-800 font-bold"
-                                : "text-gray-500"
-                            }`}
-                            onClick={() => handleSectionClick("booked")}
-                          >
-                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
-                              <i className="bx bx-user"></i>
-                            </span>
-                            <span className="text-sm font-medium">Booked</span>
-                          </button>
-                        </li>
+                        
                         <li>
                           <button
                             type="button"
@@ -380,6 +449,26 @@ const ClientProfilePage: React.FC = () => {
                        marked={markedData}
                       />
                     )}
+                    {activeSection === "requested" && (
+                      <BookingViewModal
+                       message='Requested Bookings'
+                       marked={bookingReqData}
+                      />
+                    )}
+                    {activeSection === "booked" && (
+                      <BookingViewModal
+                       message='Booked'
+                       marked={bookingConfirmData}
+                      
+                      />
+                    )}
+                    {activeSection === "bids" && (
+                      <AuctionList
+                       auctions={currentbids}
+                       onSelectAuction={handleSelectAuction}
+                       setIsAuctionDetModalOpen={setIsAuctionDetModalOpen}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -396,6 +485,27 @@ const ClientProfilePage: React.FC = () => {
           Fname={selectedChat.userId.Fname}
           Lname={selectedChat.userId.Lname}
           profile={selectedChat.userId.profile}
+        />
+      )}
+      {isAuctionDetModalOpen && selectedAuction && (
+        <AuctionDetailModal
+          auction={selectedAuction}
+          onClose={() => setIsAuctionDetModalOpen(false)}
+          onDelete={() => handleDeleteAuction(selectedAuction._id)}
+          onOpenBiddingModal={() => setIsBiddingModalOpen(true)}
+          SetselectedAuction={setSelectedAuction}
+          
+          
+        />
+      )}
+      {isBiddingModalOpen && (
+        <BiddingModal
+          initialBid={selectedAuction?.initial || 0}
+          bids={selectedAuction?.bids||[]}
+          onClose={() => setIsBiddingModalOpen(false)}
+          onBid={handleBid}
+          auctionId={selectedAuction?._id || ""}
+          SetselectedAuction={setSelectedAuction}
         />
       )}
     </>

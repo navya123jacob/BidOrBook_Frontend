@@ -10,4 +10,5 @@ export interface IAuction extends Document {
   endingdate: Date;
   status: 'active' | 'inactive';
   initial: number;
+  payment:string
 }

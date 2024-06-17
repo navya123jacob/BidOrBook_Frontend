@@ -1,10 +1,11 @@
 import React, { useState, useEffect, SetStateAction, Dispatch } from 'react';
+import { toast } from 'react-toastify';
 import {
   differenceInMonths,
   differenceInDays,
   differenceInHours,
   differenceInMinutes,
-  differenceInSeconds
+  differenceInSeconds,
 } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
@@ -14,16 +15,30 @@ import { IAuction } from '../../types/auction';
 import BidsModal from '../BidModal';
 import { io } from 'socket.io-client';
 import { Link } from 'react-router-dom';
+import {
+  useCreateCheckoutSessionAuctionMutation
+} from "../../redux/slices/Api/EndPoints/bookingEndpoints";
+import { useWalletAuctionMutation } from '../../redux/slices/Api/EndPoints/auctionEndPoints';
+
 interface AuctionDetailModalProps {
   auction: IAuction;
   onClose: () => void;
   onDelete: () => void;
   onOpenBiddingModal: () => void;
   SetselectedAuction: Dispatch<SetStateAction<IAuction | null>>;
-  profbut?:boolean
+  profbut?: boolean;
 }
 
-const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClose, onDelete, onOpenBiddingModal, SetselectedAuction,profbut }) => {
+const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
+  auction,
+  onClose,
+  onDelete,
+  onOpenBiddingModal,
+  SetselectedAuction,
+  profbut,
+}) => {
+  const [createCheckoutSession, { isLoading: isCreatingCheckoutSession }] = useCreateCheckoutSessionAuctionMutation();
+  const [wallet, { isLoading: isWalletProcessing }] = useWalletAuctionMutation();
   const [timeLeft, setTimeLeft] = useState('');
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showBidsModal, setShowBidsModal] = useState(false);
@@ -32,7 +47,95 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [cancelBid, setCancelBid] = useState(false);
   const [cancelBidfn] = useCancelBidMutation();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [address, setAddress] = useState({
+    addressline: '',
+    district: '',
+    state: '',
+    country: '',
+    pincode: '',
+    phonenumber: '',
+  });
+  const [addressError, setAddressError] = useState<string | null>(null);
   const socket = io('http://localhost:8888');
+
+  const handlePayClick = async () => {
+    if (!validateAddress()) return;
+
+    try {
+      if (auction.bids.length < 1) {
+        return;
+      }
+      const response = await createCheckoutSession({
+        auctionId: auction._id,
+        amount: auction?.bids[auction.bids.length - 1].amount,
+        artistId: auction.userId,
+        clientId: userInfo.data.message._id,
+        address,
+      }).unwrap();
+
+      if (response?.url) {
+        const decodedUrl = decodeURIComponent(response.url);
+        console.log(decodedUrl);
+        window.location.href = decodedUrl;
+      }
+    } catch (error) {
+      console.error("Error creating Stripe checkout session:", error);
+    }
+  };
+
+  const handleWalletPayment = async () => {
+    if (!validateAddress()) return;
+
+    if (userInfo.data.message.wallet < auction?.bids[auction.bids.length - 1].amount) {
+      setWalletError("Insufficient wallet balance.");
+    } else {
+      try {
+        const response = await wallet({
+          auctionId: auction._id,
+          amount: auction?.bids[auction.bids.length - 1].amount,
+          clientId: userInfo.data.message._id,
+          address,
+        }).unwrap();
+        toast.success("Payment successful!");
+        
+        SetselectedAuction(response.updatedAuction);
+        setIsPaymentModalOpen(false);
+        onClose();
+      } catch (error) {
+        console.error("Error processing wallet payment:", error);
+        setWalletError("Failed to process wallet payment");
+      }
+    }
+  };
+
+  const validateAddress = () => {
+    const { addressline, district, state, country, pincode, phonenumber } = address;
+    const pincodeRegex = /^\d{6}$/;
+    const phoneRegex = /^[1-9]\d{9}$/;
+
+    if (!addressline.trim() || !district.trim() || !state.trim() || !country.trim()) {
+      setAddressError("All address fields are required and must not be empty.");
+      return false;
+    }
+    if (!pincodeRegex.test(pincode)) {
+      setAddressError("Pincode must be a 6-digit number.");
+      return false;
+    }
+    if (!phoneRegex.test(phonenumber)) {
+      setAddressError("Phone number must be a 10-digit number");
+      return false;
+    }
+
+    setAddressError(null);
+    return true;
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAddress(prevState => ({ ...prevState, [name]: value }));
+  };
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -64,27 +167,28 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
     socket.emit('join_auction', { auctionId: auction._id });
 
     socket.on('new_bid', (data) => {
-      console.log('New bid received:', data); 
+      console.log('New bid received:', data);
       SetselectedAuction((prevAuction) => {
         if (prevAuction) {
-          const updatedBids = [...prevAuction.bids, { userId: data.userId, amount: data.amount }];
+          const updatedBids = [...(prevAuction.bids || []), { userId: data.userId, amount: data.amount }];
           updatedBids.sort((a, b) => b.amount - a.amount);
           return {
             ...prevAuction,
-            bids: updatedBids
+            bids: updatedBids,
           };
         }
         return prevAuction;
       });
     });
+
     socket.on('cancel_bid', (data) => {
       console.log('Bid cancelled:', data);
       SetselectedAuction((prevAuction) => {
         if (prevAuction) {
-          const updatedBids = prevAuction.bids.filter(bid => bid.userId !== data.userId);
+          const updatedBids = (prevAuction.bids || []).filter((bid) => bid.userId !== data.userId);
           return {
             ...prevAuction,
-            bids: updatedBids
+            bids: updatedBids,
           };
         }
         return prevAuction;
@@ -147,6 +251,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
   const userBid = auction.bids ? auction.bids.find((bid: any) => bid.userId === userInfo.data.message._id) : null;
   const highestBid = auction.bids && auction.bids.length > 0 ? Math.max(...auction.bids.map((bid: any) => bid.amount)) : 0;
   const isLeading = userBid && userBid.amount >= highestBid;
+  const isHighestBidder = auction.bids && auction.bids.length > 0 && auction.bids[auction.bids.length - 1].userId === userInfo.data.message._id;
 
   const handleBidding = () => {
     onOpenBiddingModal();
@@ -182,20 +287,22 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
       <div className="fixed inset-0 z-40 overflow-auto bg-smoke-light flex">
         <div className="relative p-8 bg-white w-full max-w-md m-auto flex-col flex rounded-lg bg-opacity-95">
           <span className="absolute top-0 right-0 p-4">
-            <button onClick={onClose}><i className="fa fa-close"></i></button>
+            <button onClick={onClose}>
+              <i className="fa fa-close"></i>
+            </button>
           </span>
           {profbut && (
-        <Link to={`/artpho/auction/${auction.userId}`}>
-          <button className="bg-gray-300 text-black px-4 py-2 my-4 rounded" >
-            Go to Profile
-          </button>
-        </Link>
-      )}
+            <Link to={`/artpho/auction?id=${auction.userId}`}>
+              <button className="bg-gray-300 text-black px-4 py-2 my-4 rounded">
+                Go to Profile
+              </button>
+            </Link>
+          )}
           <div>
             <h2 className="text-2xl mb-4">{auction.name}</h2>
             <img src={auction.image} alt={auction.name} className="w-full mb-4" />
             <p>{auction.description}</p>
-            <p className="mt-4">Initial Bid: ${auction.initial}</p>
+            <p className="mt-4">Initial Bid: ₹{auction.initial}</p>
             <p className="mt-4">Time Left: {timeLeft}</p>
             {error && <p className="text-red-500 mt-4">{error}</p>}
             <div className="mt-4">
@@ -209,17 +316,36 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
                 </button>
               ) : (
                 <>
-                  {userBid ? (
-                    <button
-                      onClick={confirmCancelBid}
-                      className={`bg-${isLeading ? 'green' : 'yellow'}-500 text-white px-4 py-2 rounded`}
-                    >
-                      {isLeading ? 'Leading' : 'Behind'}
-                    </button>
+                  {auction.status === 'inactive' ? (
+                    isHighestBidder ? (
+                      auction.payment=='pending'?(
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                     disabled={isCreatingCheckoutSession}>
+                       {isCreatingCheckoutSession ? "Processing..." : "PAY NOW!"}
+                      </button>): (
+                      <button className="bg-gray-500 text-white px-4 py-2 rounded" disabled>
+                        YOU WON!
+                      </button>
+                    )
+                    ) : (
+                      <button className="bg-gray-500 text-white px-4 py-2 rounded" disabled>
+                        SORRY,FINISHED
+                      </button>
+                    )
                   ) : (
-                    <button onClick={handleBidding} className="bg-blue-500 text-white px-4 py-2 rounded">
-                      Bid
-                    </button>
+                    userBid ? (
+                      <button
+                        onClick={confirmCancelBid}
+                        className={`bg-${isLeading ? 'green' : 'yellow'}-500 text-white px-4 py-2 rounded`}
+                      >
+                        {isLeading ? 'Leading' : 'Trailing'}
+                      </button>
+                    ) : (
+                      <button onClick={handleBidding} className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Bid
+                      </button>
+                    )
                   )}
                 </>
               )}
@@ -232,6 +358,107 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({ auction, onClos
           </div>
         </div>
       </div>
+      {isPaymentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white bg-opacity-80 p-4 rounded-lg max-w-lg mx-auto text-gray-900 relative">
+            <div className="modal-header flex justify-between bg-modal-header rounded-t-lg p-4">
+              <h2 className="modal-title text-black">Select Payment Method</h2>
+              <button
+                className="modal-close"
+                onClick={() => setIsPaymentModalOpen(false)}
+              >
+                <i className="fas fa-times text-black"></i>
+              </button>
+            </div>
+            <div className="modal-body bg-modal-body">
+              <form>
+                <div className="mb-4">
+                  <label htmlFor="addressline" className="block text-sm font-medium text-gray-700">Address Line</label>
+                  <input
+                    type="text"
+                    name="addressline"
+                    id="addressline"
+                    value={address.addressline}
+                    onChange={handleAddressChange}
+                    className="mt-1 p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="district" className="block text-sm font-medium text-gray-700">District</label>
+                  <input
+                    type="text"
+                    name="district"
+                    id="district"
+                    value={address.district}
+                    onChange={handleAddressChange}
+                    className="mt-1 p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
+                  <input
+                    type="text"
+                    name="state"
+                    id="state"
+                    value={address.state}
+                    onChange={handleAddressChange}
+                    className="mt-1 p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
+                  <input
+                    type="text"
+                    name="country"
+                    id="country"
+                    value={address.country}
+                    onChange={handleAddressChange}
+                    className="mt-1 p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="pincode" className="block text-sm font-medium text-gray-700">Pincode</label>
+                  <input
+                    type="text"
+                    name="pincode"
+                    id="pincode"
+                    value={address.pincode}
+                    onChange={handleAddressChange}
+                    className="mt-1 p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="phonenumber" className="block text-sm font-medium text-gray-700">Phone Number</label>
+                  <input
+                    type="text"
+                    name="phonenumber"
+                    id="phonenumber"
+                    value={address.phonenumber}
+                    onChange={handleAddressChange}
+                    className="mt-1 p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+                {addressError && <p className="text-red-500 mb-4">{addressError}</p>}
+              </form>
+              <button
+                className="bg-blue-900 hover:bg-blue-700 m-5 text-white font-bold py-2 px-4 my-5 rounded"
+                onClick={handlePayClick}
+                disabled={isCreatingCheckoutSession}
+              >
+                {isCreatingCheckoutSession ? "Processing..." : "Pay with Stripe"}
+              </button>
+              <button
+                className="bg-green-900 hover:bg-green-700 m-5 text-white font-bold py-2 px-4 my-5 rounded"
+                onClick={handleWalletPayment}
+                disabled={isWalletProcessing}
+              >
+                {isWalletProcessing ? "Processing..." : "Pay with Wallet"}
+              </button>
+              {walletError && <p className="text-red-500">{walletError}</p>}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

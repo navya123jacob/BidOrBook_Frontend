@@ -13,12 +13,14 @@ import {
   useDeleteAuctionMutation,
 } from "../../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { IAuction } from "../../../types/auction";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useSingleUserMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { User } from "../../../types/user";
 import ChatComponent from "../../../Components/ChatSingle";
+
 const AuctionProfilePage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const id = searchParams.get('id')?? undefined;
   const [allAuctions, { isLoading }] = useAllAuctionsMutation();
   const [deleteAuction] = useDeleteAuctionMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -26,13 +28,14 @@ const AuctionProfilePage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [selectedAuction, setSelectedAuction] = useState<IAuction | null>(null);
   const [isAuctionDetailModalOpen, setIsAuctionDetailModalOpen] =
-    useState(false);
+  useState(false);
   const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
   const [auctions, setAuctions] = useState<any[]>([]);
   const [bids, setBids] = useState<{ userId: string; amount: number }[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [SingleUser] = useSingleUserMutation();
   const [isChatOpen, setIsChatOpen] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -93,6 +96,7 @@ const AuctionProfilePage: React.FC = () => {
     setBids([{ userId: userInfo.data.message._id, amount }, ...bids]);
     setIsBiddingModalOpen(false);
   };
+
   const handleDMClick = () => {
     setIsChatOpen(true);
   };
@@ -170,7 +174,12 @@ const AuctionProfilePage: React.FC = () => {
                 <span className="loader"></span>
               ) : (
                 auctions.map((auction: any, index: number) => (
-                  <div key={index} className="w-1/3 p-px md:px-3">
+                  <div
+                    key={index}
+                    className={`w-1/3 p-px md:px-3 ${
+                      auction.status === "inactive" ? "opacity-50" : ""
+                    }`}
+                  >
                     <a href="#" onClick={() => handleAuctionClick(auction)}>
                       <article className="post bg-gray-100 text-white relative pb-full md:mb-6">
                         <img
@@ -178,6 +187,13 @@ const AuctionProfilePage: React.FC = () => {
                           src={auction.image}
                           alt="image"
                         />
+                        {auction.status === "inactive" && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">
+                              Auction ended
+                            </span>
+                          </div>
+                        )}
                         <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
                           <div className="flex justify-center items-center space-x-4 h-full"></div>
                         </div>
@@ -212,7 +228,7 @@ const AuctionProfilePage: React.FC = () => {
       {isBiddingModalOpen && (
         <BiddingModal
           initialBid={selectedAuction?.initial || 0}
-          bids={bids}
+          bids={selectedAuction?.bids||[]}
           onClose={() => setIsBiddingModalOpen(false)}
           onBid={handleBid}
           auctionId={selectedAuction?._id || ""}

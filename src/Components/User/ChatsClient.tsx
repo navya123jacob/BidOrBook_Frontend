@@ -21,17 +21,17 @@ const ChatsClient: React.FC<ChatModalProps> = ({ chats, onChatClick, setChats })
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
 
   useEffect(() => {
-    // Listen for new chat messages
+    
     socket.on('newMessage', (newMessage) => {
       setChats((prevChats) => {
         const updatedChats = [...prevChats];
         const chatIndex = updatedChats.findIndex((chat) => chat.userId._id === newMessage.userId);
         
         if (chatIndex !== -1) {
-          // Add the new message to the existing chat
+          
           updatedChats[chatIndex].messages.push(newMessage);
         } else {
-          // Create a new chat if it doesn't exist
+          
           updatedChats.push({
             userId: newMessage.userId,
             messages: [newMessage]

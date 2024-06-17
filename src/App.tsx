@@ -13,6 +13,7 @@ import ProfileSellerClientSide from './Pages/User/SellerProfileClientside';
 import AuctionProfilePage from './Pages/User/ArtPho/AuctionProfile';
 import Auctions from './Pages/User/Auctions';
 import About from './Pages/About';
+import AnimatedImageComponent from './Pages/Errorelem';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -23,7 +24,7 @@ function App(): JSX.Element {
         {/* Public Routes */}
         <Route path="/signup" element={!userInfo ? <SignupUser /> : <Navigate to="/" />} />
         <Route path="/" element={!userInfo ? <LoginUser /> : (userInfo.client ? <HomeUser /> : <HomeArtPho />)} />
-        <Route path="/artpho/auction/:id" element={userInfo ? <AuctionProfilePage /> : <Navigate to="/" />} />
+        <Route path="/artpho/auction" element={userInfo ? <AuctionProfilePage /> : <Navigate to="/" />} />
         <Route path="/about" element={<About />} />
         
         <Route element={<ProtectedArtistRoute />}>
@@ -40,7 +41,7 @@ function App(): JSX.Element {
         </Route>
 
         {/* Fallback route */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<AnimatedImageComponent/>} />
       </Routes>
     </BrowserRouter>
   );

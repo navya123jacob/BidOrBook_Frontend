@@ -15,25 +15,27 @@ interface BiddingModalProps {
 }
 
 const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, onBid, auctionId, SetselectedAuction }) => {
-  const [bidAmount, setBidAmount] = useState<number>(bids.length > 0 ? bids[bids.length - 1].amount + 1 : initialBid + 1);
+  const highestBid = bids.length > 0 ? bids[bids.length - 1].amount : initialBid;
+  const [bidAmount, setBidAmount] = useState<number>(highestBid + 1);
   const [error, setError] = useState<string>('');
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [placeBid, { isLoading }] = usePlacebidMutation();
-  const socket = io('http://localhost:8888');
+  const socket = io('http://localhost:8888', { autoConnect: false });
 
   useEffect(() => {
     socket.connect();
     socket.emit('join_auction', { auctionId });
+
     socket.on('new_bid', (data) => {
       console.log('New bid received:', data);
       SetselectedAuction((prevAuction) => {
         if (prevAuction) {
-          const updatedBids = [...prevAuction.bids, { userId: data.userId, amount: data.amount }];
+          const updatedBids = [...(prevAuction.bids || []), { userId: data.userId, amount: data.amount }];
           updatedBids.sort((a, b) => b.amount - a.amount);
-          setBidAmount(updatedBids[0].amount + 1); // Update the bid amount based on the new highest bid
+          setBidAmount(updatedBids[0].amount + 1);
           return {
             ...prevAuction,
-            bids: updatedBids
+            bids: updatedBids,
           };
         }
         return prevAuction;
@@ -42,6 +44,7 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
 
     return () => {
       socket.off('new_bid');
+      socket.disconnect();
     };
   }, [auctionId, SetselectedAuction]);
 
@@ -75,9 +78,9 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
           onClick={onClose}
           className="absolute top-2 right-2 p-1 rounded-full"
         >
-         <i className="fa fa-close"></i>
+          <i className="fa fa-close"></i>
         </button>
-        
+
         <h2 className="text-lg font-semibold mb-4">Place a Bid</h2>
         {error && <div className="text-red-500 mb-2">{error}</div>}
         <form onSubmit={handleBidSubmit}>
@@ -88,7 +91,8 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
               id="bid"
               name="bid"
               value={bidAmount}
-              min={bids.length > 0 ? bids[bids.length - 1].amount + 1 : initialBid + 1}
+              // min={highestBid + 1}
+              placeholder={(highestBid + 1).toString()}
               onChange={(e) => setBidAmount(Number(e.target.value))}
               className="block w-full mt-1 p-2 border-gray-300 rounded-md"
             />

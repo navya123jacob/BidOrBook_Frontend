@@ -83,9 +83,26 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
+        createCheckoutSessionAuction: builder.mutation({
+            query: (data) => ({
+                url: '/create-checkout-session-auction',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
         wallet: builder.mutation({
             query: (data) => ({
                 url: '/wallet-payment',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
+        
+        findAvailablePeople: builder.mutation({
+            query: (data) => ({
+                url: '/find-available-people',
                 method: 'POST',
                 body: data,
                 
@@ -106,7 +123,9 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
         useUpdatebookingMutation,
         useCancelPaymentReqMutation,
         useCreateCheckoutSessionMutation,
-        useWalletMutation
+        useCreateCheckoutSessionAuctionMutation,
+        useWalletMutation,
+        useFindAvailablePeopleMutation
         
    
 } = BookingApiSlice

@@ -42,14 +42,32 @@ export const AuctionApiSlice = apiSlice.injectEndpoints({
         body: { userId },
       }),
     }),
+    walletAuction: builder.mutation({
+      query: (data) => ({
+          url: '/wallet-payment-auction',
+          method: 'POST',
+          body: data,
+          
+      }),
+  }), 
+    AuctionByBidder: builder.mutation({
+      query: (data) => ({
+          url: '/auctions-by-bidder',
+          method: 'POST',
+          body: data,
+          
+      }),
+  }), 
         }),
       });
       
       export const {
+        useAuctionByBidderMutation,
         useCreateauctionMutation,
         useAllAuctionsMutation,
         useDeleteAuctionMutation,
         usePlacebidMutation,
-        useCancelBidMutation   
+        useCancelBidMutation ,
+        useWalletAuctionMutation  
 
 } = AuctionApiSlice

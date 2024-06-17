@@ -6,82 +6,117 @@ import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
 // google response type
 interface NewUserResponse {
-    status: number; 
-    data: any; 
-  }
-  
+  status: number; 
+  data: any; 
+}
+
 const GoogleComp = () => {
-    const G_Password = import.meta.env.VITE_GOOGLE_PASSWORD;
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const [mobile, setMobile] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [userType, setUserType] = useState('');
-    const [mobileError, setMobileError] = useState('');
-    const [passwordError, setPasswordError] = useState('');
-    const [confirmPasswordError, setConfirmPasswordError] = useState('');
-    const [userTypeError, setUserTypeError] = useState('');
-    const { user, logout } = useAuth0();
-    const [signup, { isLoading }] = useSignupMutation();
-    console.log(user);
-  
-    const handleRegister = async () => {
-      let isValid = true;
-  
-      const mobileRegex = /^[0-9]{10}$/;
-      if (!mobile.trim() || !mobileRegex.test(mobile)) {
-        setMobileError('Please enter a valid mobile number');
-        isValid = false;
-      } else {
-        setMobileError('');
+  const G_Password = import.meta.env.VITE_GOOGLE_PASSWORD;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [mobile, setMobile] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userType, setUserType] = useState('');
+  const [district, setDistrict] = useState('');
+  const [state, setState] = useState('');
+  const [country, setCountry] = useState('');
+  const [mobileError, setMobileError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [userTypeError, setUserTypeError] = useState('');
+  const [districtError, setDistrictError] = useState('');
+  const [stateError, setStateError] = useState('');
+  const [countryError, setCountryError] = useState('');
+  const { user, logout } = useAuth0();
+  const [signup, { isLoading }] = useSignupMutation();
+  console.log(user);
+
+  const handleRegister = async () => {
+    let isValid = true;
+
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobile.trim() || !mobileRegex.test(mobile)) {
+      setMobileError('Please enter a valid mobile number');
+      isValid = false;
+    } else {
+      setMobileError('');
+    }
+
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{6,}$/;
+    if (!password.trim() || !passwordRegex.test(password)) {
+      setPasswordError('Password must be strong ');
+      isValid = false;
+    } else {
+      setPasswordError('');
+    }
+
+    // Validate confirm password
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      isValid = false;
+    } else {
+      setConfirmPasswordError('');
+    }
+
+    // Validate user type selection
+    if (!userType) {
+      setUserTypeError('Please select a user type');
+      isValid = false;
+    } else {
+      setUserTypeError('');
+    }
+
+    // Validate district
+    if (!district.trim()) {
+      setDistrictError('Please enter your district');
+      isValid = false;
+    } else {
+      setDistrictError('');
+    }
+
+    // Validate state
+    if (!state.trim()) {
+      setStateError('Please enter your state');
+      isValid = false;
+    } else {
+      setStateError('');
+    }
+
+    // Validate country
+    if (!country.trim()) {
+      setCountryError('Please enter your country');
+      isValid = false;
+    } else {
+      setCountryError('');
+    }
+
+    if (!isValid) {
+      return;
+    }
+
+    const formData = {
+      Fname: user?.given_name,
+      Lname: user?.family_name,
+      email: user?.email,
+      password,
+      is_google: true,
+      phone: mobile,
+      location: {
+        district,
+        state,
+        country
       }
-  
-      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{6,}$/;
-      if (!password.trim() || !passwordRegex.test(password)) {
-        setPasswordError('Password must be strong ');
-        isValid = false;
-      } else {
-        setPasswordError('');
-      }
-  
-      // Validate confirm password
-      if (password !== confirmPassword) {
-        setConfirmPasswordError('Passwords do not match');
-        isValid = false;
-      } else {
-        setConfirmPasswordError('');
-      }
-  
-      // Validate user type selection
-      if (!userType) {
-        setUserTypeError('Please select a user type');
-        isValid = false;
-      } else {
-        setUserTypeError('');
-      }
-  
-      if (!isValid) {
-        return;
-      }
-  
-      const formData = {
-        Fname: user?.given_name,
-        Lname: user?.family_name,
-        email: user?.email,
-        password,
-        is_google: true,
-        phone: mobile
-      };
-      console.log('formdata',formData)
-  
-      const newUser:any = await signup(formData);
-      if(newUser?.error){
-      toast.error(newUser?.error?.data?.message)}
-      else{
-        toast.success('Successfully Registered')
-      }
-      setTimeout(logout, 3000);
+    };
+    console.log('formdata', formData)
+
+    const newUser: any = await signup(formData);
+    if (newUser?.error) {
+      toast.error(newUser?.error?.data?.message)
+    } else {
+      toast.success('Successfully Registered')
+    }
+    setTimeout(logout, 3000);
 
   };
 
@@ -143,6 +178,51 @@ const GoogleComp = () => {
             <p className="text-red-500">{confirmPasswordError}</p>
           )}
         </div>
+        <div>
+          <label htmlFor="district" className="sr-only">
+            District
+          </label>
+          <input
+            type="text"
+            name="district"
+            id="district"
+            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+            placeholder="Enter your district"
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+          />
+          {districtError && <p className="text-red-500">{districtError}</p>}
+        </div>
+        <div>
+          <label htmlFor="state" className="sr-only">
+            State
+          </label>
+          <input
+            type="text"
+            name="state"
+            id="state"
+            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+            placeholder="Enter your state"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+          />
+          {stateError && <p className="text-red-500">{stateError}</p>}
+        </div>
+        <div>
+          <label htmlFor="country" className="sr-only">
+            Country
+          </label>
+          <input
+            type="text"
+            name="country"
+            id="country"
+            className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+            placeholder="Enter your country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+          />
+          {countryError && <p className="text-red-500">{countryError}</p>}
+        </div>
         <div className="flex flex-col mt-4 lg:space-y-2">
           <label className="inline-flex items-center">
             <input
@@ -174,8 +254,8 @@ const GoogleComp = () => {
             type="button"
             className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-blue-950 rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             onClick={() => {
-             logout()
-             navigate('/signup')
+              logout()
+              navigate('/signup')
             }}
           >
             Cancel
@@ -200,4 +280,3 @@ const GoogleComp = () => {
 };
 
 export default GoogleComp;
-

@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
 import { useSignupMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useNavigate, Link } from "react-router-dom";
@@ -7,9 +7,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 import GoogleComp from "./GoogleComp";
 import Otp from "../../Components/User/Otp";
 
-
 export const SignupUser = () => {
-  const { user, loginWithRedirect,isAuthenticated,logout } = useAuth0();
+  const { user, loginWithRedirect, isAuthenticated, logout } = useAuth0();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
@@ -22,9 +21,15 @@ export const SignupUser = () => {
   const [Lname, setLname] = useState("");
   const [phone, setPhone] = useState("");
   const [category, setCategory] = useState("");
+  const [district, setDistrict] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
   const [FnameError, setFnameError] = useState("");
   const [LnameError, setLnameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [districtError, setDistrictError] = useState("");
+  const [stateError, setStateError] = useState("");
+  const [countryError, setCountryError] = useState("");
   const [showOtp, setShowOtp] = useState(false);
 
   const validateForm = () => {
@@ -71,8 +76,29 @@ export const SignupUser = () => {
       setPhoneError("");
     }
 
+    if (!district.trim()) {
+      setDistrictError("Please enter a valid district");
+      isValid = false;
+    } else {
+      setDistrictError("");
+    }
+
+    if (!state.trim()) {
+      setStateError("Please enter a valid state");
+      isValid = false;
+    } else {
+      setStateError("");
+    }
+
+    if (!country.trim()) {
+      setCountryError("Please enter a valid country");
+      isValid = false;
+    } else {
+      setCountryError("");
+    }
+
     if (category !== "Photographer" && category !== "Artist") {
-      setSignupError("Please select");
+      setSignupError("Please select a category");
       isValid = false;
     } else {
       setSignupError("");
@@ -87,14 +113,19 @@ export const SignupUser = () => {
     }
 
     try {
-      const response:any = await signup({
+      const response: any = await signup({
         email,
         password,
         Fname,
         Lname,
         phone,
         category,
-        wallet:0
+        location: {
+          district,
+          state,
+          country
+        },
+        wallet: 0
       });
       console.log(response)
       if (response?.error?.data?.message) {
@@ -121,7 +152,7 @@ export const SignupUser = () => {
       </header>
       <section className="flex justify-center items-center min-h-screen signupsection">
         <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
-          <div className="justify-center mx-auto text-left align-bottom transition-all transform rounded-lg sm:align-middle sm:max-w-2xl sm:w-full">
+          <div className="justify-center mx-auto text-left align-bottom transition-all transform rounded-lg sm:align-middle sm:max-w-2xl sm:w-full bg-white bg-opacity-20">
            {!user && !showOtp && <div className="grid flex-wrap items-center justify-center grid-cols-1 mx-auto shadow-xl lg:grid-cols-2 rounded-xl">
               <div className="w-full px-6 py-3">
                 <div className="mt-3 text-left sm:mt-5">
@@ -209,6 +240,51 @@ export const SignupUser = () => {
                       onChange={(e) => setPhone(e.target.value)}
                     />
                     {phoneError && <p className="text-red-500">{phoneError}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="district" className="sr-only">
+                      District
+                    </label>
+                    <input
+                      type="text"
+                      name="district"
+                      id="district"
+                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                      placeholder="Enter your district"
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                    />
+                    {districtError && <p className="text-red-500">{districtError}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="state" className="sr-only">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      name="state"
+                      id="state"
+                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                      placeholder="Enter your state"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                    />
+                    {stateError && <p className="text-red-500">{stateError}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="country" className="sr-only">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      id="country"
+                      className="block w-full px-5 py-3 text-base text-neutral-600 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-50 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                      placeholder="Enter your country"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                    />
+                    {countryError && <p className="text-red-500">{countryError}</p>}
                   </div>
                   <div className="flex flex-col mt-4 lg:space-y-2">
                     <div>

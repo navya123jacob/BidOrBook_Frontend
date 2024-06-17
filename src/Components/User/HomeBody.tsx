@@ -101,7 +101,7 @@ const HomeBody = () => {
           )}
           <div className="relative group flex flex-col justify-between items-center p-5">
             <Link
-              to={!userInfo.client ? `/artpho/auction/${userInfo.data.message._id}` : "/auctions"}
+              to={!userInfo.client ? `/artpho/auction?id=${userInfo.data.message._id}` : "/auctions"}
             
               className="group relative block w-full h-full mb-10"
             >
