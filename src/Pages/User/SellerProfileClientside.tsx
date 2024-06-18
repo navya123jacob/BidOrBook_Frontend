@@ -172,7 +172,7 @@ const SellerProfileClientside: React.FC = () => {
                     )}
                     <button
                       onClick={handleDMClick}
-                      className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                      className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                     >
                       DM
                     </button>

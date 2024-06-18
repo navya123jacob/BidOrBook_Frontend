@@ -101,7 +101,7 @@ const ProfilePageSeller: React.FC = () => {
       });
     });
 
-    socket.on("chat_message", (newMessage) => {
+    socket.on("chat_message", (newMessage:any) => {
       updateChats(newMessage);
     });
 

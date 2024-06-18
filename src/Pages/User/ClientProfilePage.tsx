@@ -112,7 +112,7 @@ const ClientProfilePage: React.FC = () => {
       });
     });
 
-    socket.on("chat_message", (newMessage) => {
+    socket.on("chat_message", (newMessage:any) => {
       updateChats(newMessage);
     });
 
@@ -465,6 +465,13 @@ const ClientProfilePage: React.FC = () => {
                     {activeSection === "bids" && (
                       <AuctionList
                        auctions={currentbids}
+                       onSelectAuction={handleSelectAuction}
+                       setIsAuctionDetModalOpen={setIsAuctionDetModalOpen}
+                      />
+                    )}
+                    {activeSection === "purchased" && (
+                      <AuctionList
+                       auctions={purchased}
                        onSelectAuction={handleSelectAuction}
                        setIsAuctionDetModalOpen={setIsAuctionDetModalOpen}
                       />

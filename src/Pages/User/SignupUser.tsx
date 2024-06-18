@@ -157,7 +157,7 @@ export const SignupUser = () => {
               <div className="w-full px-6 py-3">
                 <div className="mt-3 text-left sm:mt-5">
                   <div className="inline-flex items-center w-full">
-                    <h3 className="text-lg font-bold text-gray-300 leading-6 lg:text-5xl">
+                    <h3 className="text-lg font-bold text-gray leading-6 lg:text-5xl">
                       Sign Up
                     </h3>
                   </div>
@@ -296,7 +296,7 @@ export const SignupUser = () => {
                           onChange={(e) => setCategory(e.target.value)}
                           className="form-radio h-5 w-5 text-blue-600"
                         />
-                        <span className="ml-2 text-gray-300">Photographer</span>
+                        <span className="ml-2 text-gray">Photographer</span>
                       </label>
                       <label className="inline-flex items-center">
                         <input
@@ -306,7 +306,7 @@ export const SignupUser = () => {
                           onChange={(e) => setCategory(e.target.value)}
                           className="form-radio h-5 w-5 text-blue-600"
                         />
-                        <span className="ml-2 text-gray-300">Artist</span>
+                        <span className="ml-2 text-gray">Artist</span>
                       </label>
                     </div>
 
@@ -323,14 +323,14 @@ export const SignupUser = () => {
                     )}
                     <button
                       type="button"
-                      className="inline-flex justify-center text-base font-medium text-gray-300 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
+                      className="inline-flex justify-center text-base font-medium text-gray focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
                       onClick={() => loginWithRedirect()}  >
                       Signup with google
                     </button>
                     <Link
                       to="/"
                       type="button"
-                      className="inline-flex justify-center  text-base font-medium text-gray-300 focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
+                      className="inline-flex justify-center  text-base font-medium text-gray focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
                     >
                       Already have an account? Log In
                     </Link>

@@ -48,7 +48,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
         console.log(`Joined room: ${roomId}`);
       });
 
-      socket.on('chat_message', (msg) => {
+      socket.on('chat_message', (msg:any) => {
        
         if (msg.senderId !== senderId) {
           setMessages((prevMessages) => [...prevMessages, msg].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));

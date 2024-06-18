@@ -58,7 +58,7 @@ const AuctionList: React.FC<AuctionListProps> = ({ auctions, onSelectAuction, se
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="bg-gray-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+              className="bg-gray text-black px-4 py-2 rounded disabled:bg-gray-2"
             >
               Previous
             </button>
@@ -68,7 +68,7 @@ const AuctionList: React.FC<AuctionListProps> = ({ auctions, onSelectAuction, se
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="bg-gray-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+              className="bg-gray text-black px-4 py-2 rounded disabled:bg-gray-2"
             >
               Next
             </button>

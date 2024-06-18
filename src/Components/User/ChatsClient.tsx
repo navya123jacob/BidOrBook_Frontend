@@ -9,6 +9,7 @@ interface PopulatedChat {
   messages: any[];
 }
 
+
 interface ChatModalProps {
   chats: PopulatedChat[];
   onChatClick: (chat: PopulatedChat) => void;
@@ -22,7 +23,7 @@ const ChatsClient: React.FC<ChatModalProps> = ({ chats, onChatClick, setChats })
 
   useEffect(() => {
     
-    socket.on('newMessage', (newMessage) => {
+    socket.on('newMessage', (newMessage:any) => {
       setChats((prevChats) => {
         const updatedChats = [...prevChats];
         const chatIndex = updatedChats.findIndex((chat) => chat.userId._id === newMessage.userId);

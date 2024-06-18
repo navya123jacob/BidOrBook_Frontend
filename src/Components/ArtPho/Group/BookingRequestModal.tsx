@@ -164,7 +164,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                         <td className="px-2 py-4 border-r">{booking.event}</td>
                         <td className="px-2 py-4 flex justify-between items-center">
                           <button
-                            className="bg-gray-700 text-white px-4 py-2 rounded mr-2"
+                            className="bg-graydark text-white px-4 py-2 rounded mr-2"
                             onClick={() => handleDMClick(booking)}
                           >
                             DM

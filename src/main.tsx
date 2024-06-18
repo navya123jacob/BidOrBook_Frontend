@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   domain="dev-2j0jzjuikcfrmqs4.us.auth0.com"
   clientId="9HuPTVRmDFjux2QLuyTPw9Pxcztqzi1G"
   authorizationParams={{
-    redirect_uri: window.location.origin + "/signup" // Add "/signup" to the redirect_uri
+    redirect_uri: window.location.origin + "/signup" 
   }}
 >
   <Provider store={store}>

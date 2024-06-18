@@ -166,7 +166,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
     socket.connect();
     socket.emit('join_auction', { auctionId: auction._id });
 
-    socket.on('new_bid', (data) => {
+    socket.on('new_bid', (data:any) => {
       console.log('New bid received:', data);
       SetselectedAuction((prevAuction) => {
         if (prevAuction) {
@@ -181,7 +181,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
       });
     });
 
-    socket.on('cancel_bid', (data) => {
+    socket.on('cancel_bid', (data:any) => {
       console.log('Bid cancelled:', data);
       SetselectedAuction((prevAuction) => {
         if (prevAuction) {
@@ -324,12 +324,12 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
                      disabled={isCreatingCheckoutSession}>
                        {isCreatingCheckoutSession ? "Processing..." : "PAY NOW!"}
                       </button>): (
-                      <button className="bg-gray-500 text-white px-4 py-2 rounded" disabled>
+                      <button className=" text-white px-4 py-2 rounded  bg-green-700" disabled>
                         YOU WON!
                       </button>
                     )
                     ) : (
-                      <button className="bg-gray-500 text-white px-4 py-2 rounded" disabled>
+                      <button className="bg-graydark text-white px-4 py-2 rounded" disabled>
                         SORRY,FINISHED
                       </button>
                     )
@@ -351,7 +351,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
               )}
             </div>
             <div className="mt-4">
-              <button onClick={handleShowBids} className="bg-gray-500 text-white px-4 py-2 rounded">
+              <button onClick={handleShowBids} className="bg-gray  text-black px-4 py-2 rounded">
                 Show Bids
               </button>
             </div>

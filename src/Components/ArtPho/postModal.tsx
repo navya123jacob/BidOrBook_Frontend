@@ -118,7 +118,7 @@ const PostModal: React.FC<PostModalProps> = ({ onClose, setUsersWithPosts, users
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="block w-full px-5 py-3 text-white transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-600 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 flex items-center justify-center"
+              className="block w-full px-5 py-3 text-black transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-2 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 flex items-center justify-center"
             >
               <FontAwesomeIcon icon={faPlus} className="text-black mr-2" />
               Upload
@@ -127,13 +127,13 @@ const PostModal: React.FC<PostModalProps> = ({ onClose, setUsersWithPosts, users
             {avatarUrl.current && <img src={avatarUrl.current} alt="" className="mt-2 w-24 h-24 rounded-full mx-auto" />}
           </div>
           <div className="flex justify-end">
-            <button type="button" onClick={onClose} className="mr-2 px-4 mt-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400">Cancel</button>
+            <button type="button" onClick={onClose} className="mr-2 px-4 mt-4 py-2 bg-gray-300 text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 bg-form-strokedark">Cancel</button>
             <button
               type="submit"
               className={`flex items-center justify-center mt-4 w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                 isLoading
-                  ? 'bg-teal-900 hover:bg-gray-600'
-                  : 'bg-gray-800 hover:bg-blue-900'
+                  ? 'bg-teal-900 hover:bg-form-strokedark'
+                  : 'bg-graydark hover:bg-blue-900'
               }`}
             >
               {isLoading ? 'Creating....' : 'Create'}

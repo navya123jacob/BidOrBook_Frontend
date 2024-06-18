@@ -291,7 +291,7 @@ const ProfileForm: React.FC = () => {
                 onClick={() => {
                   setModalOpen(true);
                 }}
-                className="block w-full px-5 py-3 text-white text-neutral-600 placeholder-gray-100 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-500 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                className="block w-full px-5 py-3  text-black placeholder-gray-100 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-500 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 bg-gray"
               >
                 Change Profile Picture
               </button>
@@ -317,7 +317,7 @@ const ProfileForm: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setPasswordModalOpen(true)}
-                className="block w-full px-5 py-3 text-red-800 text-neutral-600 placeholder-gray-100 transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-300 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300"
+                className="block w-full px-5 py-3 text-red-800 text-neutral-600 placeholder-gray-100 transition duration-500 ease-in-out transform border border-transparent rounded-lg focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 bg-gray"
               >
                 Change Password
               </button>
@@ -328,8 +328,8 @@ const ProfileForm: React.FC = () => {
               type="submit"
               className={`flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                 isLoading
-                  ? "bg-teal-900 hover:bg-gray-600"
-                  : "bg-gray-800 hover:bg-blue-900"
+                  ? "bg-teal-900 hover:bg-graydark"
+                  : "bg-graydark hover:bg-blue-900"
               }`}
             >
               {isLoading ? "Updating...." : "Update"}

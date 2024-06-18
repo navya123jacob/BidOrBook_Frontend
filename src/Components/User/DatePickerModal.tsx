@@ -223,7 +223,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
       <div className="bg-white bg-opacity-75 p-4 rounded-lg max-w-lg mx-auto text-gray-800 relative">
         {!availabilityMessage && (
           <div className="p-4">
-            <Datepicker value={value} onChange={handleValueChange} />
+            <Datepicker  value={value} onChange={handleValueChange} />
             <div>
               <label>
                 Event:
@@ -351,7 +351,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
             <button
               onClick={handleCheckAvailability}
               className={`${
-                check ? "bg-gray-100" : "bg-gray-700"
+                check ? "bg-green-800" : "bg-graydark"
               } hover:bg-gray-700 text-white py-2 px-4 rounded`}
             >
               {check ? "Checking..." : "Check Availability"}
@@ -359,7 +359,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
           )}
           <button
             onClick={onClose}
-            className="ml-4 bg-gray-700 hover:bg-gray-700 text-white py-2 px-4 rounded"
+            className="ml-4  bg-form-strokedark hover:bg-gray text-white py-2 px-4 rounded"
           >
             Close
           </button>

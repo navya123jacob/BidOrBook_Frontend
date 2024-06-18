@@ -26,7 +26,7 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
     socket.connect();
     socket.emit('join_auction', { auctionId });
 
-    socket.on('new_bid', (data) => {
+    socket.on('new_bid', (data:any) => {
       console.log('New bid received:', data);
       SetselectedAuction((prevAuction) => {
         if (prevAuction) {

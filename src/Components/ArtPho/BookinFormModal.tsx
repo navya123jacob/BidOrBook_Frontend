@@ -401,7 +401,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                 </label>
                 <button
                   onClick={handleDateChangeButtonClick}
-                  className="bg-gray-600 text-white py-2 px-4 rounded mt-4 ml-4"
+                  className="bg-form-strokedark text-white py-2 px-4 rounded mt-4 ml-4 "
                 >
                   Change Date
                 </button>
@@ -462,7 +462,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                     <label>Select Date:</label>
                     <Datepicker value={value} onChange={handleValueChange} />
                     <button
-                      className="bg-gray-600 text-white py-2 px-4 rounded mt-4 ml-4"
+                      className="bg-graydark text-white py-2 px-4 rounded mt-4 ml-4"
                       onClick={handleCheckAvailability}
                     >
                       Check Availability
@@ -474,7 +474,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
             {(!showDatePicker || availabilityMessage) && (
               <button
                 type="submit"
-                className="bg-gray-700 text-white py-2 px-4 rounded mt-4 m-5"
+                className="bg-graydark text-white py-2 px-4 rounded mt-4 m-5"
                 onClick={handleSubmit}
               >
                 Request Payment

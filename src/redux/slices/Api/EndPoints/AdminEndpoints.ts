@@ -13,8 +13,8 @@ export const AdminApiSlice = apiSlice.injectEndpoints({
             }),
         }), 
         getUsersAdmin: builder.query({
-            query: (userId) => ({
-              url: `/admin/users/${userId}`,
+            query: () => ({
+              url: `/admin/users`,
               method: 'GET',
             }),
           }),
@@ -24,6 +24,12 @@ export const AdminApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
             }),
         }),
+        adminlogout: builder.mutation({
+          query: () => ({
+              url: '/admin/logout',
+              method: 'GET',
+          }),
+      }),
         
         }),
       });
@@ -31,7 +37,8 @@ export const AdminApiSlice = apiSlice.injectEndpoints({
       export const {
         useAdminloginMutation,
         useBlockUserMutation,
-        useGetUsersAdminQuery
+        useGetUsersAdminQuery,
+        useAdminlogoutMutation
         
    
 } = AdminApiSlice

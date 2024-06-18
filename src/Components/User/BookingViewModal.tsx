@@ -34,7 +34,7 @@ const BookingViewModal: React.FC<Props> = ({ message, marked }) => {
                     />
                     <span>{user.Fname} {user.Lname}</span>
                 </div>
-                <Link to={`/artprof/client?id=${user._id}`} className="bg-gray-800 text-white px-3 py-1 rounded">Go to Profile</Link>
+                <Link to={`/artprof/client?id=${user._id}`} className=" text-white px-3 py-1 rounded bg-graydark">Go to Profile</Link>
             </div>
         );
     };
@@ -50,7 +50,7 @@ const BookingViewModal: React.FC<Props> = ({ message, marked }) => {
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="bg-gray-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+                        className=" bg-gray text-black px-4 py-2 rounded disabled:bg-gray-2"
                     >
                         Previous
                     </button>
@@ -60,7 +60,7 @@ const BookingViewModal: React.FC<Props> = ({ message, marked }) => {
                     <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="bg-gray-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+                        className=" text-black px-4 py-2 rounded disabled:bg-gray-2 bg-gray"
                     >
                         Next
                     </button>

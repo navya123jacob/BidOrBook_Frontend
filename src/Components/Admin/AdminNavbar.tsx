@@ -3,32 +3,25 @@ import { Dialog } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../redux/slices/Reducers/ClientReducer';
+import { adminLogout } from '../../redux/slices/Reducers/AdminReducer';
 import { RootState } from '../../redux/slices/Reducers/types';
-import { useLogoutMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+// import { useLogoutMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 
 
-export const Navbar = () => {
-  const userInfo=useSelector((state:RootState)=>state.client.userInfo)
+export const AdminNavbar = () => {
+  const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
   const navigation = [
-    { name: 'Home', to: '/' },
-    { name: 'About', to: '/about' },
-    { name: 'Contact', to: '/contact' },
+    { name: 'Home', to: '/admin' },
+   
   ];
   
-  if (userInfo) {
-    if (userInfo.client) {
-      navigation.push({ name: 'Profile', to: '/profile' });
-    } else {
-      navigation.push({ name: 'Profile', to: '/artpho/profile' });
-    }
-  }
-  const [logoutApi] = useLogoutMutation();
+ 
+//   const [logoutApi] = useLogoutMutation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const handleLogout = async() => { 
-    dispatch(logout());
-    await logoutApi(undefined).unwrap();
+    dispatch(adminLogout());
+    // await logoutApi(undefined).unwrap();
         
   };
 
@@ -63,7 +56,7 @@ export const Navbar = () => {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end text-white">
-          {userInfo && <button type="button" className="text-sm font-semibold leading-6" onClick={handleLogout}>
+          {adminInfo && <button type="button" className="text-sm font-semibold leading-6" onClick={handleLogout}>
             Log Out <span aria-hidden="true">&rarr;</span>
           </button>}
         </div>
@@ -112,7 +105,7 @@ export const Navbar = () => {
               </div>
               
               <div className="py-6">
-                {userInfo && <button
+                {adminInfo && <button
                   type="button"
                   className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-600"
                   onClick={handleLogout}
