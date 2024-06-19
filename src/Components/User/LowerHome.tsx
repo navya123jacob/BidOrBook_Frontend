@@ -46,7 +46,7 @@ const LowerHome = () => {
             </figcaption>
           </figure>
         </Link>
-        <a href="#" className="card card-2">
+        <a href="/about" className="card card-2">
           <figure className="visual">
             <img
               className="card-img"

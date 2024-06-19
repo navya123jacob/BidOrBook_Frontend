@@ -190,12 +190,12 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
               </tbody>
             </table>
           </div>
-          <button
+          {booking.status!='booked' && <button
             className="bg-red-900 hover:bg-red-700 text-white font-bold py-2 px-4 my-5 rounded cancel-button"
             onClick={onCancel}
           >
             Cancel
-          </button>
+          </button>}
 
           {booking.status === "confirmed" && (
             <button

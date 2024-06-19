@@ -9,10 +9,11 @@ import DatePickerModal from '../../Components/User/DatePickerModal';
 import ChatComponent from '../../Components/ChatSingle';
 import BookingDetailModal from '../../Components/User/BookingDetailsClient';
 import ConfirmationModal from '../../Components/User/CancelConfirmModal';
-import { useSingleUserPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { useSingleUserPostMutation, useSpamUserMutation, useUnspamUserMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
 import { useBookingsConfirmMutation, useSingleBookingQuery, useCancelbookingMutation } from '../../redux/slices/Api/EndPoints/bookingEndpoints';
-import { User } from '../../types/user';
+import { Post, User } from '../../types/user';
 import { Booking } from '../../types/booking';
+import SpamModal from '../../Components/User/SpamModal';
 
 const SellerProfileClientside: React.FC = () => {
  
@@ -22,16 +23,22 @@ const SellerProfileClientside: React.FC = () => {
 
   const [otheruser, setOtheruser] = useState<User | null>(null);
   const [page, setPage] = useState(1);
-  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<Post|null>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
   const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
+  const [usersWithPosts, setUsersWithPosts] = useState<Post[]>([]);
   const [bookingConfirmData, setBookingConfirmData] = useState<number>(0);
   const [singleBooking, setSingleBooking] = useState<Booking | null>(null);
   const [value, setValue] = useState({ startDate: new Date(), endDate: new Date(new Date().getFullYear(), 11, 31) });
   const [isBookingDetailModalOpen, setIsBookingDetailModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isSpamModalOpen, setIsSpamModalOpen] = useState(false);
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
+  const [isUnspamModalOpen, setIsUnspamModalOpen] = useState(false);
+  const [spamReason, setSpamReason] = useState("");
+  const [spamUser] = useSpamUserMutation();
+  const [unspamUser] = useUnspamUserMutation();
 
   const [singleUserPost, { isLoading }] = useSingleUserPostMutation();
   const [cancelbooking] = useCancelbookingMutation();
@@ -52,7 +59,9 @@ const SellerProfileClientside: React.FC = () => {
           const response = await singleUserPost(id);
           if ('data' in response) {
             setOtheruser(response.data);
-            setUsersWithPosts(response.data.posts);
+            const filteredPosts = response.data.posts.filter((post:Post) => post.is_blocked !== true);
+            setUsersWithPosts(filteredPosts);
+            
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -125,6 +134,49 @@ const SellerProfileClientside: React.FC = () => {
       }
     }
   };
+  const handleSpamClick = () => {
+    setIsSpamModalOpen(true);
+  };
+
+  const handleSpamConfirm = () => {
+    setIsSpamModalOpen(false);
+    setIsReasonModalOpen(true);
+  };
+
+  const handleSpamSubmit = async () => {
+    if (id) {
+      await spamUser({ userId: userInfo.data.message._id ,id, reason: spamReason });
+      setOtheruser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          spam: [...(prevUser.spam || []), { userId: userInfo.data.message._id, reason: spamReason }],
+        };
+      });
+      setIsReasonModalOpen(false);
+      setSpamReason("");
+    }
+  };
+
+  const handleUnspamClick = () => {
+    setIsUnspamModalOpen(true);
+  };
+
+  const handleUnspamConfirm = async () => {
+    if (id) {
+      const response=await unspamUser({ userId: userInfo.data.message._id,id });
+      
+      setOtheruser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          spam: prevUser.spam?.filter((spam) => spam.userId !== userInfo.data.message._id) || [],
+        };
+      });
+      setIsUnspamModalOpen(false);
+    }
+  };
+
 
   return (
     <>
@@ -151,7 +203,7 @@ const SellerProfileClientside: React.FC = () => {
                     {!singleBooking ? (
                       <button
                         onClick={handleBookClick}
-                        className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                        className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                       >
                         Book
                       </button>
@@ -159,7 +211,7 @@ const SellerProfileClientside: React.FC = () => {
                       <button
                       
                         onClick={seeStatus}
-                        className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                        className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                       >
                         {singleBooking.status === 'pending'
                           ? 'Booking Requested'
@@ -176,6 +228,21 @@ const SellerProfileClientside: React.FC = () => {
                     >
                       DM
                     </button>
+                    {otheruser?.spam && otheruser.spam.some(spam => spam.userId === userInfo.data.message._id) ? (
+                  <button
+                    onClick={handleUnspamClick}
+                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Unspam
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSpamClick}
+                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Spam
+                  </button>
+                )}
                   </>
                 )}
               </div>
@@ -250,6 +317,8 @@ const SellerProfileClientside: React.FC = () => {
         <PostDetailModal
           post={selectedPost}
           onClose={() => setIsPostDetailModalOpen(false)}
+          setUsersWithPosts={setUsersWithPosts}
+          setSelectedPost={setSelectedPost}
         />
       )}
       {isChatOpen && id && (
@@ -277,6 +346,39 @@ const SellerProfileClientside: React.FC = () => {
           message="Are you sure you want to cancel this booking?"
           onConfirm={bookingCancel}
           onCancel={() => setIsConfirmationModalOpen(false)}
+        />
+      )}
+      {isSpamModalOpen && (
+        <SpamModal
+          onClose={() => setIsSpamModalOpen(false)}
+          onConfirm={handleSpamConfirm}
+          title="Confirm Spam"
+          description="Are you sure you want to mark this user as spam?"
+        />
+      )}
+
+      {isReasonModalOpen && (
+        <SpamModal
+          onClose={() => setIsReasonModalOpen(false)}
+          onConfirm={handleSpamSubmit}
+          title="Spam Reason"
+          description="Please provide a reason for marking this user as spam."
+        >
+          <textarea
+            value={spamReason}
+            onChange={(e) => setSpamReason(e.target.value)}
+            className="w-full p-2 mt-2"
+            placeholder="Enter reason"
+          />
+        </SpamModal>
+      )}
+
+      {isUnspamModalOpen && (
+        <SpamModal
+          onClose={() => setIsUnspamModalOpen(false)}
+          onConfirm={handleUnspamConfirm}
+          title="Confirm Unspam"
+          description="Are you sure you want to unmark this user as spam?"
         />
       )}
       <Footer />

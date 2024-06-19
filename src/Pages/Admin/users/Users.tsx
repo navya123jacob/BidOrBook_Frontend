@@ -1,5 +1,5 @@
 import Breadcrumb from '../AdminBreadcrumbs';
-import TableThree from '../../../Components/Admin/Tables/Tablethree';
+import TableThree from '../../../Components/Admin/Tables/Users';
 import DefaultLayout from '../../../Components/Admin/DefaultLayout';
 
 const Tables = () => {

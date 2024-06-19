@@ -14,23 +14,31 @@ interface ChatComponentProps {
   Lname: string;
   profile: string;
   setChats?: Dispatch<SetStateAction<any[]>>;
+  admin?:boolean
 }
 
 const socket = io('http://localhost:8888');
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats }) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats,admin }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
   const [sendMessage] = useSendMessageMutation();
   const [getMessage, { isLoading, error }] = useGetMessagesMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let senderId;
+    if(admin){
+      senderId=adminInfo._id
+    }
+    else{
+    senderId = userInfo.data.message._id}
     if (isOpen) {
       const fetchMessages = async () => {
-        const response: any = await getMessage({ senderId: userInfo?.data?.message?._id, receiverId });
-        const response2: any = await getMessage({ senderId: receiverId, receiverId: userInfo?.data?.message?._id });
+        const response: any = await getMessage({ senderId, receiverId });
+        const response2: any = await getMessage({ senderId: receiverId, receiverId: senderId });
         if (response && response.data && response2 && response2.data) {
           const allMessages = [...response.data, ...response2.data].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
           setMessages(allMessages);
@@ -43,7 +51,13 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
 
   useEffect(() => {
     if (isOpen) {
-      const senderId = userInfo?.data?.message?._id;
+      let senderId;
+      
+      if(admin){
+        senderId=adminInfo._id
+      }
+      else{
+      senderId = userInfo.data.message._id}
       socket.emit('handshake', { senderId, receiverId }, (roomId: string, users: string[]) => {
         console.log(`Joined room: ${roomId}`);
       });
@@ -72,9 +86,15 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
   }, [messages]);
 
   const handleSendMessage = async () => {
+    let senderId;
+    if(admin){
+      senderId=adminInfo._id
+    }
+    else{
+    senderId = userInfo.data.message._id}
     if (message.trim()) {
       const msgData = {
-        senderId: userInfo?.data?.message?._id,
+        senderId,
         receiverId,
         message: message,
         createdAt: new Date().toISOString(), 

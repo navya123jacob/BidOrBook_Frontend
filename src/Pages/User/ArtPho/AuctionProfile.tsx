@@ -13,14 +13,19 @@ import {
   useDeleteAuctionMutation,
 } from "../../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { IAuction } from "../../../types/auction";
-import { useParams, useSearchParams } from "react-router-dom";
-import { useSingleUserMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useSearchParams } from "react-router-dom";
+import {
+  useSingleUserMutation,
+  useSpamUserMutation,
+  useUnspamUserMutation,
+} from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { User } from "../../../types/user";
 import ChatComponent from "../../../Components/ChatSingle";
+import SpamModal from "../../../Components/User/SpamModal";
 
 const AuctionProfilePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const id = searchParams.get('id')?? undefined;
+  const id = searchParams.get('id') ?? undefined;
   const [allAuctions, { isLoading }] = useAllAuctionsMutation();
   const [deleteAuction] = useDeleteAuctionMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -28,13 +33,19 @@ const AuctionProfilePage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [selectedAuction, setSelectedAuction] = useState<IAuction | null>(null);
   const [isAuctionDetailModalOpen, setIsAuctionDetailModalOpen] =
-  useState(false);
+    useState(false);
   const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
   const [auctions, setAuctions] = useState<any[]>([]);
   const [bids, setBids] = useState<{ userId: string; amount: number }[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [SingleUser] = useSingleUserMutation();
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isSpamModalOpen, setIsSpamModalOpen] = useState(false);
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
+  const [isUnspamModalOpen, setIsUnspamModalOpen] = useState(false);
+  const [spamReason, setSpamReason] = useState("");
+  const [spamUser] = useSpamUserMutation();
+  const [unspamUser] = useUnspamUserMutation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,12 +56,12 @@ const AuctionProfilePage: React.FC = () => {
         }
         console.log(response);
       } catch (error) {
-        console.error("Error fetching auctions:", error);
+        console.error("Error fetching user:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [id, SingleUser]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,6 +112,49 @@ const AuctionProfilePage: React.FC = () => {
     setIsChatOpen(true);
   };
 
+  const handleSpamClick = () => {
+    setIsSpamModalOpen(true);
+  };
+
+  const handleSpamConfirm = () => {
+    setIsSpamModalOpen(false);
+    setIsReasonModalOpen(true);
+  };
+
+  const handleSpamSubmit = async () => {
+    if (id) {
+      await spamUser({ userId: userInfo.data.message._id ,id, reason: spamReason });
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          spam: [...(prevUser.spam || []), { userId: userInfo.data.message._id, reason: spamReason }],
+        };
+      });
+      setIsReasonModalOpen(false);
+      setSpamReason("");
+    }
+  };
+
+  const handleUnspamClick = () => {
+    setIsUnspamModalOpen(true);
+  };
+
+  const handleUnspamConfirm = async () => {
+    if (id) {
+      const response=await unspamUser({ userId: userInfo.data.message._id,id });
+      
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          spam: prevUser.spam?.filter((spam) => spam.userId !== userInfo.data.message._id) || [],
+        };
+      });
+      setIsUnspamModalOpen(false);
+    }
+  };
+
   return (
     <>
       <header className="bg-gray-950 bg-opacity-80">
@@ -141,12 +195,29 @@ const AuctionProfilePage: React.FC = () => {
               </h2>
             </div>
             {userInfo.client && (
-              <button
-                onClick={handleDMClick}
-                className="bg-gray-900 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-              >
-                DM
-              </button>
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleDMClick}
+                  className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                >
+                  DM
+                </button>
+                {user?.spam && user.spam.some(spam => spam.userId === userInfo.data.message._id) ? (
+                  <button
+                    onClick={handleUnspamClick}
+                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Unspam
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSpamClick}
+                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Spam
+                  </button>
+                )}
+              </div>
             )}
             <ul className="hidden md:flex space-x-8 mb-4">
               <li>
@@ -228,7 +299,7 @@ const AuctionProfilePage: React.FC = () => {
       {isBiddingModalOpen && (
         <BiddingModal
           initialBid={selectedAuction?.initial || 0}
-          bids={selectedAuction?.bids||[]}
+          bids={selectedAuction?.bids || []}
           onClose={() => setIsBiddingModalOpen(false)}
           onBid={handleBid}
           auctionId={selectedAuction?._id || ""}
@@ -245,6 +316,41 @@ const AuctionProfilePage: React.FC = () => {
           profile={user?.profile || ""}
         />
       )}
+
+      {isSpamModalOpen && (
+        <SpamModal
+          onClose={() => setIsSpamModalOpen(false)}
+          onConfirm={handleSpamConfirm}
+          title="Confirm Spam"
+          description="Are you sure you want to mark this user as spam?"
+        />
+      )}
+
+      {isReasonModalOpen && (
+        <SpamModal
+          onClose={() => setIsReasonModalOpen(false)}
+          onConfirm={handleSpamSubmit}
+          title="Spam Reason"
+          description="Please provide a reason for marking this user as spam."
+        >
+          <textarea
+            value={spamReason}
+            onChange={(e) => setSpamReason(e.target.value)}
+            className="w-full p-2 mt-2"
+            placeholder="Enter reason"
+          />
+        </SpamModal>
+      )}
+
+      {isUnspamModalOpen && (
+        <SpamModal
+          onClose={() => setIsUnspamModalOpen(false)}
+          onConfirm={handleUnspamConfirm}
+          title="Confirm Unspam"
+          description="Are you sure you want to unmark this user as spam?"
+        />
+      )}
+
       <Footer />
     </>
   );

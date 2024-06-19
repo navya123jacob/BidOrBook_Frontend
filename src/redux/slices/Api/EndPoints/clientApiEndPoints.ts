@@ -137,11 +137,64 @@ export const UserApiSlice = apiSlice.injectEndpoints({
               method: 'GET',
             }),
           }),
+          SpamUser: builder.mutation({
+            query: ({ userId, reason,id }: { userId: string; reason: string,id:string }) => ({
+                url: `/spam/${id}`,
+                method: 'POST',
+                body: { reason,userId },
+            }),
+        }),
+        unspamUser: builder.mutation({
+            query: ({ userId,id }: { userId: string,id:string }) => ({
+              url: `/unspam/${id}`,
+              method: 'POST',
+              body: {userId },
+            }),
+          }),
+        spamPost: builder.mutation({
+            query: ({ userId,id ,reason}: { userId: string,id:string ,reason:string}) => ({
+              url: `/postsspam/${id}`,
+              method: 'POST',
+              body: {userId ,reason},
+            }),
+          }),
+        UnspamPost: builder.mutation({
+            query: ({ userId,id }: { userId: string,id:string }) => ({
+              url: `/postsunspam/${id}`,
+              method: 'POST',
+              body: {userId },
+            }),
+          }),
+          getPostsWithSpam: builder.query({
+            query: () => ({
+                url:'/posts-with-spam',
+                method:'GET'
+            })
+          }),
+          blockPost: builder.mutation({
+            query: (postId) => ({
+              url: `/${postId}/block`,
+              method: 'POST',
+            }),
+          }),
+          unblockPost: builder.mutation({
+            query: (postId) => ({
+              url: `/${postId}/unblock`,
+              method: 'POST',
+            }),
+          }),
 
     })
 })
 
 export const {
+    useBlockPostMutation,
+    useUnblockPostMutation,
+    useGetPostsWithSpamQuery,
+    useSpamPostMutation,
+    useUnspamPostMutation,
+    useSpamUserMutation,
+    useUnspamUserMutation,
     useSignupMutation,
     useLoginMutation,
     useResendOtpMutation,

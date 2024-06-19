@@ -16,7 +16,8 @@ import About from './Pages/About';
 import AnimatedImageComponent from './Pages/Errorelem';
 import LoginAdmin from './Pages/Admin/AdminLogin';
 import AdminProfile from './Pages/Admin/AdminProfile';
-import Tables from './Pages/Admin/users/Table';
+import Tables from './Pages/Admin/users/Users';
+import AdminPost from './Pages/Admin/Posts/AdminPost';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -41,6 +42,7 @@ const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
         <Route element={<ProtectedAdminRoute />}>
           {/* Admin specific route */}
           <Route path="/admin/users" element={<><Tables /></>} />
+          <Route path="/admin/posts" element={<><AdminPost /></>} />
          
         </Route>
 

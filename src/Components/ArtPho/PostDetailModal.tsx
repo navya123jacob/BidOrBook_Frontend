@@ -1,31 +1,28 @@
-import React, { useState } from 'react';
+import React, { Dispatch, useState, SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
+import { useSpamPostMutation, useUnspamPostMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import ConfirmationModal from '../User/CancelConfirmModal';
+import ReasonModal from '../User/ReasonModal';
+import { Post } from '../../types/user';
 
 interface PostDetailModalProps {
-  post: {
-    image: string;
-    likes: number;
-    comments: number;
-    description: string;
-    name: string;
-    _id: string;
-  };
+  post: Post;
   onClose: () => void;
   onDelete?: () => void;
+  setUsersWithPosts?: Dispatch<SetStateAction<Post[]>>;
+  setSelectedPost?: Dispatch<SetStateAction<Post | null>>;
 }
 
-const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDelete }) => {
+const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDelete, setUsersWithPosts, setSelectedPost }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const [showLikes, setShowLikes] = useState(false);
-  const [likesList, setLikesList] = useState<string[]>([]);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-
-  const handleLikesClick = () => {
-    const mockLikesList = ['User1', 'User2', 'User3'];
-    setLikesList(mockLikesList);
-    setShowLikes(true);
-  };
+  const [showSpamConfirm, setShowSpamConfirm] = useState(false);
+  const [showUnspamConfirm, setShowUnspamConfirm] = useState(false);
+  const [showReasonModal, setShowReasonModal] = useState(false);
+  const [reason, setReason] = useState<string>('');
+  const [spamPost] = useSpamPostMutation();
+  const [unspamPost] = useUnspamPostMutation();
 
   const handleDeleteClick = () => {
     setShowConfirmDelete(true);
@@ -39,6 +36,75 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
   const handleCancelDelete = () => {
     setShowConfirmDelete(false);
   };
+
+  const handleSpamClick = () => {
+    setShowReasonModal(true);
+  };
+
+  const handleConfirmSpam = async () => {
+    setShowSpamConfirm(false);
+    try {
+      const response = await spamPost({ userId: userInfo.data.message._id, id: post._id, reason }).unwrap();
+      
+      if (setUsersWithPosts && setSelectedPost) {
+        setSelectedPost((p) => {
+          
+          if (p === null) return null;
+          return {
+            ...p,
+            spam: [...(p.spam || []), { userId: userInfo.data.message._id, reason }]
+          };
+        });
+        setUsersWithPosts(prevPosts =>
+          prevPosts.map(p =>
+            p._id === post._id
+              ? { ...p, spam: [...(p.spam || []), { userId: userInfo.data.message._id, reason }] }
+              : p
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Failed to mark post as spam:', error);
+    }
+  };
+
+  const handleReasonSubmit = (reason: string) => {
+    
+    setShowReasonModal(false);
+    handleConfirmSpam();
+  };
+
+  const handleUnspamClick = () => {
+    setShowUnspamConfirm(true);
+  };
+
+  const handleConfirmUnspam = async () => {
+    setShowUnspamConfirm(false);
+    if (!userInfo || !userInfo.data || !userInfo.data.message) return;
+    try {
+      await unspamPost({ userId: userInfo.data.message._id, id: post._id }).unwrap();
+      if (setUsersWithPosts && setSelectedPost) {
+        setSelectedPost((prevPost) => {
+          if (!prevPost) return prevPost;
+
+          const updatedSpam = prevPost.spam?.filter((s) => s.userId !== userInfo.data.message._id) || [];
+
+          return { ...prevPost, spam: updatedSpam };
+        });
+        setUsersWithPosts(prevPosts =>
+          prevPosts.map(p =>
+            p._id === post._id
+              ? { ...p, spam: p.spam?.filter(s => s.userId !== userInfo.data.message._id) || [] }
+              : p
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Failed to unmark post as spam:', error);
+    }
+  };
+
+  const userHasSpammed = post.spam?.some(s => s.userId === userInfo?.data?.message?._id);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -54,59 +120,69 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
         <h2 className="text-xl font-bold mb-2">{post.name}</h2>
         <p className="text-lg font-semibold mb-2">{post.description}</p>
         <div className="flex justify-between items-center">
-          {/* <span className="cursor-pointer" onClick={handleLikesClick}>
-            {post.likes} Likes
-          </span> */}
-          {!userInfo.client && (<button
-            className="bg-red-500 text-white px-2 py-1 rounded"
-            onClick={handleDeleteClick}
-          >
-            Delete
-          </button>)}
+          {!userInfo.client && (
+            <button
+              className="bg-red-500 text-white px-2 py-1 rounded"
+              onClick={handleDeleteClick}
+            >
+              Delete
+            </button>
+          )}
+          {userInfo && (
+            <>
+              {!userHasSpammed ? (
+                <button
+                  className="bg-yellow-500 text-white px-2 py-1 rounded"
+                  onClick={handleSpamClick}
+                >
+                  Spam
+                </button>
+              ) : (
+                <button
+                  className="bg-green-500 text-white px-2 py-1 rounded"
+                  onClick={handleUnspamClick}
+                >
+                  Unspam
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      {showLikes && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white bg-opacity-30 p-4 rounded-lg max-w-sm mx-auto text-gray-300 relative">
-            <button
-              className="absolute top-2 right-2 text-black bg-gray-200 rounded-full p-2"
-              onClick={() => setShowLikes(false)}
-            >
-              X
-            </button>
-            <h3 className="text-lg font-bold mb-4">Liked by:</h3>
-            <ul>
-              {likesList.map((user, index) => (
-                <li key={index} className="mb-2">{user}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
+      {showConfirmDelete && (
+        <ConfirmationModal
+          message="Are you sure you want to delete this post?"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
       )}
 
-      {showConfirmDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white bg-opacity-90 p-4 rounded-lg max-w-sm mx-auto text-gray-900 relative">
-            <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
-            <p>Are you sure you want to delete this post?</p>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2"
-                onClick={handleCancelDelete}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={handleConfirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+      {showReasonModal && (
+        <ReasonModal
+          onSubmit={handleReasonSubmit}
+          onCancel={() => setShowReasonModal(false)}
+          setReason={setReason}
+          reason={reason}
+        />
       )}
+
+      {showSpamConfirm && (
+        <ConfirmationModal
+          message="Are you sure you want to mark this post as spam?"
+          onConfirm={handleConfirmSpam}
+          onCancel={() => setShowSpamConfirm(false)}
+        />
+      )}
+
+      {showUnspamConfirm && (
+        <ConfirmationModal
+          message="Are you sure you want to unmark this post as spam?"
+          onConfirm={handleConfirmUnspam}
+          onCancel={() => setShowUnspamConfirm(false)}
+        />
+      )}
+      
     </div>
   );
 };

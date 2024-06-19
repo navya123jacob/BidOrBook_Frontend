@@ -4,6 +4,10 @@ import ChatComponent from "../../ChatSingle";
 import BookingFormModal from "../BookinFormModal";
 import ConfirmationModal from "../../User/CancelConfirmModal";
 import { useCancelPaymentReqMutation } from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
+import { useSpamUserMutation, useUnspamUserMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/slices/Reducers/types";
+import SpamModal from "../../User/SpamModal";
 
 interface BookingRequestModalProps {
   isOpen: boolean;
@@ -13,8 +17,8 @@ interface BookingRequestModalProps {
   setChanges: Dispatch<SetStateAction<number>>;
   message: string;
   mark: boolean;
-  selectedBooking:Booking| null;
-  setSelectedBooking:Dispatch<SetStateAction<Booking | null>>;
+  selectedBooking: Booking | null;
+  setSelectedBooking: Dispatch<SetStateAction<Booking | null>>;
 }
 
 const formatDate = (date: string | Date): string => {
@@ -24,9 +28,9 @@ const formatDate = (date: string | Date): string => {
 
 const formatBookingDates = (dates: Date[]): string => {
   if (!dates || dates.length === 0) return "";
-  
+
   const formattedDates = dates
-    .map(date => new Date(date))
+    .map((date) => new Date(date))
     .sort((a, b) => a.getTime() - b.getTime());
 
   let dateRanges = [];
@@ -34,7 +38,10 @@ const formatBookingDates = (dates: Date[]): string => {
 
   formattedDates.forEach((date, index) => {
     const previousDate = formattedDates[index - 1];
-    if (previousDate && (date.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24) === 1) {
+    if (
+      previousDate &&
+      (date.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24) === 1
+    ) {
       currentRange.push(date);
     } else {
       if (currentRange.length > 0) {
@@ -49,11 +56,17 @@ const formatBookingDates = (dates: Date[]): string => {
   }
 
   return dateRanges
-    .map(range => {
+    .map((range) => {
       if (range.length > 1) {
-        return `${range[0].getDate()}/${range[0].getMonth() + 1}/${range[0].getFullYear()} to ${range[range.length - 1].getDate()}/${range[range.length - 1].getMonth() + 1}/${range[range.length - 1].getFullYear()}`;
+        return `${range[0].getDate()}/${
+          range[0].getMonth() + 1
+        }/${range[0].getFullYear()} to ${range[range.length - 1].getDate()}/${
+          range[range.length - 1].getMonth() + 1
+        }/${range[range.length - 1].getFullYear()}`;
       } else {
-        return `${range[0].getDate()}/${range[0].getMonth() + 1}/${range[0].getFullYear()}`;
+        return `${range[0].getDate()}/${
+          range[0].getMonth() + 1
+        }/${range[0].getFullYear()}`;
       }
     })
     .join(", ");
@@ -68,13 +81,19 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   message,
   mark,
   selectedBooking,
-  setSelectedBooking
+  setSelectedBooking,
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isBookingFormModalOpen, setIsBookingFormModalOpen] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [cancelPaymentReq] = useCancelPaymentReqMutation();
-
+  const [isSpamModalOpen, setIsSpamModalOpen] = useState(false);
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
+  const [isUnspamModalOpen, setIsUnspamModalOpen] = useState(false);
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [spamReason, setSpamReason] = useState("");
+  const [spamUser] = useSpamUserMutation();
+  const [unspamUser] = useUnspamUserMutation();
   const handleDMClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsChatOpen(true);
@@ -105,6 +124,40 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
 
   const handleCancelConfirmation = () => {
     setShowConfirmationModal(false);
+  };
+  const handleSpamClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsSpamModalOpen(true);
+  };
+
+  const handleSpamConfirm = () => {
+    
+    setIsSpamModalOpen(false);
+    setIsReasonModalOpen(true);
+  };
+
+  const handleSpamSubmit = async () => {
+    console.log(selectedBooking)
+    if (selectedBooking) {
+      await spamUser({ userId: userInfo.data.message._id ,id:selectedBooking.clientId._id, reason: spamReason });
+      setChanges((prevChanges) => prevChanges + 1);
+      setIsReasonModalOpen(false);
+      setSpamReason("");
+    }
+  };
+
+  const handleUnspamClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsUnspamModalOpen(true);
+  };
+
+  const handleUnspamConfirm = async () => {
+    console.log(selectedBooking)
+    if (selectedBooking) {
+      const response=await unspamUser({ userId:userInfo.data.message._id ,id:selectedBooking.clientId._id});
+      setChanges((prevChanges) => prevChanges + 1);
+      setIsUnspamModalOpen(false);
+    }
   };
 
   return isOpen ? (
@@ -171,7 +224,10 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                           </button>
                           <button
                             className="text-white px-4 py-2 rounded bg-red-700 mr-2"
-                            onClick={() => {setSelectedBooking(booking);onCancel(booking._id)}}
+                            onClick={() => {
+                              setSelectedBooking(booking);
+                              onCancel(booking._id);
+                            }}
                           >
                             Cancel
                           </button>
@@ -191,6 +247,24 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                                 Payment Requested
                               </button>
                             ))}
+                          {booking?.clientId.spam &&
+                          booking.clientId.spam.some(
+                            (spam) => spam.userId === userInfo.data.message._id
+                          ) ? (
+                            <button
+                            onClick={() =>handleUnspamClick( booking)}
+                              className="text-white px-4 py-2 rounded bg-red-700 mr-2"
+                            >
+                              Unspam
+                            </button>
+                          ) : (
+                            <button
+                            onClick={() =>handleSpamClick( booking)}
+                              className="text-white px-4 py-2 rounded bg-red-700 mr-2"
+                            >
+                              Spam
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -223,6 +297,39 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
           message="Do you want to cancel the payment request?"
           onConfirm={handleConfirmation}
           onCancel={handleCancelConfirmation}
+        />
+      )}
+       {isSpamModalOpen && (
+        <SpamModal
+          onClose={() => setIsSpamModalOpen(false)}
+          onConfirm={handleSpamConfirm}
+          title="Confirm Spam"
+          description="Are you sure you want to mark this user as spam?"
+        />
+      )}
+
+      {isReasonModalOpen && (
+        <SpamModal
+          onClose={() => setIsReasonModalOpen(false)}
+          onConfirm={handleSpamSubmit}
+          title="Spam Reason"
+          description="Please provide a reason for marking this user as spam."
+        >
+          <textarea
+            value={spamReason}
+            onChange={(e) => setSpamReason(e.target.value)}
+            className="w-full p-2 mt-2"
+            placeholder="Enter reason"
+          />
+        </SpamModal>
+      )}
+
+      {isUnspamModalOpen && (
+        <SpamModal
+          onClose={() => setIsUnspamModalOpen(false)}
+          onConfirm={handleUnspamConfirm}
+          title="Confirm Unspam"
+          description="Are you sure you want to unmark this user as spam?"
         />
       )}
     </>

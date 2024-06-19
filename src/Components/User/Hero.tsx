@@ -36,7 +36,7 @@ export const Hero = () => {
             
           </div>
           <div className="text-center ">
-            <h1 className="text-4xl  tracking-tight text-gray-300 sm:text-6xl " style={{fontFamily:'cursive'}}>
+            <h1 className="text-4xl  tracking-tight text-gray-300 sm:text-6xl text-meta-2" style={{fontFamily:'cursive'}}>
               BID or BOOK
             </h1>
             

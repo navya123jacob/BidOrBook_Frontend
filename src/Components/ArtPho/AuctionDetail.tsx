@@ -282,7 +282,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
         />
       )}
       {showBidsModal && (
-        <BidsModal auction={auction} onClose={handleCloseBids} />
+        <BidsModal auction={auction} onClose={handleCloseBids} SetselectedAuction={SetselectedAuction} />
       )}
       <div className="fixed inset-0 z-40 overflow-auto bg-smoke-light flex">
         <div className="relative p-8 bg-white w-full max-w-md m-auto flex-col flex rounded-lg bg-opacity-95">
@@ -293,7 +293,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
           </span>
           {profbut && (
             <Link to={`/artpho/auction?id=${auction.userId}`}>
-              <button className="bg-gray-300 text-black px-4 py-2 my-4 rounded">
+              <button className=" text-white px-4 py-2 my-4 rounded  bg-form-strokedark">
                 Go to Profile
               </button>
             </Link>
@@ -351,7 +351,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
               )}
             </div>
             <div className="mt-4">
-              <button onClick={handleShowBids} className="bg-gray  text-black px-4 py-2 rounded">
+              <button onClick={handleShowBids} className="  text-white px-4 py-2 rounded bg-meta-4">
                 Show Bids
               </button>
             </div>

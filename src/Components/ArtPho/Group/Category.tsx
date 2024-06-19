@@ -10,6 +10,7 @@ interface Post {
   image: string;
   description: string;
   name: string;
+  is_blocked: boolean;
 }
 
 interface User {
@@ -55,8 +56,9 @@ const GallerySection: React.FC<GallerySectionProps> = ({
           formdata.searchPlaceholder = searchPlaceholder;
         }
         const response = await allpost(formdata).unwrap();
-        setUsersWithPosts(response.posts);
-        setTotalPages(Math.ceil(response.posts.length / ITEMS_PER_PAGE));
+        const filteredPosts = response.posts.filter((post: Post) => !post.is_blocked);
+        setUsersWithPosts(filteredPosts);
+        setTotalPages(Math.ceil(filteredPosts.length / ITEMS_PER_PAGE));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -72,9 +74,10 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await findAvailablePeople({ startDate, endDate, category: translateUp }).unwrap();
-      setUsersWithPosts(response);
-      setTotalPages(Math.ceil(response.length / ITEMS_PER_PAGE));
+      const response = await findAvailablePeople({ startDate, endDate, category: translateUp,usernotid: userInfo?.data?.message?._id }).unwrap();
+      const filteredUsers = response.filter((user: User) => user.posts.some((post: Post) => !post.is_blocked));
+      setUsersWithPosts(filteredUsers);
+      setTotalPages(Math.ceil(filteredUsers.length / ITEMS_PER_PAGE));
       setCurrentPage(1); 
     } catch (error) {
       console.error("Error fetching available people:", error);
@@ -121,7 +124,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                     <input
                       type="text"
                       className="border border-gray-400 w-full p-1 bg-transparent rounded-md text-base pl-2 text-white"
-                      placeholder={`Search for ${translateUp}...`}
+                      placeholder={`Search for ${translateUp} by name, district, state, or country...`}
                       value={searchPlaceholder}
                       onChange={(e) => setSearchPlaceholder(e.target.value)}
                     />
@@ -174,7 +177,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                   key={index}
                   className="max-w-screen-xl bg-opacity-20 bg-white p-5 mx-auto mb-5"
                 >
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-0 lg:grid-rows-2">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-0 lg:grid-rows-2">
                     <Link
                       className="relative flex items-end justify-start w-full text-left bg-center bg-cover cursor-pointer h-60 md:col-span-2 lg:row-span-2 lg:h-full group"
                       style={{ backgroundImage: `url(${user.profile})` }}

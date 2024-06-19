@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { IAuction } from '../types/auction';
 import { RootState } from '../redux/slices/Reducers/types';
 import { useSelector } from 'react-redux';
 import UserDetailsModal from './ArtPho/BidUserDetail';
 import { useSingleUserMutation } from '../redux/slices/Api/EndPoints/clientApiEndPoints';
-import { User } from '../types/user';
+
 
 interface BidsModalProps {
   auction: IAuction;
   onClose: () => void;
+  SetselectedAuction: Dispatch<SetStateAction<IAuction | null>>;
 }
 
-const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose }) => {
+const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose,SetselectedAuction }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [isUserDetailsModalOpen, setUserDetailsModalOpen] = useState<boolean>(false);
@@ -34,7 +35,7 @@ const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose }) => {
     <div className="fixed inset-0 z-50 overflow-auto bg-smoke-light flex">
       <div className="relative p-8 bg-white w-full max-w-md m-auto flex-col flex rounded-lg bg-opacity-95">
         <span className="absolute top-0 right-0 p-4">
-          <button onClick={onClose}>X</button>
+          <button onClick={onClose}><i className="fas fa-times text-black"></i></button>
         </span>
         <h2 className="text-2xl mb-4">Bids</h2>
         <div className="mt-4 bg-gray-200 p-4 rounded">
@@ -44,9 +45,9 @@ const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose }) => {
             <ul>
               {auction.bids && [...auction.bids].sort((a, b) => b.amount - a.amount).map((bid: any, index: number) => (
                 <li key={index} className="flex justify-between items-center">
-                  {bid.userId === auction.userId ? <strong>Your bid</strong> : `User ${bid.userId}`}: ${bid.amount}
+                  {bid.userId === auction.userId ? <strong>Your bid</strong> : `User ${bid.userId}`}: ₹{bid.amount}
                   {!userInfo.client && (
-                    <button onClick={() => handleViewClick(bid.userId)} className="text-blue-500 hover:underline">
+                    <button onClick={() => handleViewClick(bid.userId)} className="bg-graydark m-2 text-white p-2 rounded">
                       View
                     </button>
                   )}
@@ -60,6 +61,7 @@ const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose }) => {
         <UserDetailsModal
           id={selectedUser}
           onClose={handleCloseUserDetailsModal}
+          SetselectedAuction={SetselectedAuction}
         />
       )}
     </div>
