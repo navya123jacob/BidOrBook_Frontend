@@ -136,7 +136,7 @@ const UserTable = () => {
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <button
-                    className="bg-graydark text-white rounded p-2"
+                    className="dark:bg-graydark dark:text-white bg-meta-2 text-black rounded p-2"
                     onClick={() => handleOpenModal(user)}
                   >
                     DM
@@ -158,7 +158,7 @@ const UserTable = () => {
                     <p className="text-black dark:text-white">None</p>
                   ) : (
                     <button
-                      className="btn bg-graydark rounded p-2"
+                      className="dark:bg-graydark dark:text-white bg-meta-2 text-black rounded p-2"
                       onClick={() => handleUserModal(user)}
                     > 
                       {user.spam?.length} Spams

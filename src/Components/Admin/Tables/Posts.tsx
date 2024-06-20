@@ -138,7 +138,7 @@ const PostTable = () => {
                     <p className="text-black dark:text-white">None</p>
                   ) : (
                     <button
-                      className="btn bg-graydark rounded p-2"
+                      className="dark:bg-graydark dark:text-white bg-meta-2 text-black rounded p-2"
                       onClick={() => handleOpenSpamModal(post)}
                     >
                       {post.spam?.length} Spams
@@ -170,7 +170,7 @@ const PostTable = () => {
                       </svg>
                     </button>
                     <button
-                      className="hover:text-primary"
+                      className="hover:text-primary dark:bg-graydark dark:text-white bg-meta-2 text-black rounded p-2"
                       onClick={() => 
                         handleOpenConfirmationModal(
                           post.is_blocked ? "Are you sure you want to unblock this post?" : "Are you sure you want to block this post?",

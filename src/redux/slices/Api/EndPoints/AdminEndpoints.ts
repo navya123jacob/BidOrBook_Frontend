@@ -30,11 +30,19 @@ export const AdminApiSlice = apiSlice.injectEndpoints({
               method: 'GET',
           }),
       }),
+      updateAdmin: builder.mutation({
+        query: (data) => ({
+          url: '/admin/adminprofile',
+          method: 'PUT',
+          body: data,
+        }),
+      }),
         
         }),
       });
       
       export const {
+        useUpdateAdminMutation,
         useAdminloginMutation,
         useBlockUserMutation,
         useGetUsersAdminQuery,

@@ -58,6 +58,23 @@ export const AuctionApiSlice = apiSlice.injectEndpoints({
           
       }),
   }), 
+  spamAuction: builder.mutation({
+    query: ({ auctionId, userId, reason }) => ({
+        url: `/auction/spam`,
+        method: 'POST',
+        body: { auctionId, userId, reason },
+    }),
+}),
+unspamAuction: builder.mutation({
+    query: ({ auctionId, userId }) => ({
+        url: `/auction/spam/remove`,
+        method: 'POST',
+        body: { auctionId, userId },
+    }),
+}),
+getAllAuctionsWithUserDetails: builder.query({
+  query: () => "/auctions/user-details",
+}),
         }),
       });
       
@@ -68,6 +85,9 @@ export const AuctionApiSlice = apiSlice.injectEndpoints({
         useDeleteAuctionMutation,
         usePlacebidMutation,
         useCancelBidMutation ,
-        useWalletAuctionMutation  
+        useWalletAuctionMutation,
+        useSpamAuctionMutation,
+        useUnspamAuctionMutation,
+        useGetAllAuctionsWithUserDetailsQuery
 
 } = AuctionApiSlice

@@ -1,87 +1,199 @@
-import Breadcrumb from './AdminBreadcrumbs';
-import DefaultLayout from '../../Components/Admin/DefaultLayout';
-import CoverOne from '/users/cover-01.png';
-import { Link } from 'react-router-dom';
-import 'flatpickr/dist/flatpickr.min.css';
-import 'jsvectormap/dist/jsvectormap.css';
+import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
-
+import Breadcrumb from './AdminBreadcrumbs';
+import DefaultLayout from '../../Components/Admin/DefaultLayout';
+import Modal from '../../Components/Admin/AdminCropper';
+import { useUpdateAdminMutation } from '../../redux/slices/Api/EndPoints/AdminEndpoints';
+import { setAdminCredentials } from '../../redux/slices/Reducers/AdminReducer';
 
 const AdminProfile = () => {
-    
-    const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
-    
+  const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
+  const [updateAdmin, { isLoading }] = useUpdateAdminMutation();
+  const dispatch = useDispatch();
+
+  const [profileModalOpen, setProfileModalOpen] = useState<boolean>(false);
+  const [bgModalOpen, setBgModalOpen] = useState<boolean>(false);
+  const [editing, setEditing] = useState<boolean>(false);
+  const [formData, setFormData] = useState({
+    _id: adminInfo._id,
+    Fname: adminInfo.Fname,
+    Lname: adminInfo.Lname,
+    profile: adminInfo.profile,
+    bg: adminInfo.bg,
+  });
+
+  const profileUrl = useRef<string>(adminInfo.profile);
+  const bgUrl = useRef<string>(adminInfo.bg);
+
+  const updateProfileImage = (imgSrc: string) => {
+    profileUrl.current = imgSrc;
+    const file = convertBase64ToFile(imgSrc, "profile.png");
+    setFormData({ ...formData, profile: file });
+  };
+
+  const updateBgImage = (imgSrc: string) => {
+    bgUrl.current = imgSrc;
+    const file = convertBase64ToFile(imgSrc, "bg.png");
+    setFormData({ ...formData, bg: file });
+  };
+
+  const convertBase64ToFile = (base64: string, fileName: string): File => {
+    const byteString = atob(base64.split(',')[1]);
+    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0];
+    const byteArray = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+      byteArray[i] = byteString.charCodeAt(i);
+    }
+    return new File([byteArray], fileName, { type: mimeString });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    formDataToSend.append('_id', formData._id);
+    formDataToSend.append('Fname', formData.Fname);
+    formDataToSend.append('Lname', formData.Lname);
+    if (formData.profile instanceof File) {
+      formDataToSend.append('profile', formData.profile);
+    }
+    if (formData.bg instanceof File) {
+      formDataToSend.append('bg', formData.bg);
+    }
+    const response: any = await updateAdmin(formDataToSend);
+
+    if (response.data) {
+      dispatch(setAdminCredentials(response.data.admin));
+      setEditing(false);
+    }
+  };
+
   return (
     <DefaultLayout>
-      {/* <AdminNavbar /> */}
       <Breadcrumb pageName="Profile" />
-      <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="relative z-20 h-35 md:h-65">
-          <img
-            src={CoverOne}
-            alt="profile cover"
-            className="h-full w-full rounded-tl-sm rounded-tr-sm object-cover object-center"
-          />
-          <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
-            <label
-              htmlFor="cover"
-              className="flex cursor-pointer items-center justify-center gap-2 rounded bg-primary py-1 px-2 text-sm font-medium text-white hover:bg-opacity-90 xsm:px-4"
-            >
-              <input type="file" name="cover" id="cover" className="sr-only" />
-              <span>
-                <svg
-                  className="fill-current"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 14 14"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M4.76464 1.42638C4.87283 1.2641 5.05496 1.16663 5.25 1.16663H8.75C8.94504 1.16663 9.12717 1.2641 9.23536 1.42638L10.2289 2.91663H12.25C12.7141 2.91663 13.1592 3.101 13.4874 3.42919C13.8156 3.75738 14 4.2025 14 4.66663V11.0833C14 11.5474 13.8156 11.9925 13.4874 12.3207C13.1592 12.6489 12.7141 12.8333 12.25 12.8333H1.75C1.28587 12.8333 0.840752 12.6489 0.512563 12.3207C0.184375 11.9925 0 11.5474 0 11.0833V4.66663C0 4.2025 0.184374 3.75738 0.512563 3.42919C0.840752 3.101 1.28587 2.91663 1.75 2.91663H3.77114L4.76464 1.42638ZM5.56219 2.33329L4.5687 3.82353C4.46051 3.98582 4.27837 4.08329 4.08333 4.08329H1.75C1.59529 4.08329 1.44692 4.14475 1.33752 4.25415C1.22812 4.36354 1.16667 4.51192 1.16667 4.66663V11.0833C1.16667 11.238 1.22812 11.3864 1.33752 11.4958C1.44692 11.6052 1.59529 11.6666 1.75 11.6666H12.25C12.4047 11.6666 12.5531 11.6052 12.6625 11.4958C12.7719 11.3864 12.8333 11.238 12.8333 11.0833V4.66663C12.8333 4.51192 12.7719 4.36354 12.6625 4.25415C12.5531 4.14475 12.4047 4.08329 12.25 4.08329H9.91667C9.72163 4.08329 9.53949 3.98582 9.4313 3.82353L8.43781 2.33329H5.56219Z"
-                    fill="white"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M6.99992 5.83329C6.03342 5.83329 5.24992 6.61679 5.24992 7.58329C5.24992 8.54979 6.03342 9.33329 6.99992 9.33329C7.96642 9.33329 8.74992 8.54979 8.74992 7.58329C8.74992 6.61679 7.96642 5.83329 6.99992 5.83329ZM4.08325 7.58329C4.08325 5.97246 5.38909 4.66663 6.99992 4.66663C8.61075 4.66663 9.91659 5.97246 9.91659 7.58329C9.91659 9.19412 8.61075 10.5 6.99992 10.5C5.38909 10.5 4.08325 9.19412 4.08325 7.58329Z"
-                    fill="white"
-                  />
-                </svg>
-              </span>
-              <span>Edit</span>
-            </label>
-          </div>
-        </div>
-        <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
-          <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
-            <div className="relative drop-shadow-2 ">
-              <img src={adminInfo.profile} className=" rounded-full" alt="profile" />
-              
+      {!editing ? (
+        <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="relative z-20 h-35 md:h-65">
+            <img
+              src={adminInfo.bg}
+              alt="profile cover"
+              className="h-full w-full rounded-tl-sm rounded-tr-sm object-cover object-center"
+            />
+            <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
+              <button
+                onClick={() => setEditing(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+              >
+                Edit
+              </button>
             </div>
           </div>
-          <div className="mt-2.5 flex items-center justify-center">
-            <h3 className="mr-2.5 text-2xl font-semibold text-black dark:text-white">
-              {adminInfo.Fname} {adminInfo.Lname}
-            </h3>
-            
-          </div>
-          <p className="text-sm">{adminInfo.email}</p>
-          
-          <div className="mt-5.5 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/"
-              className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-            >
-              Chat
-            </Link>
-            
+          <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
+            <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
+              <div className="relative drop-shadow-2 ">
+                <img src={adminInfo.profile} className="rounded-full" alt="profile" />
+              </div>
+            </div>
+            <div className="mt-2.5 flex items-center justify-center">
+              <h3 className="mr-2.5 text-2xl font-semibold text-black dark:text-white">
+                {adminInfo.Fname} {adminInfo.Lname}
+              </h3>
+            </div>
+            <p className="text-sm">{adminInfo.email}</p>
           </div>
         </div>
-      </div>
+      ) : (!bgModalOpen  && !profileModalOpen && (
+        <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <button
+              onClick={() => {setEditing(false),setBgModalOpen(false)}}
+              className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-lg"
+            >
+              <i className="fa fa-arrow-circle-left" style={{fontSize:"24px"}}></i>
+            </button>
+          <div className="relative flex justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mt-10 mb-10">
+            
+            <form onSubmit={handleSubmit} encType="multipart/form-data">
+              <div>
+                <label htmlFor="Fname" className="block text-sm font-medium text-black">First Name</label>
+                <input
+                  id="Fname"
+                  name="Fname"
+                  type="text"
+                  value={formData.Fname}
+                  onChange={handleChange}
+                  className="block w-full text-black px-4 py-2 mt-1 border rounded-md"
+                />
+              </div>
+              <div>
+                <label htmlFor="Lname" className="block text-sm font-medium text-black">Last Name</label>
+                <input
+                  id="Lname"
+                  name="Lname"
+                  type="text"
+                  value={formData.Lname}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-2 mt-1 border text-black rounded-md"
+                />
+              </div>
+              <div>
+                <label htmlFor="profile" className="block text-sm font-medium text-gray-700">Profile Image</label>
+                <button
+                  type="button"
+                  onClick={() => setProfileModalOpen(true)}
+                  className="block w-full px-5 py-3 text-black  bg-gray-200 mt-1 rounded-lg"
+                >
+                  Change Profile Picture
+                </button>
+                {profileUrl.current && (
+                  <img src={profileUrl.current} alt="Profile" className="mt-2 w-24 h-24 rounded-full mx-auto" />
+                )}
+              </div>
+              <div>
+                <label htmlFor="bg" className="block text-sm font-medium text-gray-700">Background Image</label>
+                <button
+                  type="button"
+                  onClick={() => setBgModalOpen(true)}
+                  className="block w-full px-5 py-3 text-black bg-gray-200 mt-1 rounded-lg"
+                >
+                  Change Background Image
+                </button>
+                {bgUrl.current && (
+                  <img src={bgUrl.current} alt="Background" className="mt-2 w-full h-24 rounded-lg mx-auto" />
+                )}
+              </div>
+              <div className="mt-4">
+                <button
+                  type="submit"
+                  className={`w-full px-4 py-2 text-white bg-blue-600 rounded-md ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Updating..." : "Update"}
+                </button>
+              </div>
+            </form>
+          </div>
+          </div>
+        </div>)
+      )}
+
+      {profileModalOpen && (
+        <Modal
+          updateAvatar={updateProfileImage}
+          closeModal={() => setProfileModalOpen(false)}
+        />
+      )}
+
+      {bgModalOpen && (
+        <Modal
+          updateAvatar={updateBgImage}
+          closeModal={() => setBgModalOpen(false)}
+        />
+      )}
     </DefaultLayout>
   );
 };

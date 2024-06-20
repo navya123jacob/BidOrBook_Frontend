@@ -19,6 +19,8 @@ import {
   useCreateCheckoutSessionAuctionMutation
 } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { useWalletAuctionMutation } from '../../redux/slices/Api/EndPoints/auctionEndPoints';
+import { useSpamAuctionMutation,useUnspamAuctionMutation } from '../../redux/slices/Api/EndPoints/auctionEndPoints';
+import ReasonModal from '../User/ReasonModal';
 
 interface AuctionDetailModalProps {
   auction: IAuction;
@@ -49,6 +51,12 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
   const [cancelBidfn] = useCancelBidMutation();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
+  const [spamAuction, { isLoading: isSpamming }] = useSpamAuctionMutation();
+  const [unspamAuction, { isLoading: isUnspamming }] = useUnspamAuctionMutation();
+  const [showSpamConfirm, setShowSpamConfirm] = useState(false);
+  const [showUnspamConfirm, setShowUnspamConfirm] = useState(false);
+  const [showReasonModal, setShowReasonModal] = useState(false);
+  const [reason, setReason] = useState<string>('');
   const [address, setAddress] = useState({
     addressline: '',
     district: '',
@@ -231,6 +239,43 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
   const cancelCancelBid = () => {
     setCancelBid(false);
   };
+  const handleSpamClick = () => {
+    setShowReasonModal(true);
+  };
+  const handleConfirmSpam = async () => {
+    setShowSpamConfirm(false);
+    try {
+      const response = await spamAuction({ userId: userInfo.data.message._id, auctionId: auction._id, reason }).unwrap();
+      
+        let spam=auction?.spam.concat({userId: userInfo.data.message._id,reason})||[]
+        SetselectedAuction({...auction,spam})
+      
+    } catch (error) {
+      console.error('Failed to mark post as spam:', error);
+    }
+  };
+  const handleReasonSubmit = (reason: string) => {
+    
+    setShowReasonModal(false);
+    handleConfirmSpam();
+  };
+  const handleUnspamClick = () => {
+    setShowUnspamConfirm(true);
+  };
+  const handleConfirmUnspam = async () => {
+    setShowUnspamConfirm(false);
+    if (!userInfo || !userInfo.data || !userInfo.data.message) return;
+    try {
+      let response=await unspamAuction({ userId: userInfo.data.message._id, auctionId: auction._id })
+      if('data' in response && auction?.spam){
+       let spam=auction.spam.filter((e)=>{return e.userId!=userInfo.data.message._id})
+       SetselectedAuction({...auction,spam})
+      }
+      
+    } catch (error) {
+      console.error('Failed to unmark post as spam:', error);
+    }
+  };
 
   const handleConfirmCancelBid = async () => {
     try {
@@ -264,7 +309,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
   const handleCloseBids = () => {
     setShowBidsModal(false);
   };
-
+  const userHasSpammed = auction.spam?.some(s => s.userId === userInfo?.data?.message?._id);
   return (
     <>
       {showConfirmationModal && (
@@ -297,6 +342,25 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
                 Go to Profile
               </button>
             </Link>
+          )}
+          {userInfo.client && (
+            <>
+              {!userHasSpammed ? (
+                <button
+                  className="bg-yellow-500 text-white px-4 py-1 my-4 rounded w-30"
+                  onClick={handleSpamClick}
+                >
+                  Spam
+                </button>
+              ) : (
+                <button
+                  className="bg-green-500 text-white px-2 py-1 rounded w-30"
+                  onClick={handleUnspamClick}
+                >
+                  Unspam
+                </button>
+              )}
+            </>
           )}
           <div>
             <h2 className="text-2xl mb-4">{auction.name}</h2>
@@ -458,6 +522,30 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
             </div>
           </div>
         </div>
+      )}
+      {showReasonModal && (
+        <ReasonModal
+          onSubmit={handleReasonSubmit}
+          onCancel={() => setShowReasonModal(false)}
+          setReason={setReason}
+          reason={reason}
+        />
+      )}
+
+      {showSpamConfirm && (
+        <ConfirmationModal
+          message="Are you sure you want to mark this post as spam?"
+          onConfirm={handleConfirmSpam}
+          onCancel={() => setShowSpamConfirm(false)}
+        />
+      )}
+
+      {showUnspamConfirm && (
+        <ConfirmationModal
+          message="Are you sure you want to unmark this post as spam?"
+          onConfirm={handleConfirmUnspam}
+          onCancel={() => setShowUnspamConfirm(false)}
+        />
       )}
     </>
   );

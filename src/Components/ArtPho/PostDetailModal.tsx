@@ -128,7 +128,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
               Delete
             </button>
           )}
-          {userInfo && (
+          {userInfo.client && (
             <>
               {!userHasSpammed ? (
                 <button

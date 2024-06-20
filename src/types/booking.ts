@@ -8,11 +8,24 @@ export interface Address {
   
   export type BookingStatus = 'pending' | 'confirmed' | 'marked'|'booked';
   
+  
   export interface Booking {
     _id: string;
     status: BookingStatus;
     clientId: User;
     artistId: string;
+    location: Address;
+    event?: string;
+    payment_method?: string;
+    payment_date?: Date;
+    date_of_booking: Date[];
+    amount:number
+  }
+  export interface IBooking {
+    _id: string;
+    status: BookingStatus;
+    clientId: User;
+    artistId: User;
     location: Address;
     event?: string;
     payment_method?: string;

@@ -108,11 +108,15 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
+        getBookingsByArtistAndClient: builder.query({
+            query: () => `/Allbookings`,
+          }),
         
         }),
       });
       
       export const {
+        useGetBookingsByArtistAndClientQuery,
         useCheckavailabilityMutation,
         useMakeBookingreqMutation,
         useBookingsreqMutation,
