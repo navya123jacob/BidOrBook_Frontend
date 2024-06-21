@@ -125,7 +125,8 @@ export const SignupUser = () => {
           state,
           country
         },
-        wallet: 0
+        wallet: 0,
+        spam:[]
       });
       console.log(response)
       if (response?.error?.data?.message) {

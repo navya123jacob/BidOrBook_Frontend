@@ -180,30 +180,26 @@ const SellerProfileClientside: React.FC = () => {
 
   return (
     <>
-      <header className='bg-gray-950 bg-opacity-80'>
+      <header className='bg-stone-900 bg-opacity-80'>
         <Navbar />
       </header>
       <main className="bg-black text-white min-h-screen">
         <div className="lg:w-8/12 lg:mx-auto mb-8">
-          <header className="flex flex-wrap items-center p-4 md:py-8">
-            <div className="md:w-3/12 md:ml-16">
+          <header className="flex flex-col items-center justify-center p-4 md:py-8">
+            <div className="flex flex-col justify-center  items-center">
               <img
-                className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-full p-1"
+                className="w-20 h-20 md:w-50 md:h-50 object-cover rounded-full p-1"
                 src={otheruser?.profile}
                 alt="profile"
               />
-            </div>
-            <div className="w-8/12 md:w-7/12 ml-4">
-              <div className="md:flex md:flex-wrap md:items-center mb-4">
-                <h2 className="text-3xl inline-block font-semibold md:mr-2 mb-2 sm:mb-0">
-                  {otheruser?.Fname} {otheruser?.Lname}
-                </h2>
+              <div className="md:flex md:flex-wrap md:items-center md:justify-center  justi mb-4">
+                
                 {userInfo.client && (
                   <>
                     {!singleBooking ? (
                       <button
                         onClick={handleBookClick}
-                        className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                        className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                       >
                         Book
                       </button>
@@ -211,7 +207,7 @@ const SellerProfileClientside: React.FC = () => {
                       <button
                       
                         onClick={seeStatus}
-                        className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                        className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                       >
                         {singleBooking.status === 'pending'
                           ? 'Booking Requested'
@@ -224,28 +220,17 @@ const SellerProfileClientside: React.FC = () => {
                     )}
                     <button
                       onClick={handleDMClick}
-                      className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                      className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                     >
                       DM
                     </button>
-                    {otheruser?.spam && otheruser.spam.some(spam => spam.userId === userInfo.data.message._id) ? (
-                  <button
-                    onClick={handleUnspamClick}
-                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-                  >
-                    Unspam
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSpamClick}
-                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-                  >
-                    Spam
-                  </button>
-                )}
+                    
                   </>
                 )}
               </div>
+            </div>
+            <div className="flex flex-col items-center justify-center ml-4">
+              
               <ul className="hidden md:flex space-x-8 mb-4">
                 <li className="hover:cursor-pointer">
                   <span className="font-semibold">{usersWithPosts.length}</span> posts
@@ -255,13 +240,45 @@ const SellerProfileClientside: React.FC = () => {
                 </li>
               </ul>
               <div className="hidden md:block">
-                <h1 className="font-semibold">{otheruser?.Fname}</h1>
+                <h1 className="font-semibold text-center">{otheruser?.Fname} {otheruser?.Lname}</h1>
                 <p>{otheruser?.description}</p>
+                {otheruser?.spam && otheruser.spam.some(spam => spam.userId === userInfo.data.message._id) ? (
+                  <button
+                    onClick={handleUnspamClick}
+                    className="bg-red-600 m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Unspam
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSpamClick}
+                    className="bg-red-600 m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Spam
+                  </button>
+                )}
               </div>
             </div>
-            <div className="md:hidden text-sm my-2">
+            <div className="flex flex-col justify-center items-center  md:hidden text-sm my-2">
               <h1 className="font-semibold">{otheruser?.Fname} {otheruser?.Lname}</h1>
               <p>{otheruser?.description}</p>
+              <p>Location : {otheruser?.location.district},{otheruser?.location.state},{otheruser?.location.country}</p>
+            
+              {otheruser?.spam && otheruser.spam.some(spam => spam.userId === userInfo.data.message._id) ? (
+                  <button
+                    onClick={handleUnspamClick}
+                    className="bg-red-600 mt-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Unspam
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSpamClick}
+                    className="bg-red-600 mt-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                  >
+                    Spam
+                  </button>
+                )}
             </div>
           </header>
           <div className="px-px md:px-3">

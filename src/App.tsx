@@ -20,6 +20,7 @@ import Tables from './Pages/Admin/users/Users';
 import AdminPost from './Pages/Admin/Posts/AdminPost';
 import AdminBookings from './Pages/Admin/Bookings/AdminBookings';
 import AdminAuction from './Pages/Admin/Auctions/AdminAuctions';
+import AdminChats from './Pages/Admin/Chats/AdminChats';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -47,6 +48,7 @@ const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
           <Route path="/admin/posts" element={<><AdminPost /></>} />
           <Route path="/admin/bookings" element={<><AdminBookings /></>} />
           <Route path="/admin/auctions" element={<><AdminAuction /></>} />
+          <Route path="/admin/chats" element={<><AdminChats /></>} />
          
         </Route>
 

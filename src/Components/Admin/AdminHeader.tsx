@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import DropdownMessage from './DropdownMessage';
+// import DropdownMessage from './DropdownMessage';
 import DropdownUser from './DropdownUser';
 import LogoIcon from '/users/Logo2.png';
 import DarkModeSwitcher from './DarkModeSwitcher';
@@ -66,7 +66,7 @@ const Header = (props: {
           <ul className="flex items-center gap-2 2xsm:gap-4">
             <DarkModeSwitcher />
             
-            <DropdownMessage />
+            {/* <DropdownMessage /> */}
           </ul>
           <DropdownUser />
         </div>

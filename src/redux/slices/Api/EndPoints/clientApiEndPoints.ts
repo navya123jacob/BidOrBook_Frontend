@@ -131,12 +131,7 @@ export const UserApiSlice = apiSlice.injectEndpoints({
                 body: data,
             }),
         }),
-        getUserChats: builder.query({
-            query: (userId) => ({
-              url: `/getUserChats/${userId}`,
-              method: 'GET',
-            }),
-          }),
+        
           SpamUser: builder.mutation({
             query: ({ userId, reason,id }: { userId: string; reason: string,id:string }) => ({
                 url: `/spam/${id}`,
@@ -165,22 +160,15 @@ export const UserApiSlice = apiSlice.injectEndpoints({
               body: {userId },
             }),
           }),
-          getPostsWithSpam: builder.query({
-            query: () => ({
-                url:'/posts-with-spam',
-                method:'GET'
-            })
-          }),
-          blockPost: builder.mutation({
-            query: (postId) => ({
-              url: `/${postId}/block`,
-              method: 'POST',
-            }),
-          }),
-          unblockPost: builder.mutation({
-            query: (postId) => ({
-              url: `/${postId}/unblock`,
-              method: 'POST',
+          
+          
+          getWalletValue: builder.query<{ wallet: number }, string>({
+            query: (userId) => `/user/${userId}/wallet`,
+        }),
+        getUserChats: builder.query({
+            query: (userId) => ({
+              url: `/getUserChats/${userId}`,
+              method: 'GET',
             }),
           }),
 
@@ -188,9 +176,7 @@ export const UserApiSlice = apiSlice.injectEndpoints({
 })
 
 export const {
-    useBlockPostMutation,
-    useUnblockPostMutation,
-    useGetPostsWithSpamQuery,
+    
     useSpamPostMutation,
     useUnspamPostMutation,
     useSpamUserMutation,
@@ -212,6 +198,7 @@ export const {
     useGetMessagesMutation,
     useSendMessageMutation,
     useSingleUserMutation,
+    useGetWalletValueQuery,
     useGetUserChatsQuery
    
 } = UserApiSlice

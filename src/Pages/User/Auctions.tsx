@@ -54,7 +54,7 @@ const Auctions: React.FC = () => {
 
   return (
     <>
-      <header className='bg-gray-900 bg-opacity-80'>
+      <header className='bg-stone-900 bg-opacity-80'>
         <Navbar />
       </header>
       <div className="bg-black transform translate-y-0 transition-transform duration-300 min-h-screen">

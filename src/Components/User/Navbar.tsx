@@ -13,7 +13,7 @@ export const Navbar = () => {
   const navigation = [
     { name: 'Home', to: '/' },
     { name: 'About', to: '/about' },
-    { name: 'Contact', to: '/contact' },
+    // { name: 'Contact', to: '/contact' },
   ];
   
   if (userInfo) {

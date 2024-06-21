@@ -72,9 +72,7 @@ unspamAuction: builder.mutation({
         body: { auctionId, userId },
     }),
 }),
-getAllAuctionsWithUserDetails: builder.query({
-  query: () => "/auctions/user-details",
-}),
+
         }),
       });
       
@@ -88,6 +86,6 @@ getAllAuctionsWithUserDetails: builder.query({
         useWalletAuctionMutation,
         useSpamAuctionMutation,
         useUnspamAuctionMutation,
-        useGetAllAuctionsWithUserDetailsQuery
+        
 
 } = AuctionApiSlice

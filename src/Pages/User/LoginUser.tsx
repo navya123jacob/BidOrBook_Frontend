@@ -79,9 +79,14 @@ const LoginUser = () => {
 
     try {
       const response: any = await login({ email, password });
+      
       if ("error" in response) {
-        setLoginError("Invalid Credentials");
-      } else {
+       if(response.error?.data?.message ){setLoginError(response.error.data.message )}
+       else{
+        setLoginError("Invalid Credentials");}
+      }
+      
+      else {
         
         if (userType === "client") {
           response.client=true
@@ -96,6 +101,7 @@ const LoginUser = () => {
         
       }
     } catch (error) {
+      
       setLoginError("Invalid Credentials");
       console.error("Login failed:", error);
     }

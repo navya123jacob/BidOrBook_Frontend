@@ -199,8 +199,14 @@ const UserTable = () => {
                 </td>
               </tr>
             ))}
+            
           </tbody>
         </table>
+        {!currentUsers.length && (
+                <div className="text-center py-6 text-black dark:text-white">
+                  No Users
+                </div>
+              )}
         <div className="flex justify-between items-center mt-4">
           <button
             onClick={() => paginate(currentPage - 1)}

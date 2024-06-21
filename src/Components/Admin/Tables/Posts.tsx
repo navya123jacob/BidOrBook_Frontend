@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useGetPostsWithSpamQuery, useBlockPostMutation,useUnblockPostMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useGetPostsWithSpamQuery ,useBlockPostMutation,useUnblockPostMutation } from "../../../redux/slices/Api/EndPoints/AdminEndpoints";
 import { IPost } from "../../../types/user";
 import ChatComponent from "../../ChatSingle";
 import ConfirmationModal from "../../User/CancelConfirmModal";
 
 
 const PostTable = () => {
-  const { data: posts = [], isLoading } = useGetPostsWithSpamQuery({});
+  const { data: posts = [], isLoading,refetch } = useGetPostsWithSpamQuery({});
   const [postsData, setPostsData] = useState<IPost[]>(posts);
   const [blockPost] = useBlockPostMutation(); 
   const [unblockPost] = useUnblockPostMutation()
@@ -18,10 +18,12 @@ const PostTable = () => {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [confirmationAction, setConfirmationAction] = useState<(() => void) | null>(null);
-
-  useEffect(() => {
-    setPostsData(posts);
-  }, [posts]);
+  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState("");
+  const bookingsPerPage = 10;
+  
 
   const handleOpenPostModal = (post: IPost) => {
     setSelectedPost(post);
@@ -55,15 +57,11 @@ const PostTable = () => {
 
   const handleBlockPost = async (id: string) => {
     await blockPost(id);
-    setPostsData(postsData.map(post => 
-      post._id === id ? { ...post, is_blocked: !post.is_blocked } : post
-    ));
+    refetch()
   };
   const handleUnBlockPost = async (id: string) => {
     await unblockPost(id);
-    setPostsData(postsData.map(post => 
-      post._id === id ? { ...post, is_blocked: !post.is_blocked } : post
-    ));
+    refetch()
   };
 
   const handleOpenConfirmationModal = (message: string, action: () => void) => {
@@ -77,6 +75,36 @@ const PostTable = () => {
     setConfirmationAction(null);
     setConfirmationMessage("");
   };
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusFilterChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setFilterStatus(e.target.value);
+    setCurrentPage(1);
+  };
+  const filteredBookings = posts.filter((post: IPost) => {
+    const searchTermRegex = new RegExp(
+      searchTerm.toLowerCase().split(" ").join("\\s*")
+    );
+    const matchesSearchTerm =
+      post.name.toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
+      searchTermRegex.test(
+        `${post.userid.Fname.toLowerCase()} ${post.userid.Lname.toLowerCase()}`
+      );
+    
+    return matchesSearchTerm ;
+  });
+  const indexOfLastAuction = currentPage * bookingsPerPage;
+  const indexOfFirstAuction = indexOfLastAuction - bookingsPerPage;
+  const currentPosts = filteredBookings.slice(
+    indexOfFirstAuction,
+    indexOfLastAuction
+  );
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -85,6 +113,16 @@ const PostTable = () => {
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <div className="max-w-full overflow-x-auto">
+      <div className="flex justify-between items-center mb-4">
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="p-2 border rounded text-black dark:text-white bg-white dark:bg-boxdark"
+            />
+            
+          </div>
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-2 text-left dark:bg-meta-4">
@@ -109,7 +147,7 @@ const PostTable = () => {
             </tr>
           </thead>
           <tbody>
-            {postsData.map((post: IPost, key: number) => (
+            {currentPosts.map((post: IPost, key: number) => (
               <tr key={key}>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
                   <img src={post.image} alt={post.name} className="h-20 w-20 object-cover" />
@@ -187,7 +225,30 @@ const PostTable = () => {
             ))}
           </tbody>
         </table>
-      </div>
+        {!currentPosts.length && (
+                <div className="text-center py-6 text-black dark:text-white">
+                  No Posts
+                </div>
+              )}
+      
+      <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 border rounded"
+            >
+              Previous
+            </button>
+            <p>Page {currentPage}</p>
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={indexOfLastAuction >= filteredBookings.length}
+              className="p-2 border rounded"
+            >
+              Next
+            </button>
+          </div>
+        </div>
 
       {isPostModalOpen && selectedPost && (
         <div className="fixed inset-0 flex items-center justify-center z-40">

@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
+import { useAdminlogoutMutation } from '../../redux/slices/Api/EndPoints/AdminEndpoints';
+import { adminLogout } from '../../redux/slices/Reducers/AdminReducer';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
- 
+  const dispatch = useDispatch();
+  const [logoutfn] = useAdminlogoutMutation();
   const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
@@ -35,6 +38,10 @@ const DropdownUser = () => {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
+  const handleLogout = async () => {
+    dispatch(adminLogout());
+    await logoutfn({});
+  };
 
   return (
     <div className="relative">
@@ -82,7 +89,7 @@ const DropdownUser = () => {
         }`}
       >
         
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base "  onClick={handleLogout}>
           <svg
             className="fill-current"
             width="22"

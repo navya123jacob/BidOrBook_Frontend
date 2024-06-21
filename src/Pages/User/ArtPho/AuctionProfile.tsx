@@ -157,7 +157,7 @@ const AuctionProfilePage: React.FC = () => {
 
   return (
     <>
-      <header className="bg-gray-950 bg-opacity-80">
+      <header className="bg-stone-900 bg-opacity-80">
         <Navbar />
         <div className="relative h-40">
           <img
@@ -243,7 +243,7 @@ const AuctionProfilePage: React.FC = () => {
             <div className="flex flex-wrap -mx-px md:-mx-3">
               {isLoading ? (
                 <span className="loader"></span>
-              ) : (
+              ) :auctions.length > 0 ?  (
                 auctions.map((auction: any, index: number) => (
                   <div
                     key={index}
@@ -272,6 +272,10 @@ const AuctionProfilePage: React.FC = () => {
                     </a>
                   </div>
                 ))
+              ): (
+                <div className="w-full text-center py-8">
+                  <p className="text-gray-500">No Auctions</p>
+                </div>
               )}
             </div>
           </div>

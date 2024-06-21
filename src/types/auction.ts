@@ -1,4 +1,4 @@
-import { Spam, User } from "./user";
+import { Spam,ISpam, User } from "./user";
 export interface IAuction extends Document {
     _id:string;
   name:string;
@@ -11,6 +11,7 @@ export interface IAuction extends Document {
   status: 'active' | 'inactive';
   initial: number;
   payment:string;
+  paymentmethod:string;
   spam:Spam[]
 }
 export interface AdIAuction extends Document {
@@ -25,5 +26,6 @@ export interface AdIAuction extends Document {
   status: 'active' | 'inactive';
   initial: number;
   payment:string;
-  spam:Spam[]
+  paymentmethod:string;
+  spam:ISpam[]
 }

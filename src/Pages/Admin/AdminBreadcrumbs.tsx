@@ -25,12 +25,12 @@ const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
               }`}
               to="/"
             >
-              Dashboard /
+              Admin /
             </Link>
           </li>
           <li
             className={`font-medium ${
-              colorMode === 'dark' ? 'text-primary-dark' : 'text-primary'
+              colorMode === 'dark' ? 'text-primary-dark' : 'text-graydark'
             }`}
           >
             {pageName}

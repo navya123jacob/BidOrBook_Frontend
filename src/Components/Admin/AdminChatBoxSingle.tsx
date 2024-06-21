@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from 're
 import Modal from 'react-modal';
 import { io } from 'socket.io-client';
 import { useSelector } from 'react-redux';
-import { RootState } from '../redux/slices/Reducers/types';
-import { useSendMessageMutation, useGetMessagesMutation } from '../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { RootState } from '../../redux/slices/Reducers/types';
+import { useAdminSendMessageMutation, useAdminGetMessagesMutation  } from '../../redux/slices/Api/EndPoints/AdminEndpoints';
 import { format, isToday, isYesterday } from 'date-fns';
 
 interface ChatComponentProps {
@@ -19,17 +19,18 @@ interface ChatComponentProps {
 
 const socket = io('http://localhost:8888');
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats,admin }) => {
+const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats,admin }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
-  const [sendMessage] = useSendMessageMutation();
-  const [getMessage, { isLoading, error }] = useGetMessagesMutation();
+  const [sendMessage] = useAdminSendMessageMutation();
+  const [getMessage, { isLoading, error }] = useAdminGetMessagesMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+  console.log(userInfo)
+  console.log(adminInfo)
   useEffect(() => {
-    let senderId=userInfo.data.message._id;
+    let senderId=adminInfo._id;
     
     if (isOpen) {
       const fetchMessages = async () => {
@@ -47,8 +48,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
 
   useEffect(() => {
     if (isOpen) {
-      let senderId=userInfo.data.message._id;
-      
+        let senderId=adminInfo._id;
       socket.emit('handshake', { senderId, receiverId }, (roomId: string, users: string[]) => {
         console.log(`Joined room: ${roomId}`);
       });
@@ -178,7 +178,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
               <div key={index}>
                 <div className="date-label">{renderDateLabel(date)}</div>
                 {groupedMessages[date].map((msg, msgIndex) => (
-                  <div key={msgIndex} className={msg.senderId === userInfo?.data?.message?._id  ? 'chat-component-my-message' : 'chat-component-other-message'}>
+                  <div key={msgIndex} className={msg.senderId === adminInfo._id  ? 'chat-component-my-message' : 'chat-component-other-message'}>
                     <p>{msg.message}</p>
                     <span>{new Date(msg.createdAt).toLocaleTimeString()}</span>
                   </div>
@@ -202,4 +202,4 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
   );
 };
 
-export default ChatComponent;
+export default AdminChatComponent;

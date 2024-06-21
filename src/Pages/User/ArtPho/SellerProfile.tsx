@@ -101,7 +101,7 @@ const ProfilePageSeller: React.FC = () => {
       });
     });
 
-    socket.on("chat_message", (newMessage:any) => {
+    socket.on("chat_message", (newMessage: any) => {
       updateChats(newMessage);
     });
 
@@ -157,20 +157,25 @@ const ProfilePageSeller: React.FC = () => {
     const fetchBookings = async () => {
       try {
         const response = await bookingsreq({
-          artistId: userInfo.data.message._id,clientId:''
+          artistId: userInfo.data.message._id,
+          clientId: "",
         });
         if ("data" in response) {
           setBookingReqData(response.data?.bookings);
         }
 
         const response2 = await bookingsConfirm({
-          artistId: userInfo.data.message._id,clientId:''
+          artistId: userInfo.data.message._id,
+          clientId: "",
         });
         if ("data" in response2) {
           setBookingConfirmData(response2.data?.bookings);
         }
 
-        const response3 = await marked({ artistId: userInfo.data.message._id,clientId:'' });
+        const response3 = await marked({
+          artistId: userInfo.data.message._id,
+          clientId: "",
+        });
         if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
         }
@@ -260,40 +265,28 @@ const ProfilePageSeller: React.FC = () => {
 
   return (
     <>
-      <header className="bg-gray-950 bg-opacity-80">
+      <header className="bg-stone-900 bg-opacity-80">
         <Navbar />
       </header>
-      <main className="bg-black text-white min-h-screen">
+      <main className="bg-black text-white min-h-screen ">
         <div className="lg:w-8/12 lg:mx-auto mb-8">
-          <header className="flex flex-wrap items-center p-4 md:py-8">
-            <div className="w-full flex justify-end items-center mb-4">
+          <header className="flex flex-col items-center p-4 md:py-8">
+            <div className="w-full flex justify-center items-center mb-4 ">
               <FontAwesomeIcon
                 icon={faPlus}
                 className="text-3xl text-white"
                 onClick={() => setIsModalOpen(true)}
               />
             </div>
-            <div className="md:w-3/12 md:ml-16">
+            <div className="flex justify-center items-center  ">
               <img
                 className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-full p-1"
                 src={userInfo.data.message.profile}
                 alt="profile"
               />
+              
             </div>
-            <div className="w-8/12 md:w-7/12 ml-4">
-              <div className="md:flex md:flex-wrap md:items-center mb-4">
-                <h2 className="text-3xl inline-block font-semibold md:mr-2 mb-2 sm:mb-0">
-                  {userInfo.data.message.Fname} {userInfo.data.message.Lname}
-                </h2>
-                {userInfo.client && (
-                  <a
-                    href="#"
-                    className="bg-blue-500 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-                  >
-                    Book
-                  </a>
-                )}
-              </div>
+            <div className="w-8/12 md:w-7/12 ml-4 mt-5 ">
               <ul className="hidden md:flex space-x-8 mb-4">
                 <li className="hover:cursor-pointer">
                   <span className="font-semibold">{usersWithPosts.length}</span>{" "}
@@ -330,16 +323,18 @@ const ProfilePageSeller: React.FC = () => {
                   Chats
                 </li>
               </ul>
-              <div className="hidden md:block">
+              <div className="hidden   md:flex flex-col justify-center items-center">
                 <h1 className="font-semibold">{userInfo.data.message.Fname}</h1>
                 <p>{userInfo.data.message.description}</p>
+                <p>Location : {userInfo.data.message.location.district},{userInfo.data.message.location.state},{userInfo.data.message.location.country}</p>
               </div>
             </div>
-            <div className="md:hidden text-sm my-2">
+            <div className="md:hidden flex flex-col justify-center items-center text-sm my-2 text-white">
               <h1 className="font-semibold">
-                {userInfo.data.message.Fname} {userInfo.data.message.Lname}
+                {userInfo.data.message.Fname} {userInfo.data.message.Lname} 
               </h1>
               <p>{userInfo.data.message.description}</p>
+              <p>Location : {userInfo.data.message.location.district},{userInfo.data.message.location.state},{userInfo.data.message.location.country}</p>
             </div>
           </header>
           <div className="px-px md:px-3">
@@ -395,7 +390,7 @@ const ProfilePageSeller: React.FC = () => {
             <div className="flex flex-wrap -mx-px md:-mx-3">
               {isLoading ? (
                 <span className="loader"></span>
-              ) : (
+              ) : usersWithPosts.length > 0 ? (
                 usersWithPosts.map((post: any, index: number) => (
                   <div key={index} className="w-1/3 p-px md:px-3">
                     <a href="#" onClick={() => handlePostClick(post)}>
@@ -405,6 +400,13 @@ const ProfilePageSeller: React.FC = () => {
                           src={post.image}
                           alt="image"
                         />
+                        {post.is_blocked && (
+                          <div className="absolute left-0 top-0 w-full h-full bg-black bg-opacity-60 flex justify-center items-center">
+                            <span className="text-white font-bold text-xl">
+                              Blocked
+                            </span>
+                          </div>
+                        )}
                         <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 hidden">
                           <div className="flex justify-center items-center space-x-4 h-full">
                             {/* <span className="p-2">
@@ -416,6 +418,10 @@ const ProfilePageSeller: React.FC = () => {
                     </a>
                   </div>
                 ))
+              ) : (
+                <div className="w-full text-center py-8">
+                  <p className="text-gray-500">No posts available,Stay active for you to get noticed</p>
+                </div>
               )}
             </div>
           </div>

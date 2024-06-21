@@ -11,12 +11,7 @@ export interface Post {
 
   export interface IPost {
     _id: string;
-    userid: {
-      _id: string;
-      Fname: string;
-      Lname: string;
-      profile:string
-    };
+    userid: User;
     name: string;
     description: string;
     image: string;

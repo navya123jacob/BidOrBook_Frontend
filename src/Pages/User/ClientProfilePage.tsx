@@ -5,7 +5,7 @@ import { RootState } from "../../redux/slices/Reducers/types";
 import ProfileForm from "../../Components/User/ProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
-import { useGetUserChatsQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useGetUserChatsQuery, useGetWalletValueQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useAuctionByBidderMutation, useDeleteAuctionMutation } from "../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { User } from "../../types/user";
 import { io } from "socket.io-client";
@@ -20,6 +20,7 @@ import { IAuction } from "../../types/auction";
 import AuctionList from "../../Components/User/AuctionsViewModal";
 import AuctionDetailModal from "../../Components/ArtPho/AuctionDetail";
 import BiddingModal from "../../Components/User/MakeBid";
+import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
 
 const socket = io("http://localhost:8888");
 interface PopulatedChat {
@@ -28,6 +29,7 @@ interface PopulatedChat {
 }
 
 const ClientProfilePage: React.FC = () => {
+  const { data: admin, error, isLoading } = useGetAdminDetailsQuery();
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
@@ -42,10 +44,12 @@ const ClientProfilePage: React.FC = () => {
   const [currentbids,setCurrentbids]=useState<IAuction[]>([])
   const [isAuctionDetModalOpen, setIsAuctionDetModalOpen] =useState(false);
   const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
+  const [AdminChatOpen,setAdminChatOpen]= useState(false);
   const [purchased,setPurchased]=useState<IAuction[]>([])
   const [selectedAuction, setSelectedAuction] = useState<IAuction | null>(null);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [bids, setBids] = useState<{ userId: string; amount: number }[]>([]);
+  const { data: walletData = { wallet: 0 } } = useGetWalletValueQuery(userInfo.data.message._id);
   const[AuctionByBidder] =useAuctionByBidderMutation()
   const [deleteAuction] = useDeleteAuctionMutation();
   const {
@@ -53,10 +57,11 @@ const ClientProfilePage: React.FC = () => {
     error: chatError,
     isLoading: chatLoading,
   } = useGetUserChatsQuery(userInfo.data.message._id);
-
+  
   useEffect(() => {
     const fetchBookings = async () => {
       try {
+        
         const response = await bookingsreq({
           clientId: userInfo.data.message._id,artistId:''
         });
@@ -155,8 +160,17 @@ const ClientProfilePage: React.FC = () => {
         const response = await AuctionByBidder({ clientId: userInfo.data.message._id });
         if ('data' in response) {
           const auctions = response.data.auctions;
-          const pendingBids = auctions.filter((auction: IAuction) => auction.payment === 'pending');
-          const paidBids = auctions.filter((auction: any) => auction.payment === 'paid');
+          const pendingBids: IAuction[] = [];
+          const paidBids: IAuction[] = [];
+  
+          auctions.forEach((auction: IAuction) => {
+            if (auction.payment === 'paid' && auction.bids.length > 0 && auction.bids[auction.bids.length - 1].userId === userInfo.data.message._id) {
+              paidBids.push(auction);
+            } else {
+              pendingBids.push(auction);
+            }
+          });
+  
           setCurrentbids(pendingBids);
           setPurchased(paidBids);
         }
@@ -256,10 +270,12 @@ const ClientProfilePage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="text-center mt-16">
+                <div className="text-center flex flex-col justify-center items-center mt-16">
                   <h3 className="text-4xl font-semibold leading-normal mb-2 text-blueGray-700 mb-2">
                     {userInfo?.data?.message?.Fname}
                   </h3>
+                  <button className="text-white bg-graydark rounded p-2" onClick={()=>setAdminChatOpen(true)}>DM ADMIN</button>
+                  <p className="text-black bg-gray rounded p-2  m-2" >Wallet :₹ {walletData.wallet} </p>
                 </div>
 
                 <div className="mt-10 py-10 border-t border-blueGray-200 text-center">
@@ -292,22 +308,7 @@ const ClientProfilePage: React.FC = () => {
                             <span className="text-sm font-medium">Profile</span>
                           </button>
                         </li>
-                        {/* <li>
-                          <button
-                            type="button"
-                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
-                              activeSection === "address"
-                                ? "text-gray-800 font-bold"
-                                : "text-gray-500"
-                            }`}
-                            onClick={() => handleSectionClick("address")}
-                          >
-                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
-                              <i className="bx bx-shopping-bag"></i>
-                            </span>
-                            <span className="text-sm font-medium">Address</span>
-                          </button>
-                        </li> */}
+                        
                         
                         <li>
                           <button
@@ -492,6 +493,16 @@ const ClientProfilePage: React.FC = () => {
           Fname={selectedChat.userId.Fname}
           Lname={selectedChat.userId.Lname}
           profile={selectedChat.userId.profile}
+        />
+      )}
+      {AdminChatOpen && (
+        <ChatComponent
+          isOpen={AdminChatOpen}
+          onClose={() => setAdminChatOpen(false)}
+          receiverId={admin?._id||''}
+          Fname={admin?.Fname ||''}
+          Lname={admin?.Lname ||''}
+          profile={admin?.profile||''}
         />
       )}
       {isAuctionDetModalOpen && selectedAuction && (
