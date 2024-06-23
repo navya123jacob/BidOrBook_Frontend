@@ -112,7 +112,7 @@ const handleChatClick = (chat: PopulatedChat) => {
           );
         })}
         {!chats.length && (
-                <div className="text-center py-6 text-black dark:text-white">
+                <div className="text-center py-6 text-black ">
                   No Chats
                 </div>
               )}

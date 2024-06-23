@@ -3,6 +3,7 @@ import { User } from '../../../types/user';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/slices/Reducers/types';
 import ChatComponent from '../../ChatSingle';
+import AdminChatComponent from '../AdminChatBoxSingle';
 
 interface UserDetailsModalProps {
   user: User | null;
@@ -31,7 +32,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) =>
       </div>
     </div>
     {chatModalOpen && (
-        <ChatComponent
+        <AdminChatComponent
           isOpen={chatModalOpen}
           onClose={() => setIsChatModalOpen(false)}
           receiverId={user._id}

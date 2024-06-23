@@ -9,6 +9,7 @@ import PostDetailModal from "../../../Components/ArtPho/PostDetailModal";
 import {
   useAllpostMutation,
   useDeletePostMutation,
+  useGetUserReviewsQuery,
 } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import PostModal from "../../../Components/ArtPho/postModal";
 import { Booking } from "../../../types/booking";
@@ -25,6 +26,8 @@ import { useGetUserChatsQuery } from "../../../redux/slices/Api/EndPoints/client
 import Chats from "../../../Components/Chats";
 import ChatComponent from "../../../Components/ChatSingle";
 import { io } from "socket.io-client";
+import { IReview } from "../../../types/user";
+import ViewReviewsModal from "../../../Components/ViewReviewsModal";
 const socket = io("http://localhost:8888");
 const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
@@ -32,6 +35,9 @@ const ProfilePageSeller: React.FC = () => {
   const [marked] = useMarkedMutation();
   const [cancelbooking] = useCancelbookingMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const { data: reviewData } = useGetUserReviewsQuery(
+    userInfo?.data?.message._id ?? ""
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -52,6 +58,8 @@ const ProfilePageSeller: React.FC = () => {
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [singleChatOpen, setSingleChatOpen] = useState(false);
+  const [reviews, setReviews] = useState<IReview[]>([]);
+  const [isViewReviewsModalOpen, setIsViewReviewsModalOpen] = useState(false);
   const dispatch = useDispatch();
   const [chats, setChats] = useState<any[]>([]);
   const {
@@ -65,6 +73,12 @@ const ProfilePageSeller: React.FC = () => {
       console.log(mychats);
     }
   }, [mychats]);
+
+  useEffect(() => {
+    if (reviewData?.receivedReviews) {
+      setReviews(reviewData.receivedReviews);
+    }
+  }, [reviewData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -284,7 +298,6 @@ const ProfilePageSeller: React.FC = () => {
                 src={userInfo.data.message.profile}
                 alt="profile"
               />
-              
             </div>
             <div className="w-8/12 md:w-7/12 ml-4 mt-5 ">
               <ul className="hidden md:flex space-x-8 mb-4">
@@ -326,15 +339,35 @@ const ProfilePageSeller: React.FC = () => {
               <div className="hidden   md:flex flex-col justify-center items-center">
                 <h1 className="font-semibold">{userInfo.data.message.Fname}</h1>
                 <p>{userInfo.data.message.description}</p>
-                <p>Location : {userInfo.data.message.location.district},{userInfo.data.message.location.state},{userInfo.data.message.location.country}</p>
+                <p>
+                  Location : {userInfo.data.message.location.district},
+                  {userInfo.data.message.location.state},
+                  {userInfo.data.message.location.country}
+                </p>
+                <button
+                  onClick={() => setIsViewReviewsModalOpen(true)}
+                  className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                >
+                  View Reviews
+                </button>
               </div>
             </div>
             <div className="md:hidden flex flex-col justify-center items-center text-sm my-2 text-white">
               <h1 className="font-semibold">
-                {userInfo.data.message.Fname} {userInfo.data.message.Lname} 
+                {userInfo.data.message.Fname} {userInfo.data.message.Lname}
               </h1>
               <p>{userInfo.data.message.description}</p>
-              <p>Location : {userInfo.data.message.location.district},{userInfo.data.message.location.state},{userInfo.data.message.location.country}</p>
+              <p>
+                Location : {userInfo.data.message.location.district},
+                {userInfo.data.message.location.state},
+                {userInfo.data.message.location.country}
+              </p>
+              <button
+                onClick={() => setIsViewReviewsModalOpen(true)}
+                className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+              >
+                View Reviews
+              </button>
             </div>
           </header>
           <div className="px-px md:px-3">
@@ -420,7 +453,9 @@ const ProfilePageSeller: React.FC = () => {
                 ))
               ) : (
                 <div className="w-full text-center py-8">
-                  <p className="text-gray-500">No posts available,Stay active for you to get noticed</p>
+                  <p className="text-gray-500">
+                    No posts available,Stay active for you to get noticed
+                  </p>
                 </div>
               )}
             </div>
@@ -510,6 +545,12 @@ const ProfilePageSeller: React.FC = () => {
           Lname={selectedChat?.userId.Lname || ""}
           profile={selectedChat?.userId.profile || ""}
           setChats={setChats}
+        />
+      )}
+      {isViewReviewsModalOpen && (
+        <ViewReviewsModal
+          reviews={reviews}
+          onClose={() => setIsViewReviewsModalOpen(false)}
         />
       )}
       <Footer />

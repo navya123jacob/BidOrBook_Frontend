@@ -4,6 +4,7 @@ import { User, Spam } from "../../../types/user";
 import ConfirmationModal from "../../User/CancelConfirmModal";
 import ChatComponent from "../../ChatSingle";
 import { useAdmindeleteAuctionMutation,useGetAllAuctionsWithUserDetailsQuery } from "../../../redux/slices/Api/EndPoints/AdminEndpoints";
+import AdminChatComponent from "../AdminChatBoxSingle";
 
 const AuctionTable = () => {
   const {
@@ -440,7 +441,7 @@ const AuctionTable = () => {
         )}
       </div>
       {isModalOpen && selectedUser && (
-        <ChatComponent
+        <AdminChatComponent
           receiverId={selectedUser._id}
           onClose={handleCloseModal}
           isOpen={isModalOpen}
@@ -451,7 +452,7 @@ const AuctionTable = () => {
         />
       )}
       {isInnerOpen && selectedInnerUser && (
-        <ChatComponent
+        <AdminChatComponent
           receiverId={selectedInnerUser._id}
           onClose={handleInnerCloseModal}
           isOpen={isInnerOpen}
@@ -519,7 +520,7 @@ const AuctionTable = () => {
         </div>
       )}
       {isSpamUserModalOpen && selectedSpamUser && (
-        <ChatComponent
+        <AdminChatComponent
           receiverId={selectedSpamUser._id}
           onClose={handleCloseSpamUserModal}
           isOpen={isSpamUserModalOpen}

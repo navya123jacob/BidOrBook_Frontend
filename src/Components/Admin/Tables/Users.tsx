@@ -4,7 +4,7 @@ import {
   useBlockUserMutation,
 } from "../../../redux/slices/Api/EndPoints/AdminEndpoints";
 import { IUser } from "../../../types/user";
-import ChatComponent from "../../ChatSingle";
+import AdminChatComponent from "../AdminChatBoxSingle";
 
 const UserTable = () => {
   const { data: users = [], isLoading } = useGetUsersAdminQuery({});
@@ -226,7 +226,7 @@ const UserTable = () => {
         </div>
       </div>
       {isModalOpen && selectedUser && (
-        <ChatComponent
+        <AdminChatComponent
           receiverId={selectedUser._id}
           onClose={handleCloseModal}
           isOpen={isModalOpen}
@@ -237,7 +237,7 @@ const UserTable = () => {
         />
       )}
       {isInnerOpen && selectedInnerUser && (
-        <ChatComponent
+        <AdminChatComponent
           receiverId={selectedInnerUser._id}
           onClose={handleInnerCloseModal}
           isOpen={isInnerOpen}

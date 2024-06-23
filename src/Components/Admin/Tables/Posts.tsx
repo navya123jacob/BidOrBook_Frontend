@@ -3,6 +3,7 @@ import { useGetPostsWithSpamQuery ,useBlockPostMutation,useUnblockPostMutation }
 import { IPost } from "../../../types/user";
 import ChatComponent from "../../ChatSingle";
 import ConfirmationModal from "../../User/CancelConfirmModal";
+import AdminChatComponent from "../AdminChatBoxSingle";
 
 
 const PostTable = () => {
@@ -357,7 +358,7 @@ const PostTable = () => {
       )}
 
       {isSpamUserModalOpen && selectedSpamUser && (
-        <ChatComponent
+        <AdminChatComponent
           receiverId={selectedSpamUser._id}
           onClose={handleCloseSpamUserModal}
           isOpen={isSpamUserModalOpen}

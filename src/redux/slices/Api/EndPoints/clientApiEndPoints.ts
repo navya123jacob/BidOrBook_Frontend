@@ -171,6 +171,26 @@ export const UserApiSlice = apiSlice.injectEndpoints({
               method: 'GET',
             }),
           }),
+          addReview: builder.mutation({
+            query: ({ userId, id, stars, review }) => ({
+              url: `/user/${id}/review`,
+              method: 'POST',
+              body: { userId, stars, review },
+            }),
+          }),
+          removeReview: builder.mutation({
+            query: ({ reviewUserId, id }) => ({
+              url: `/user/${id}/review`,
+              method: 'DELETE',
+              body: { reviewUserId },
+            }),
+          }),
+          getUserReviews: builder.query({
+            query: (id) => ({
+              url: `/user/${id}/reviews`,
+              method: 'GET',
+            }),
+          }),
 
     })
 })
@@ -199,6 +219,9 @@ export const {
     useSendMessageMutation,
     useSingleUserMutation,
     useGetWalletValueQuery,
-    useGetUserChatsQuery
+    useGetUserChatsQuery,
+    useAddReviewMutation,
+    useRemoveReviewMutation,
+    useGetUserReviewsQuery
    
 } = UserApiSlice

@@ -75,6 +75,9 @@ const ChatsClient: React.FC<ChatModalProps> = ({ chats, onChatClick, setChats })
             </div>
           );
         })}
+        {chats.length === 0 && (
+        <p className="text-gray-700 font-medium">No Chats Yet</p>
+      ) }
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const [allpost, { isLoading: allPostLoading }] = useAllpostMutation();
   const [findAvailablePeople, { isLoading: availablePeopleLoading }] = useFindAvailablePeopleMutation();
 
-  const ITEMS_PER_PAGE = 3;
+  const ITEMS_PER_PAGE = 2;
 
   useEffect(() => {
     const fetchData = async () => {

@@ -94,6 +94,11 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   const [spamReason, setSpamReason] = useState("");
   const [spamUser] = useSpamUserMutation();
   const [unspamUser] = useUnspamUserMutation();
+  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const handleDMClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsChatOpen(true);
@@ -125,21 +130,20 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   const handleCancelConfirmation = () => {
     setShowConfirmationModal(false);
   };
+  
   const handleSpamClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsSpamModalOpen(true);
   };
 
   const handleSpamConfirm = () => {
-    
     setIsSpamModalOpen(false);
     setIsReasonModalOpen(true);
   };
 
   const handleSpamSubmit = async () => {
-    console.log(selectedBooking)
     if (selectedBooking) {
-      await spamUser({ userId: userInfo.data.message._id ,id:selectedBooking.clientId._id, reason: spamReason });
+      await spamUser({ userId: userInfo.data.message._id, id: selectedBooking.clientId._id, reason: spamReason });
       setChanges((prevChanges) => prevChanges + 1);
       setIsReasonModalOpen(false);
       setSpamReason("");
@@ -152,13 +156,45 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   };
 
   const handleUnspamConfirm = async () => {
-    console.log(selectedBooking)
     if (selectedBooking) {
-      const response=await unspamUser({ userId:userInfo.data.message._id ,id:selectedBooking.clientId._id});
+      const response = await unspamUser({ userId: userInfo.data.message._id, id: selectedBooking.clientId._id });
       setChanges((prevChanges) => prevChanges + 1);
       setIsUnspamModalOpen(false);
     }
   };
+
+  const normalizeSearchTerm = searchTerm.trim().toLowerCase().replace(/\s+/g, ' ');
+  const searchTermParts = normalizeSearchTerm.split(' ');
+  
+  const filteredBookings = bookings?.filter((booking) => {
+    const fullName = `${booking.clientId.Fname} ${booking.clientId.Lname}`.toLowerCase().replace(/\s+/g, ' ');
+    
+    let isMatch = true;
+    let lastIndex = 0;
+    
+    searchTermParts.forEach(part => {
+      const index = fullName.indexOf(part, lastIndex);
+      if (index === -1) {
+        isMatch = false;
+      } else {
+        lastIndex = index + part.length;
+      }
+    });
+  
+    return isMatch;
+  });
+
+
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBookings = filteredBookings?.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const totalPages = Math.ceil((filteredBookings?.length || 0) / itemsPerPage);
 
   return isOpen ? (
     <>
@@ -171,7 +207,14 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
             </button>
           </div>
           <div className="modal-body bg-modal-body">
-            {bookings && bookings.length === 0 ? (
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-4 p-2 w-full border border-gray-300 rounded"
+            />
+            {currentBookings && currentBookings.length === 0 ? (
               <div className="text-center text-black font-semibold">
                 No {message}
               </div>
@@ -197,8 +240,8 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings &&
-                    bookings.map((booking, index) => (
+                  {currentBookings &&
+                    currentBookings.map((booking, index) => (
                       <tr key={index} className="border-b border-gray-200">
                         <td className="flex-col items-center px-2 py-4 border-r">
                           {booking.clientId.Fname} {booking.clientId.Lname}
@@ -270,6 +313,19 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                     ))}
                 </tbody>
               </table>
+            )}
+            {totalPages >= 1 && (
+              <div className="flex justify-center mt-4">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`mx-1 px-3 py-1 border ${currentPage === pageNumber ? "bg-blue-500 text-white" : "bg-white text-black"}`}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </div>

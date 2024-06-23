@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 import {
   useCheckavailabilityMutation,
@@ -20,6 +20,7 @@ interface DatePickerModalProps {
   artistId: string | undefined;
   setSingle: React.Dispatch<React.SetStateAction<Booking | null>>;
   category: string;
+  setChanges?: Dispatch<SetStateAction<number>>;
 }
 
 const DatePickerModal: React.FC<DatePickerModalProps> = ({
@@ -29,6 +30,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
   artistId,
   category,
   setSingle,
+  setChanges
 }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [makeBookingreq, { isLoading: req }] = useMakeBookingreqMutation();
@@ -52,6 +54,8 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
     state: "",
     country: "",
   });
+  const [dateErrorMessage, setDateErrorMessage] = useState<string | null>(null);
+const [isSubmitDisabled, setIsSubmitDisabled] = useState<boolean>(false);
 
   const validateForm = () => {
     const newErrors: any = {};
@@ -64,11 +68,29 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCheckAvailability = async () => {
-    if (!validateForm()) return;
-
+  const validateDates = () => {
+    const today = new Date();
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
+  
+    if (startDate <= today || endDate <= today) {
+      setDateErrorMessage("Please select dates after today.");
+      setIsSubmitDisabled(true);
+      return false;
+    }
+    setDateErrorMessage(null);
+    setIsSubmitDisabled(false);
+    return true;
+  };
+
+  const handleCheckAvailability = async () => {
+    const startDate = new Date(value.startDate);
+  const endDate = new Date(value.endDate);
+  
+  if (!validateDates()) return;
+
+    if (!validateForm()) return;
+
 
     const dates = {
       artistId: artistId,
@@ -79,7 +101,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
 
     try {
       const response: string[] = await checkAvailability(dates).unwrap();
-
+console.log(response)
       const filteredDates: any = response.filter((date) => {
         const dateObj = new Date(date);
         return dateObj >= startDate && dateObj <= endDate;
@@ -224,6 +246,9 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
         {!availabilityMessage && (
           <div className="p-4">
             <Datepicker  value={value} onChange={handleValueChange} />
+            {dateErrorMessage && (
+            <div className="text-red-500 mb-2">{dateErrorMessage}</div>
+          )}
             <div>
               <label>
                 Event:
@@ -330,6 +355,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
                   className={`${
                     req ? "bg-green-600" : "bg-green-700"
                   } hover:bg-green-700 text-white py-2 px-4 rounded`}
+                  disabled={isSubmitDisabled}
                 >
                   {req ? "Requesting..." : "Request Booking"}
                 </button>
@@ -339,6 +365,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
                   className={`${
                     req ? "bg-green-600" : "bg-green-700"
                   } hover:bg-green-700 text-white py-2 px-4 rounded`}
+                  disabled={isSubmitDisabled}
                 >
                   {req ? "Marking..." : "Mark Artist"}
                 </button>
@@ -359,7 +386,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
           )}
           <button
             onClick={onClose}
-            className="ml-4  bg-form-strokedark hover:bg-gray text-white py-2 px-4 rounded"
+            className="ml-4  bg-form-strokedark hover:bg-graydark text-white py-2 px-4 rounded"
           >
             Close
           </button>

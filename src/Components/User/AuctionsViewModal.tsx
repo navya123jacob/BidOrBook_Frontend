@@ -23,6 +23,7 @@ const AuctionList: React.FC<AuctionListProps> = ({ auctions, onSelectAuction, se
 
   return (
     <div className="bg-gray-200 flex flex-col items-center justify-center w-full lg:w-1/2 space-y-6 p-6 h-full">
+      <h2 className="text-2xl font-bold mb-4">Auctions</h2>
       {auctions.length === 0 ? (
         <p className="text-gray-700 font-medium">None</p>
       ) : (

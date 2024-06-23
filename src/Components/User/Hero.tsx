@@ -11,10 +11,7 @@ export const Hero = () => {
 
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [signup] = useSignupMutation();
-  const something=async(e:any)=>{
-    const res = await signup({'navya':'yaya'})
-    console.log(res)
-  }
+  
   return (
     <>
     
@@ -42,12 +39,12 @@ export const Hero = () => {
             
             <div className="mt-8 flex items-center justify-center gap-x-6">
               <a
-                href="#"
+                href="/groupprofiles"
                 className="rounded-md bg-white bg-opacity-65 px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 Explore
               </a>
-              <a href="#" className="text-sm font-semibold leading-6 text-gray-400" onClick={something}>
+              <a href="/auctions" className="rounded-md bg-gray bg-opacity-65 px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" >
                 Auction <span aria-hidden="true">→</span>
                 
               </a>

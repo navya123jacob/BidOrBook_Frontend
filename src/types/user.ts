@@ -54,7 +54,20 @@ export interface ISpam {
     location: Location;
     __v: number;
     spam: Spam[];
+    receivedReviews: Review[];
+    minPayPerHour: number;
+    typesOfEvents: string[];
   }
+  export interface Review {
+    userId: string;
+    stars: number;
+    review:string
+}
+  export interface IReview {
+    userId: User;
+    stars: number;
+    review:string
+}
  
   export interface IUser {
     _id: string;
@@ -76,6 +89,9 @@ export interface ISpam {
     location: Location;
     __v: number;
     spam: ISpam[];
+    receivedReviews: Review[];
+    minPayPerHour: number;
+    typesOfEvents: string[];
   }
  
   

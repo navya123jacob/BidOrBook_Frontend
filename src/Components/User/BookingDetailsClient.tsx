@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import {
   useCreateCheckoutSessionMutation, useWalletMutation
 } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
+import { useGetWalletValueQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { RootState } from "../../redux/slices/Reducers/types";
 
 interface BookingDetailModalProps {
@@ -29,7 +30,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
-
+  const { data: walletData = { wallet: 0 },refetch } = useGetWalletValueQuery(userInfo.data.message._id);
   const handlePayClick = async () => {
     try {
       const response = await createCheckoutSession({
@@ -93,7 +94,8 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   };
 
   const handleWalletPayment = async () => {
-    if (userInfo.data.message.wallet < booking.amount) {
+    refetch()
+    if (walletData.wallet < booking.amount) {
       
       setWalletError("Insufficient wallet balance.");
     } else {

@@ -4,7 +4,10 @@ import "react-datepicker/dist/react-datepicker.css";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Booking } from "../../types/booking";
 import { User } from "../../types/user";
-import { useCheckavailabilityMutation, useUpdatebookingMutation } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
+import {
+  useCheckavailabilityMutation,
+  useUpdatebookingMutation,
+} from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
 
@@ -24,15 +27,18 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
   const [updatebooking] = useUpdatebookingMutation();
   const [checkAvailability] = useCheckavailabilityMutation();
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
-  const [initialunavailableDates, setInitialUnavailableDates] = useState<Date[]>([]);
+  const [initialunavailableDates, setInitialUnavailableDates] = useState<
+    Date[]
+  >([]);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [dateerror, setDateError] = useState("");
   const [key, setKey] = useState(0);
   const [value, setValue] = useState({
     startDate: new Date(),
     endDate: new Date(new Date().getFullYear(), 11, 31),
   });
   const [formData, setFormData] = useState({
-    _id: '',
+    _id: "",
     status: "pending",
     clientId: {} as User,
     date_of_booking: [] as Date[],
@@ -43,7 +49,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
     },
     event: "",
     payment_method: "",
-    amount: 0
+    amount: 0,
   });
 
   const [errors, setErrors] = useState({
@@ -53,9 +59,11 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       district: "",
       country: "",
     },
-    amount: ""
+    amount: "",
   });
-  const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(null);
+  const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (booking) {
@@ -71,11 +79,11 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         },
         event: booking.event || "",
         payment_method: booking.payment_method || "",
-        amount: booking.amount || 0
+        amount: booking.amount || 0,
       });
     } else {
       setFormData({
-        _id: '',
+        _id: "",
         status: "pending",
         clientId: {} as User,
         date_of_booking: [],
@@ -86,7 +94,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         },
         event: "",
         payment_method: "",
-        amount: 0
+        amount: 0,
       });
     }
   }, [booking]);
@@ -99,9 +107,13 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
         district: formData.location.district ? "" : "District is required",
         country: formData.location.country ? "" : "Country is required",
       },
-      amount: !formData.amount ? "Amount is required" :
-        !/^\d+$/.test(formData.amount.toString()) ? "Amount should contain only digits" :
-          formData.amount <= 200 ? "Amount must be greater than 200" : ""
+      amount: !formData.amount
+        ? "Amount is required"
+        : !/^\d+$/.test(formData.amount.toString())
+        ? "Amount should contain only digits"
+        : formData.amount <= 200
+        ? "Amount must be greater than 200"
+        : "",
     };
 
     setErrors(newErrors);
@@ -125,7 +137,8 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       (date) =>
         !initialunavailableDates.some(
           (unavailableDate) =>
-            new Date(date).toDateString() === new Date(unavailableDate).toDateString()
+            new Date(date).toDateString() ===
+            new Date(unavailableDate).toDateString()
         )
     );
 
@@ -194,42 +207,43 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
     }
   };
 
-
   useEffect(() => {
     const fetchData = async () => {
       const startDate = new Date(formData.date_of_booking[0]);
-      const endDate = new Date(formData.date_of_booking[formData.date_of_booking.length - 1]);
-  
+      const endDate = new Date(
+        formData.date_of_booking[formData.date_of_booking.length - 1]
+      );
+
       const dates = {
         artistId: userInfo.data.message._id,
         bookingId: booking?._id,
         startDate: formData.date_of_booking[0],
         endDate: formData.date_of_booking[formData.date_of_booking.length - 1],
       };
-  
+
       try {
         const response: string[] = await checkAvailability(dates).unwrap();
-  
+
         const filteredDates: any = response.filter((date) => {
           const dateObj = new Date(date);
           return dateObj >= startDate && dateObj <= endDate;
         });
-  
+
         setInitialUnavailableDates(filteredDates);
-        setKey(prevKey => prevKey + 1);
-        
+        setKey((prevKey) => prevKey + 1);
       } catch (error) {
         console.error("Error checking availability:", error);
       }
     };
-  
+
     fetchData();
   }, [formData.date_of_booking, userInfo.data.message._id, booking?._id]);
-  
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleDateChangeButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDateChangeButtonClick = (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault();
     setShowDatePicker(true);
   };
@@ -243,10 +257,18 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
     e.preventDefault();
     const startDate = new Date(value.startDate);
     const endDate = new Date(value.endDate);
+    const today = new Date();
+
+    if (startDate < today || endDate < today) {
+      setDateError("Selected dates must be after today.");
+      return;
+    } else {
+      setDateError("");
+    }
 
     const dates = {
       artistId: userInfo.data.message._id,
-      bookingId:booking?._id,
+      bookingId: booking?._id,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
     };
@@ -260,7 +282,9 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       });
 
       setUnavailableDates(filteredDates);
-      setAvailabilityMessage("Red Slots are unavailable\nBlue Slots are available");
+      setAvailabilityMessage(
+        "Red Slots are unavailable\nBlue Slots are available"
+      );
     } catch (error) {
       console.error("Error checking availability:", error);
     }
@@ -358,7 +382,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    amount: parseFloat(e.target.value)
+                    amount: parseFloat(e.target.value),
                   })
                 }
                 className="block border border-gray-300 rounded p-2 w-full"
@@ -372,24 +396,25 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                 <label>
                   Date of Booking:
                   <DatePicker
-                   key={key}
+                    key={key}
                     selected={formData.date_of_booking[0]}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     startDate={formData.date_of_booking[0]}
-                    endDate={formData.date_of_booking[formData.date_of_booking.length-1]}
+                    endDate={
+                      formData.date_of_booking[
+                        formData.date_of_booking.length - 1
+                      ]
+                    }
                     selectsRange
                     inline
-                    
                     dayClassName={(date) => {
                       const currentDate = new Date(date);
-                      
-                      const isUnavailable =
-                       
-                        initialunavailableDates.some(
-                          (unavailableDate) =>
-                            currentDate.toDateString() ===
-                            new Date(unavailableDate).toDateString() 
-                        );
+
+                      const isUnavailable = initialunavailableDates.some(
+                        (unavailableDate) =>
+                          currentDate.toDateString() ===
+                          new Date(unavailableDate).toDateString()
+                      );
 
                       return isUnavailable
                         ? "bg-red-500 text-white cursor-not-allowed"
@@ -397,7 +422,6 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                     }}
                     selectsStart
                   />
-                  
                 </label>
                 <button
                   onClick={handleDateChangeButtonClick}
@@ -420,7 +444,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                 <div className="p-4">
                   <DatePicker
                     selected={null}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     disabled
                     startDate={new Date(value.startDate)}
                     endDate={new Date(value.endDate)}
@@ -435,7 +459,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                         unavailableDates.some(
                           (unavailableDate) =>
                             currentDate.toDateString() ===
-                            new Date(unavailableDate).toDateString() 
+                            new Date(unavailableDate).toDateString()
                         );
 
                       return isUnavailable
@@ -444,12 +468,13 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                     }}
                     selectsStart
                   />
+                  
                 </div>
               </>
             )}
 
             {showDatePicker && (
-              <div className="flex-col">
+              <div className="flex flex-col">
                 {!availabilityMessage && (
                   <>
                     <button
@@ -467,6 +492,9 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
                     >
                       Check Availability
                     </button>
+                    {dateerror && (
+                      <span className="text-red-500">{dateerror}</span>
+                    )}
                   </>
                 )}
               </div>
