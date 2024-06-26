@@ -5,5 +5,5 @@ const adminBaseQuery = fetchBaseQuery({ baseUrl: `http://localhost:8888/admin`, 
 export const adminApiSlice = createApi({
     baseQuery: adminBaseQuery,
     tagTypes: ['Admin'],
-    endpoints: (builder) => ({})
+    endpoints: () => ({})
 });

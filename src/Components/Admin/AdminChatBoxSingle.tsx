@@ -49,7 +49,8 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
   useEffect(() => {
     if (isOpen) {
         let senderId=adminInfo._id;
-      socket.emit('handshake', { senderId, receiverId }, (roomId: string, users: string[]) => {
+      socket.emit('handshake', { senderId, receiverId }, (roomId: string) => {
+        
         console.log(`Joined room: ${roomId}`);
       });
 

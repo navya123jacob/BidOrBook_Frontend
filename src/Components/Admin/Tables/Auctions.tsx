@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, } from "react";
 import { AdIAuction } from "../../../types/auction";
-import { User, Spam } from "../../../types/user";
+import { User } from "../../../types/user";
 import ConfirmationModal from "../../User/CancelConfirmModal";
-import ChatComponent from "../../ChatSingle";
 import { useAdmindeleteAuctionMutation,useGetAllAuctionsWithUserDetailsQuery } from "../../../redux/slices/Api/EndPoints/AdminEndpoints";
 import AdminChatComponent from "../AdminChatBoxSingle";
 

@@ -21,10 +21,10 @@ interface BookingRequestModalProps {
   setSelectedBooking: Dispatch<SetStateAction<Booking | null>>;
 }
 
-const formatDate = (date: string | Date): string => {
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  return dateObj.toLocaleDateString("en-GB");
-};
+// const formatDate = (date: string | Date): string => {
+//   const dateObj = typeof date === "string" ? new Date(date) : date;
+//   return dateObj.toLocaleDateString("en-GB");
+// };
 
 const formatBookingDates = (dates: Date[]): string => {
   if (!dates || dates.length === 0) return "";
@@ -117,7 +117,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   const handleConfirmation = async () => {
     if (selectedBooking) {
       try {
-        const result = await cancelPaymentReq({ _id: selectedBooking._id });
+        await cancelPaymentReq({ _id: selectedBooking._id });
         setChanges((prevChanges) => prevChanges + 1);
       } catch (error) {
         console.error("Error cancelling payment request: ", error);
@@ -157,7 +157,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
 
   const handleUnspamConfirm = async () => {
     if (selectedBooking) {
-      const response = await unspamUser({ userId: userInfo.data.message._id, id: selectedBooking.clientId._id });
+       await unspamUser({ userId: userInfo.data.message._id, id: selectedBooking.clientId._id });
       setChanges((prevChanges) => prevChanges + 1);
       setIsUnspamModalOpen(false);
     }

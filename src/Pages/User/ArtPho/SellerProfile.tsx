@@ -39,7 +39,6 @@ const ProfilePageSeller: React.FC = () => {
     userInfo?.data?.message._id ?? ""
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
   const [usersWithPosts, setUsersWithPosts] = useState<any[]>([]);
@@ -64,8 +63,7 @@ const ProfilePageSeller: React.FC = () => {
   const [chats, setChats] = useState<any[]>([]);
   const {
     data: mychats,
-    error: chatError,
-    isLoading: chatLoading,
+    
   } = useGetUserChatsQuery(userInfo.data.message._id);
   useEffect(() => {
     if (mychats) {
@@ -97,7 +95,7 @@ const ProfilePageSeller: React.FC = () => {
 
   const handleScroll = () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      setPage((prevPage) => prevPage + 1);
+      // setPage((prevPage) => prevPage + 1);
     }
   };
 
@@ -344,6 +342,9 @@ const ProfilePageSeller: React.FC = () => {
                   {userInfo.data.message.location.state},
                   {userInfo.data.message.location.country}
                 </p>
+                <p className="text-white bg-black p-1 rounded-md">
+                  Minimum Payment : ₹ {userInfo.data.message.minPayPerHour}/hr
+                </p>
                 <button
                   onClick={() => setIsViewReviewsModalOpen(true)}
                   className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
@@ -362,6 +363,9 @@ const ProfilePageSeller: React.FC = () => {
                 {userInfo.data.message.location.state},
                 {userInfo.data.message.location.country}
               </p>
+              <p className="text-white bg-black p-1 rounded-md">
+                  Minimum Payment : ₹ {userInfo.data.message.minPayPerHour}/hr
+                </p>
               <button
                 onClick={() => setIsViewReviewsModalOpen(true)}
                 className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"

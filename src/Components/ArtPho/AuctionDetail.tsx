@@ -51,8 +51,8 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
   const [cancelBidfn] = useCancelBidMutation();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
-  const [spamAuction, { isLoading: isSpamming }] = useSpamAuctionMutation();
-  const [unspamAuction, { isLoading: isUnspamming }] = useUnspamAuctionMutation();
+  const [spamAuction] = useSpamAuctionMutation();
+  const [unspamAuction] = useUnspamAuctionMutation();
   const [showSpamConfirm, setShowSpamConfirm] = useState(false);
   const [showUnspamConfirm, setShowUnspamConfirm] = useState(false);
   const [showReasonModal, setShowReasonModal] = useState(false);
@@ -245,7 +245,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
   const handleConfirmSpam = async () => {
     setShowSpamConfirm(false);
     try {
-      const response = await spamAuction({ userId: userInfo.data.message._id, auctionId: auction._id, reason }).unwrap();
+       await spamAuction({ userId: userInfo.data.message._id, auctionId: auction._id, reason }).unwrap();
       
         let spam=auction?.spam.concat({userId: userInfo.data.message._id,reason})||[]
         SetselectedAuction({...auction,spam})
@@ -254,7 +254,7 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
       console.error('Failed to mark post as spam:', error);
     }
   };
-  const handleReasonSubmit = (reason: string) => {
+  const handleReasonSubmit = () => {
     
     setShowReasonModal(false);
     handleConfirmSpam();

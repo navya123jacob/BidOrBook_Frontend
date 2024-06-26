@@ -1,11 +1,11 @@
 import React, { useState, ReactNode } from 'react';
 import Header from './AdminHeader';
 import Sidebar from './AdminSidebar';
-import useColorMode from '../../Components/Admin/useColorMode';
+
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [colorMode] = useColorMode();
+  
   
   return (
     <div className= 'bg-white dark:bg-graydark text-black dark:text-white'>

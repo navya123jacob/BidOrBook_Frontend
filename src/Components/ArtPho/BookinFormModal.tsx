@@ -151,7 +151,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
 
     if (!availabilityMessage) {
       try {
-        const response = await updatebooking(updatedFormData).unwrap();
+         await updatebooking(updatedFormData).unwrap();
         setChanges((prevChanges) => prevChanges + 1);
         onClose();
       } catch (error) {
@@ -199,7 +199,7 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
     };
 
     try {
-      const response = await updatebooking(requestData).unwrap();
+       await updatebooking(requestData).unwrap();
       setChanges((prevChanges) => prevChanges + 1);
       onClose();
     } catch (error) {

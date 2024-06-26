@@ -49,7 +49,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
     if (isOpen) {
       let senderId=userInfo.data.message._id;
       
-      socket.emit('handshake', { senderId, receiverId }, (roomId: string, users: string[]) => {
+      socket.emit('handshake', { senderId, receiverId }, (roomId: string) => {
         console.log(`Joined room: ${roomId}`);
       });
 

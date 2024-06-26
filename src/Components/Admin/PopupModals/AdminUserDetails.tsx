@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { User } from '../../../types/user';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/slices/Reducers/types';
-import ChatComponent from '../../ChatSingle';
 import AdminChatComponent from '../AdminChatBoxSingle';
 
 interface UserDetailsModalProps {
@@ -11,7 +8,7 @@ interface UserDetailsModalProps {
 }
 
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) => {
-  const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
+
   const[chatModalOpen,setIsChatModalOpen]=useState(false)
   const handleDm=async()=>{
     setIsChatModalOpen(true)

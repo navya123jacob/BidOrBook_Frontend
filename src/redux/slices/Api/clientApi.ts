@@ -5,5 +5,5 @@ const baseQuery=fetchBaseQuery({ baseUrl: `http://localhost:8888` , credentials:
 export const apiSlice=createApi({
     baseQuery,
     tagTypes:['Client','Artist','Admin'],
-    endpoints:(builder)=>({})
+    endpoints:()=>({})
 })

@@ -4,13 +4,11 @@
 import {  useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { Navbar } from './Navbar';
-import { useSignupMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
-
 
 export const Hero = () => {
 
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const [signup] = useSignupMutation();
+  
   
   return (
     <>

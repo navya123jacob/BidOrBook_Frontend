@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { User } from '../../../types/user';
 import { RootState } from '../../../redux/slices/Reducers/types';
@@ -12,18 +12,17 @@ interface PopulatedChat {
   messages: any[];
 }
 
-const url=import.meta.env.backendurl
+// const url=import.meta.env.backendurl
 const socket = io('http://localhost:8888');
 
 const ChatsAdmin: React.FC = () => {
   const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
   const [selectedChat, setSelectedChat] = useState<PopulatedChat | null>(null);
   const [chats, setChats] = useState<PopulatedChat[]>([]);
-  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+ 
   const {
     data: mychats,
-    error: chatError,
-    isLoading: chatLoading,
+    
   } = useAdmingetUserChatsQuery(adminInfo._id);
   useEffect(() => {
     if (mychats) {
@@ -80,7 +79,7 @@ const ChatsAdmin: React.FC = () => {
   };
 const handleChatClick = (chat: PopulatedChat) => {
     setSelectedChat(chat);
-    setIsChatModalOpen(false);
+    
   };
 
   return (

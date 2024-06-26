@@ -3,7 +3,7 @@ import { IAuction } from '../types/auction';
 import { RootState } from '../redux/slices/Reducers/types';
 import { useSelector } from 'react-redux';
 import UserDetailsModal from './ArtPho/BidUserDetail';
-import { useSingleUserMutation } from '../redux/slices/Api/EndPoints/clientApiEndPoints';
+
 
 
 interface BidsModalProps {
@@ -16,7 +16,7 @@ const BidsModal: React.FC<BidsModalProps> = ({ auction, onClose,SetselectedAucti
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [isUserDetailsModalOpen, setUserDetailsModalOpen] = useState<boolean>(false);
-  const [fetchUser] = useSingleUserMutation();
+  
   
 
   const handleViewClick = async (userId: string) => {

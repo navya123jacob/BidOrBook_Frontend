@@ -30,7 +30,7 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
   artistId,
   category,
   setSingle,
-  setChanges
+  
 }) => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [makeBookingreq, { isLoading: req }] = useMakeBookingreqMutation();

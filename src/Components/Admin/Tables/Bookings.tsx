@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IBooking } from "../../../types/booking";
 import UserDetailsModal from "../PopupModals/AdminUserDetails";
 import { User } from "../../../types/user";

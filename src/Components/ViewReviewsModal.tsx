@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import ReactStars from "react-rating-stars-component";
 import { IReview } from "../types/user";
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/slices/Reducers/types";
-
 interface ViewReviewsModalProps {
   reviews: IReview[];
   onClose: () => void;
@@ -18,7 +15,7 @@ const ViewReviewsModal: React.FC<ViewReviewsModalProps> = ({
   const [viewMode, setViewMode] = useState<"reviews" | "starDistribution">(
     "reviews"
   );
-  const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 

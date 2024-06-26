@@ -37,7 +37,7 @@ const SellerProfileClientside: React.FC = () => {
   const id = searchParams.get("id") ?? undefined;
   const { data: reviewData,refetch } = useGetUserReviewsQuery(id ?? "");
   const [otheruser, setOtheruser] = useState<User | null>(null);
-  const [page, setPage] = useState(1);
+  
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isPostDetailModalOpen, setIsPostDetailModalOpen] = useState(false);
   const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
@@ -152,14 +152,14 @@ const SellerProfileClientside: React.FC = () => {
 
   useEffect(() => {
     if (queryData) {
-      setSingleBooking(queryData);
+      console.log(singleBooking)
     }
   }, [queryData]);
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        setPage((prevPage) => prevPage + 1);
+        // setPage((prevPage) => prevPage + 1);
       }
     };
     window.addEventListener("scroll", handleScroll);
@@ -193,9 +193,7 @@ const SellerProfileClientside: React.FC = () => {
     setIsChatOpen(true);
   };
 
-  const seeStatus = () => {
-    setIsBookingDetailModalOpen(true);
-  };
+ 
 
   const handleCancelBooking = () => {
     setIsConfirmationModalOpen(true);
@@ -255,7 +253,7 @@ const SellerProfileClientside: React.FC = () => {
 
   const handleUnspamConfirm = async () => {
     if (id) {
-      const response = await unspamUser({
+       await unspamUser({
         userId: userInfo.data.message._id,
         id,
       });
@@ -286,13 +284,13 @@ const SellerProfileClientside: React.FC = () => {
       <main className="bg-black text-white min-h-screen">
         <div className="lg:w-8/12 lg:mx-auto mb-8">
           <header className="flex flex-col items-center justify-center p-4 md:py-8">
-            <div className="flex flex-col justify-center  items-center">
+            <div className="flex flex-col justify-center w-full items-center">
               <img
                 className="w-30 h-30 md:w-50 md:h-50 object-cover rounded-full p-1"
                 src={otheruser?.profile}
                 alt="profile"
               />
-              <div className="md:flex md:flex-wrap md:items-center md:justify-center  justi mb-4">
+              <div className=" flex-wrap flex items-center justify-center w-full mb-4">
                 {userInfo.client && (
                   <>
                     {/* {!singleBooking ? ( */}
@@ -381,18 +379,25 @@ const SellerProfileClientside: React.FC = () => {
                   Booked
                 </li>
               </ul>
-              <div className="hidden md:block">
+              <div className="hidden md:flex md:flex-col ">
                 <h1 className="font-semibold text-center">
                   {otheruser?.Fname} {otheruser?.Lname}
                 </h1>
-                <p>{otheruser?.description}</p>
+                <p className="text-center">{otheruser?.description}</p>
+                <p className="text-center">
+                Location : {otheruser?.location.district},
+                {otheruser?.location.state},{otheruser?.location.country}
+              </p>
+                <p className="text-white bg-black p-1 rounded-md text-center">
+                  Minimum Payment : ₹ {otheruser?.minPayPerHour}/hr
+                </p>
                 {otheruser?.spam &&
                 otheruser.spam.some(
                   (spam) => spam.userId === userInfo.data.message._id
                 ) ? (
                   <button
                     onClick={handleUnspamClick}
-                    className="bg-red-600 m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    className="bg-red-600 m-5 px-1 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                   >
                     Unspam
                   </button>
@@ -415,6 +420,9 @@ const SellerProfileClientside: React.FC = () => {
                 Location : {otheruser?.location.district},
                 {otheruser?.location.state},{otheruser?.location.country}
               </p>
+              <p className="text-white bg-black p-1 rounded-md">
+                  Minimum Payment : ₹ {otheruser?.minPayPerHour}/hr
+                </p>
 
               {otheruser?.spam &&
               otheruser.spam.some(

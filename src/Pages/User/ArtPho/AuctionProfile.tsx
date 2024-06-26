@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Footer from "../../../Components/User/Footer";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { RootState } from "../../../redux/slices/Reducers/types";
 import { Navbar } from "../../../Components/User/Navbar";
 import AuctionDetailModal from "../../../Components/ArtPho/AuctionDetail";
 import AuctionModal from "../../../Components/ArtPho/AuctionModal";
 import BiddingModal from "../../../Components/User/MakeBid";
+import ReviewModal from "../../../Components/ReviewModal";
+import ViewReviewsModal from "../../../Components/ViewReviewsModal";
+import ReactStars from "react-rating-stars-component";
 import {
   useAllAuctionsMutation,
   useDeleteAuctionMutation,
@@ -18,19 +21,23 @@ import {
   useSingleUserMutation,
   useSpamUserMutation,
   useUnspamUserMutation,
+  useAddReviewMutation,
+  useGetUserReviewsQuery,
+  useRemoveReviewMutation,
 } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
-import { User } from "../../../types/user";
+import { IReview, User } from "../../../types/user";
 import ChatComponent from "../../../Components/ChatSingle";
 import SpamModal from "../../../Components/User/SpamModal";
 
 const AuctionProfilePage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const id = searchParams.get('id') ?? undefined;
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id") ?? undefined;
+  const { data: reviewData, refetch } = useGetUserReviewsQuery(id ?? "");
   const [allAuctions, { isLoading }] = useAllAuctionsMutation();
   const [deleteAuction] = useDeleteAuctionMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [isAuctionModalOpen, setIsAuctionModalOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  // const [page, setPage] = useState(1);
   const [selectedAuction, setSelectedAuction] = useState<IAuction | null>(null);
   const [isAuctionDetailModalOpen, setIsAuctionDetailModalOpen] =
     useState(false);
@@ -46,6 +53,12 @@ const AuctionProfilePage: React.FC = () => {
   const [spamReason, setSpamReason] = useState("");
   const [spamUser] = useSpamUserMutation();
   const [unspamUser] = useUnspamUserMutation();
+  const [isViewReviewsModalOpen, setIsViewReviewsModalOpen] = useState(false);
+  const [reviews, setReviews] = useState<IReview[]>([]);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [userReview, setUserReview] = useState({ stars: 0, review: "" });
+  const [addReview] = useAddReviewMutation();
+  const [removeReview] = useRemoveReviewMutation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +77,21 @@ const AuctionProfilePage: React.FC = () => {
   }, [id, SingleUser]);
 
   useEffect(() => {
+    if (reviewData?.receivedReviews) {
+      setReviews(reviewData.receivedReviews);
+      const existingReview = reviewData.receivedReviews.find(
+        (review: any) => review.userId._id === userInfo.data.message._id
+      );
+      if (existingReview) {
+        setUserReview({
+          stars: existingReview.stars,
+          review: existingReview.review,
+        });
+      }
+    }
+  }, [reviewData]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await allAuctions({ userId: id ?? "", notId: "" });
@@ -79,16 +107,16 @@ const AuctionProfilePage: React.FC = () => {
     fetchData();
   }, [allAuctions, userInfo.data.message._id, selectedAuction]);
 
-  const handleScroll = () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
+  // const handleScroll = () => {
+  //   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+  //     setPage((prevPage) => prevPage + 1);
+  //   }
+  // };
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // useEffect(() => {
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
 
   const handleAuctionClick = (auction: any) => {
     setSelectedAuction(auction);
@@ -123,12 +151,19 @@ const AuctionProfilePage: React.FC = () => {
 
   const handleSpamSubmit = async () => {
     if (id) {
-      await spamUser({ userId: userInfo.data.message._id ,id, reason: spamReason });
+      await spamUser({
+        userId: userInfo.data.message._id,
+        id,
+        reason: spamReason,
+      });
       setUser((prevUser) => {
         if (!prevUser) return null;
         return {
           ...prevUser,
-          spam: [...(prevUser.spam || []), { userId: userInfo.data.message._id, reason: spamReason }],
+          spam: [
+            ...(prevUser.spam || []),
+            { userId: userInfo.data.message._id, reason: spamReason },
+          ],
         };
       });
       setIsReasonModalOpen(false);
@@ -142,16 +177,50 @@ const AuctionProfilePage: React.FC = () => {
 
   const handleUnspamConfirm = async () => {
     if (id) {
-      const response=await unspamUser({ userId: userInfo.data.message._id,id });
-      
+       await unspamUser({
+        userId: userInfo.data.message._id,
+        id,
+      });
+
       setUser((prevUser) => {
         if (!prevUser) return null;
         return {
           ...prevUser,
-          spam: prevUser.spam?.filter((spam) => spam.userId !== userInfo.data.message._id) || [],
+          spam:
+            prevUser.spam?.filter(
+              (spam) => spam.userId !== userInfo.data.message._id
+            ) || [],
         };
       });
       setIsUnspamModalOpen(false);
+    }
+  };
+  const handleReviewClick = () => {
+    setIsReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = async (stars: number, review: string) => {
+    if (id) {
+      await addReview({
+        userId: userInfo.data.message._id,
+        id,
+        stars,
+        review,
+      });
+
+      refetch();
+      setIsReviewModalOpen(false);
+    }
+  };
+
+  const handleRemoveReview = async () => {
+    if (id) {
+      await removeReview({
+        reviewUserId: userInfo.data.message._id,
+        id,
+      });
+      setUserReview({ stars: 0, review: "" });
+      refetch();
     }
   };
 
@@ -195,30 +264,73 @@ const AuctionProfilePage: React.FC = () => {
               </h2>
             </div>
             {userInfo.client && (
-              <div className="flex space-x-4">
-                <button
-                  onClick={handleDMClick}
-                  className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
-                >
-                  DM
-                </button>
-                {user?.spam && user.spam.some(spam => spam.userId === userInfo.data.message._id) ? (
+              <>
+                <div className="flex space-x-4">
                   <button
-                    onClick={handleUnspamClick}
-                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    onClick={handleDMClick}
+                    className="bg-graydark mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                   >
-                    Unspam
+                    DM
                   </button>
+                  {user?.spam &&
+                  user.spam.some(
+                    (spam) => spam.userId === userInfo.data.message._id
+                  ) ? (
+                    <button
+                      onClick={handleUnspamClick}
+                      className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    >
+                      Unspam
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleSpamClick}
+                      className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    >
+                      Spam
+                    </button>
+                  )}
+                </div>
+                <div className="flex "></div>
+                {userReview.stars ? (
+                  <>
+                    <button
+                      onClick={() => setIsReviewModalOpen(true)}
+                      className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    >
+                      <ReactStars
+                        count={5}
+                        value={userReview.stars}
+                        size={20}
+                        isHalf={true}
+                        edit={false}
+                        activeColor="#ffd700"
+                      />
+                    </button>
+
+                    <button
+                      onClick={handleRemoveReview}
+                      className="bg-red-600 m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    >
+                      Remove Review
+                    </button>
+                  </>
                 ) : (
                   <button
-                    onClick={handleSpamClick}
-                    className="bg-red-600 mx-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+                    onClick={handleReviewClick}
+                    className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
                   >
-                    Spam
+                    Add Review
                   </button>
                 )}
-              </div>
+              </>
             )}
+            <button
+              onClick={() => setIsViewReviewsModalOpen(true)}
+              className="bg-graydark m-5 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block"
+            >
+              View Reviews
+            </button>
             <ul className="hidden md:flex space-x-8 mb-4">
               <li>
                 <span className="font-semibold">{auctions.length}</span>{" "}
@@ -243,7 +355,7 @@ const AuctionProfilePage: React.FC = () => {
             <div className="flex flex-wrap -mx-px md:-mx-3">
               {isLoading ? (
                 <span className="loader"></span>
-              ) :auctions.length > 0 ?  (
+              ) : auctions.length > 0 ? (
                 auctions.map((auction: any, index: number) => (
                   <div
                     key={index}
@@ -272,7 +384,7 @@ const AuctionProfilePage: React.FC = () => {
                     </a>
                   </div>
                 ))
-              ): (
+              ) : (
                 <div className="w-full text-center py-8">
                   <p className="text-gray-500">No Auctions</p>
                 </div>
@@ -352,6 +464,20 @@ const AuctionProfilePage: React.FC = () => {
           onConfirm={handleUnspamConfirm}
           title="Confirm Unspam"
           description="Are you sure you want to unmark this user as spam?"
+        />
+      )}
+       {isReviewModalOpen && (
+        <ReviewModal
+          stars={userReview.stars}
+          review={userReview.review}
+          onClose={() => setIsReviewModalOpen(false)}
+          onSubmit={handleReviewSubmit}
+        />
+      )}
+      {isViewReviewsModalOpen && (
+        <ViewReviewsModal
+          reviews={reviews}
+          onClose={() => setIsViewReviewsModalOpen(false)}
         />
       )}
 

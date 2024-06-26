@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
 import { useSignupMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
-import { useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import {  Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import GoogleComp from "./GoogleComp";
 import Otp from "../../Components/User/Otp";
 
 export const SignupUser = () => {
-  const { user, loginWithRedirect, isAuthenticated, logout } = useAuth0();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { user, loginWithRedirect } = useAuth0();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");

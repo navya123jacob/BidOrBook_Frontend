@@ -1,5 +1,4 @@
 import React from "react";
-import CloseIcon from "./CloseIcon";
 import ImageCropper from "./ImageCropper";
 
 interface ModalProps {

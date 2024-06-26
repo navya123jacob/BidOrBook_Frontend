@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-// import DropdownMessage from './DropdownMessage';
 import DropdownUser from './DropdownUser';
 import LogoIcon from '/users/Logo2.png';
 import DarkModeSwitcher from './DarkModeSwitcher';

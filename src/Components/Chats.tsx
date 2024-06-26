@@ -1,6 +1,5 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import Modal from 'react-modal';
-import { io } from 'socket.io-client';
 import { User } from '../types/user';
 import { RootState } from '../redux/slices/Reducers/types';
 import { useSelector } from 'react-redux';
@@ -18,10 +17,9 @@ interface ChatModalProps {
   setChats: Dispatch<SetStateAction<PopulatedChat[]>>;
 }
 
-const socket = io('http://localhost:8888');
 
-const Chats: React.FC<ChatModalProps> = ({ isOpen, onClose, chats, onChatClick, setChats }) => {
-  const userInfo = useSelector((state: RootState) => state.client.userInfo);
+const Chats: React.FC<ChatModalProps> = ({ isOpen, onClose, chats, onChatClick }) => {
+   useSelector((state: RootState) => state.client.userInfo);
 
   // useEffect(() => {
   //   if (isOpen) {

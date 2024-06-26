@@ -1,8 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { User } from '../../types/user';
-import { RootState } from '../../redux/slices/Reducers/types';
-import { useSelector } from 'react-redux';
 
 interface PopulatedChat {
   userId: User;
@@ -19,8 +17,7 @@ interface ChatModalProps {
 const socket = io('http://localhost:8888');
 
 const ChatsClient: React.FC<ChatModalProps> = ({ chats, onChatClick, setChats }) => {
-  const userInfo = useSelector((state: RootState) => state.client.userInfo);
-
+  
   useEffect(() => {
     
     socket.on('newMessage', (newMessage:any) => {

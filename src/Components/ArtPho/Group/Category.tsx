@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Footer from "../../User/Footer";
 import { useAllpostMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useFindAvailablePeopleMutation } from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
+import Slider from "@mui/material/Slider";
 
 interface Post {
   image: string;
@@ -20,6 +21,8 @@ interface User {
   Fname: string;
   Lname: string;
   _id: string;
+  minPayPerHour: number;
+  typesOfEvents: string[];
 }
 
 interface GallerySectionProps {
@@ -38,16 +41,40 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const [searchPlaceholder, setSearchPlaceholder] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [priceRange, setPriceRange] = useState<number[]>([0, 10000]);
+  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
 
   const [allpost, { isLoading: allPostLoading }] = useAllpostMutation();
-  const [findAvailablePeople, { isLoading: availablePeopleLoading }] = useFindAvailablePeopleMutation();
+  const [findAvailablePeople, { isLoading: availablePeopleLoading }] =
+    useFindAvailablePeopleMutation();
 
   const ITEMS_PER_PAGE = 2;
+
+  const photographerEventTypes = [
+    "Weddings",
+    "Corporate Events",
+    "Sports Events",
+    "Concerts and Festivals",
+    "Private Events Birthdays",
+    "Charity Events",
+  ];
+
+  const artistEventTypes = [
+    "Contemporary Art",
+    "Face Paint",
+    "Portrait",
+    "Landscape Art",
+    "Event Artist",
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const formdata: { category: "Photographer" | "Artist" | null; usernotid?: string; searchPlaceholder?: string } = {
+        const formdata: {
+          category: "Photographer" | "Artist" | null;
+          usernotid?: string;
+          searchPlaceholder?: string;
+        } = {
           category: translateUp,
           usernotid: userInfo?.data?.message?._id,
         };
@@ -56,16 +83,40 @@ const GallerySection: React.FC<GallerySectionProps> = ({
           formdata.searchPlaceholder = searchPlaceholder;
         }
         const response = await allpost(formdata).unwrap();
-        const filteredPosts = response.posts.filter((post: Post) => !post.is_blocked);
-        setUsersWithPosts(filteredPosts);
-        setTotalPages(Math.ceil(filteredPosts.length / ITEMS_PER_PAGE));
+        const filteredPosts = response.posts.filter(
+          (post: Post) => !post.is_blocked
+        );
+        const filteredUsers = filteredPosts.filter(
+          (user: User) =>
+            user.minPayPerHour >= priceRange[0] &&
+            user.minPayPerHour <= priceRange[1] &&
+            (selectedEventTypes.length === 0 ||
+              user.typesOfEvents.some((eventType) =>
+                selectedEventTypes.includes(eventType)
+              ))
+        );
+        setUsersWithPosts(filteredUsers);
+        setTotalPages(Math.ceil(filteredUsers.length / ITEMS_PER_PAGE));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, [userInfo, translateUp, searchPlaceholder]);
+  }, [
+    userInfo,
+    translateUp,
+    searchPlaceholder,
+    priceRange,
+    selectedEventTypes,
+  ]);
+  useEffect(() => {
+    if (translateUp === "Photographer") {
+      setSelectedEventTypes(photographerEventTypes);
+    } else if (translateUp === "Artist") {
+      setSelectedEventTypes(artistEventTypes);
+    }
+  }, [translateUp]);
 
   const handleBackButtonClick = () => {
     onTranslateUp(null);
@@ -74,11 +125,18 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await findAvailablePeople({ startDate, endDate, category: translateUp,usernotid: userInfo?.data?.message?._id }).unwrap();
-      const filteredUsers = response.filter((user: User) => user.posts.some((post: Post) => !post.is_blocked));
+      const response = await findAvailablePeople({
+        startDate,
+        endDate,
+        category: translateUp,
+        usernotid: userInfo?.data?.message?._id,
+      }).unwrap();
+      const filteredUsers = response.filter((user: User) =>
+        user.posts.some((post: Post) => !post.is_blocked)
+      );
       setUsersWithPosts(filteredUsers);
       setTotalPages(Math.ceil(filteredUsers.length / ITEMS_PER_PAGE));
-      setCurrentPage(1); 
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching available people:", error);
     }
@@ -88,6 +146,25 @@ const GallerySection: React.FC<GallerySectionProps> = ({
     setCurrentPage(page);
   };
 
+  const handlePriceRangeChange = (
+    event: Event,
+    newValue: number | number[]
+  ) => {
+    console.log(event)
+    setPriceRange(newValue as number[]);
+  };
+
+  const handleEventTypeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { value, checked } = event.target;
+    setSelectedEventTypes((prev) =>
+      checked
+        ? [...prev, value]
+        : prev.filter((eventType) => eventType !== value)
+    );
+  };
+
   const paginatedUsers = usersWithPosts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -95,7 +172,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
 
   return (
     <>
-      <div className="relative min-h-screen bg-black overflow-y-auto transform translate-y-0 transition-transform duration-300">
+      <div className="relative min-h-screen mt-10 bg-black overflow-y-auto transform translate-y-0 transition-transform duration-300">
         <div className="container mx-auto py-12">
           <section className="w-full mb-4">
             <div className="w-full h-[200px] bg-transparent flex flex-col justify-between items-center">
@@ -130,27 +207,59 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                     />
                   </div>
                   <div className="flex flex-col items-center gap-2 mt-4">
-                    <input
-                      type="date"
-                      className="border border-gray-400 p-1 bg-transparent rounded-md text-base pl-2 text-white"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                    />
-                    <input
-                      type="date"
-                      className="border border-gray-400 p-1 bg-transparent rounded-md text-base pl-2 text-white"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                    />
-                    <p className="text-white text-sm">
-                      View {translateUp} completely free on selected date range
-                    </p>
-                    <button
-                      type="submit"
-                      className="focus:outline-none px-4 py-2 rounded-md text-gray-800 bg-white mt-2"
-                    >
-                      Search
-                    </button>
+                    <div>
+                      <input
+                        type="date"
+                        className="border border-gray-400 p-1 bg-transparent rounded-md text-base pl-2 text-white"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                      <input
+                        type="date"
+                        className="border border-gray-400 p-1 bg-transparent rounded-md text-base pl-2 text-white"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                      <button
+                        type="submit"
+                        className="focus:outline-none px-4  m-3 py-2 rounded-md text-gray-800 bg-white mt-2"
+                      >
+                        Search
+                      </button>
+                    </div>
+                    <div className="w-64 ">
+                      <p className="text-white text-sm">price range</p>
+                      <Slider
+                        value={priceRange}
+                        onChange={handlePriceRangeChange}
+                        valueLabelDisplay="auto"
+                        min={0}
+                        max={10000}
+                        step={100}
+                      />
+                    </div>
+                    <div className="flex flex-wrap">
+                      {(translateUp === "Photographer"
+                        ? photographerEventTypes
+                        : artistEventTypes
+                      ).map((eventType) => (
+                        <label
+                          key={eventType}
+                          className="inline-flex text-white items-center m-2"
+                        >
+                          <input
+                            type="checkbox"
+                            value={eventType}
+                            checked={selectedEventTypes.includes(eventType)}
+                            onChange={handleEventTypeChange}
+                            className="form-checkbox h-5 w-5 text-blue-600"
+                          />
+                          <span className="ml-2 text-gray-300">
+                            {eventType}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </form>
               </div>
@@ -158,16 +267,17 @@ const GallerySection: React.FC<GallerySectionProps> = ({
           </section>
 
           <div className="relative w-full mt-48">
-            {(allPostLoading || availablePeopleLoading || usersWithPosts.length === 0) ? (
+            {allPostLoading ||
+            availablePeopleLoading ||
+            usersWithPosts.length === 0 ? (
               <div className="flex justify-center items-center h-full">
                 {allPostLoading || availablePeopleLoading ? (
                   <span className="loader"></span>
                 ) : (
                   <div>
                     <h2 className="text-white text-xl">
-                      NO {translateUp?.toUpperCase()}'S FOUND
+                      NO {translateUp} Found
                     </h2>
-                    <span className="loader"></span>
                   </div>
                 )}
               </div>
@@ -191,6 +301,9 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                         >
                           {user?.Fname} {user?.Lname}
                         </Link>
+                        <p className="text-white bg-black p-1 rounded-md">
+                          min : ₹ {user.minPayPerHour}/hr
+                        </p>
                       </div>
                       <h2 className="z-10 p-5">
                         <Link
@@ -235,23 +348,19 @@ const GallerySection: React.FC<GallerySectionProps> = ({
           </div>
 
           <div className="flex justify-center mt-4">
-            <button
-              className="px-3 py-1 mx-1 text-white bg-gray-700 rounded-md"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-            <span className="px-3 py-1 text-white">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className="px-3 py-1 mx-1 text-white bg-gray-700 rounded-md"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => handlePageChange(index + 1)}
+                className={`${
+                  currentPage === index + 1
+                    ? "bg-gray-900 text-white"
+                    : "bg-white text-gray-900"
+                } mx-1 px-3 py-1 rounded`}
+              >
+                {index + 1}
+              </button>
+            ))}
           </div>
         </div>
       </div>

@@ -29,12 +29,12 @@ interface PopulatedChat {
 }
 
 const ClientProfilePage: React.FC = () => {
-  const { data: admin, error, isLoading } = useGetAdminDetailsQuery();
+  const { data: admin,  } = useGetAdminDetailsQuery();
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  
   const [selectedChat, setSelectedChat] = useState<PopulatedChat | null>(null);
   const [chats, setChats] = useState<PopulatedChat[]>([]);
   const [activeSection, setActiveSection] = useState("profile");
@@ -54,8 +54,7 @@ const ClientProfilePage: React.FC = () => {
   const [deleteAuction] = useDeleteAuctionMutation();
   const {
     data: mychats,
-    error: chatError,
-    isLoading: chatLoading,
+   
   } = useGetUserChatsQuery(userInfo.data.message._id);
   
   useEffect(() => {
@@ -188,7 +187,7 @@ const ClientProfilePage: React.FC = () => {
 
   const handleChatClick = (chat: PopulatedChat) => {
     setSelectedChat(chat);
-    setIsChatModalOpen(false);
+    
   };
   const handleSelectAuction = (auction: IAuction) => {
     setSelectedAuction(auction);
@@ -405,7 +404,7 @@ const ClientProfilePage: React.FC = () => {
                             }`}
                             onClick={() => {
                               handleSectionClick("chats");
-                              setIsChatModalOpen(true);
+                              
                             }}
                           >
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">

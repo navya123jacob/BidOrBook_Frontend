@@ -44,7 +44,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
   const handleConfirmSpam = async () => {
     setShowSpamConfirm(false);
     try {
-      const response = await spamPost({ userId: userInfo.data.message._id, id: post._id, reason }).unwrap();
+      await spamPost({ userId: userInfo.data.message._id, id: post._id, reason }).unwrap();
       
       if (setUsersWithPosts && setSelectedPost) {
         setSelectedPost((p) => {
@@ -68,7 +68,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose, onDele
     }
   };
 
-  const handleReasonSubmit = (reason: string) => {
+  const handleReasonSubmit = () => {
     
     setShowReasonModal(false);
     handleConfirmSpam();

@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useGetPostsWithSpamQuery ,useBlockPostMutation,useUnblockPostMutation } from "../../../redux/slices/Api/EndPoints/AdminEndpoints";
 import { IPost } from "../../../types/user";
-import ChatComponent from "../../ChatSingle";
 import ConfirmationModal from "../../User/CancelConfirmModal";
 import AdminChatComponent from "../AdminChatBoxSingle";
 
 
 const PostTable = () => {
   const { data: posts = [], isLoading,refetch } = useGetPostsWithSpamQuery({});
-  const [postsData, setPostsData] = useState<IPost[]>(posts);
   const [blockPost] = useBlockPostMutation(); 
   const [unblockPost] = useUnblockPostMutation()
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
@@ -22,7 +20,6 @@ const PostTable = () => {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterStatus, setFilterStatus] = useState("");
   const bookingsPerPage = 10;
   
 
@@ -81,12 +78,7 @@ const PostTable = () => {
     setCurrentPage(1);
   };
 
-  const handleStatusFilterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setFilterStatus(e.target.value);
-    setCurrentPage(1);
-  };
+  
   const filteredBookings = posts.filter((post: IPost) => {
     const searchTermRegex = new RegExp(
       searchTerm.toLowerCase().split(" ").join("\\s*")
