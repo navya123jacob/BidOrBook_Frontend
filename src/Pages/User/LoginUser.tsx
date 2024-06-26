@@ -212,7 +212,7 @@ const LoginUser = () => {
           <div className="order-first hidden w-full lg:block">
             <img
               className="object-cover h-full bg-cover rounded-l-lg"
-              src="src/assets/Login.jpeg"
+              src="/Login.jpeg"
               alt=""
             />
           </div>
