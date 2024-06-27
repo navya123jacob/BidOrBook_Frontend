@@ -17,12 +17,12 @@ const HomeBody = () => {
               >
                 <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
                   <img
-                    src="/src/assets/clientpho.jpg"
+                    src="/clientpho.jpg"
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
                   />
                   <img
-                    src="/src/assets/clientPho2.jpeg"
+                    src="/clientPho2.jpeg"
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
                   />
@@ -68,7 +68,7 @@ const HomeBody = () => {
                     />
                   ) : (
                     <img
-                      src="/src/assets/clientPho2.jpeg"
+                      src="/clientPho2.jpeg"
                       alt=""
                       className="absolute inset-0 h-full w-full object-cover opacity-100"
                     />
@@ -107,12 +107,12 @@ const HomeBody = () => {
             >
               <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
                 <img
-                  src="/src/assets/ClientAuction.jpg"
+                  src="/ClientAuction.jpg"
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
                 />
                 <img
-                  src="/src/assets/ClientAuction2.jpeg"
+                  src="/ClientAuction2.jpeg"
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
                 />

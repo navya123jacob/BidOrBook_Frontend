@@ -13,7 +13,7 @@ export const Hero = () => {
   return (
     <>
     
-    <div className={`bg-white ${!userInfo.client && 'bg-center'}`} style={{backgroundImage: `url(${userInfo.client ? "/src/assets/ClientHome.webp" : "/src/assets/ArtPho/ArtPhoHome.jpg"})`, height:'90vh', backgroundSize:'cover'}}>
+    <div className={`bg-white ${!userInfo.client && 'bg-center'}`} style={{backgroundImage: `url(${userInfo.client ? "/ClientHome.webp" : "/ArtPhoHome.jpg"})`, height:'90vh', backgroundSize:'cover'}}>
     <header className="absolute inset-x-0 top-0 z-50">
       <Navbar />
       </header>
