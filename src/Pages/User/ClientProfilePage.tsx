@@ -220,7 +220,7 @@ const ClientProfilePage: React.FC = () => {
           <div
             className="absolute top-0 w-full h-full bg-center bg-cover"
             style={{
-              backgroundImage: "url('src/assets/ClientProfile1.jpeg')",
+              backgroundImage: "url('/ClientProfile1.jpeg')",
             }}
           >
             <span
@@ -231,7 +231,7 @@ const ClientProfilePage: React.FC = () => {
           <div
             className="absolute top-0 w-full h-full bg-center bg-cover"
             style={{
-              backgroundImage: "url('src/assets/ClientProfile1.jpeg')",
+              backgroundImage: "url('/ClientProfile1.jpeg')",
             }}
           >
             <span
@@ -242,7 +242,7 @@ const ClientProfilePage: React.FC = () => {
         </section>
         <section
           className="relative py-16 bg-blueGray-200 bg-center bg-cover flex-grow"
-          style={{ backgroundImage: "url(/src/assets/ClientProfile2.jpeg)" }}
+          style={{ backgroundImage: "url(/ClientProfile2.jpeg)" }}
         >
           <div className="container mx-auto px-4">
             <div
@@ -256,7 +256,7 @@ const ClientProfilePage: React.FC = () => {
                       {!userInfo.data.message.profile ? (
                         <img
                           alt="..."
-                          src="src/assets/dummy_profile.jpg"
+                          src="/dummy_profile.jpg"
                           className="shadow-xl rounded-full h-auto align-middle border-none -m-16 -ml-20 lg:-ml-16 max-w-150-px object-cover"
                         />
                       ) : (

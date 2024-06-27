@@ -36,7 +36,7 @@ const LowerHome = () => {
           <figure className="visual">
             <img
               className="card-img"
-              src="src/assets/HomeProfDummy.jpg"
+              src="/HomeProfDummy.jpg"
               alt="Default Image"
             />
             <figcaption
@@ -50,7 +50,7 @@ const LowerHome = () => {
           <figure className="visual">
             <img
               className="card-img"
-              src="src/assets/HomeAbout.jpg"
+              src="/HomeAbout.jpg"
               alt="Person with curly hair in neon lighting"
             />
             <figcaption
