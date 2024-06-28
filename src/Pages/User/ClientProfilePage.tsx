@@ -13,6 +13,7 @@ import {
   useBookingsreqMutation,
   useBookingsConfirmMutation,
   useMarkedMutation,
+  useDoneMutation
 } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { Booking } from "../../types/booking";
 import BookingViewModal from "../../Components/User/BookingViewModal";
@@ -33,6 +34,7 @@ const ClientProfilePage: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
+  const [done] = useDoneMutation();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   
   const [selectedChat, setSelectedChat] = useState<PopulatedChat | null>(null);
@@ -41,6 +43,7 @@ const ClientProfilePage: React.FC = () => {
   const [bookingReqData, setBookingReqData] = useState<Booking[]>([]);
   const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
   const [markedData, setMarkedData] = useState<Booking[]>([]);
+  const [doneData, setDoneData] = useState<Booking[]>([]);
   const [currentbids,setCurrentbids]=useState<IAuction[]>([])
   const [isAuctionDetModalOpen, setIsAuctionDetModalOpen] =useState(false);
   const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
@@ -50,6 +53,7 @@ const ClientProfilePage: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [bids, setBids] = useState<{ userId: string; amount: number }[]>([]);
   const { data: walletData = { wallet: 0 } } = useGetWalletValueQuery(userInfo.data.message._id);
+  const [changes, setChanges] = useState(0);
   const[AuctionByBidder] =useAuctionByBidderMutation()
   const [deleteAuction] = useDeleteAuctionMutation();
   const {
@@ -81,6 +85,11 @@ const ClientProfilePage: React.FC = () => {
         if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
         }
+        const response4 = await done({ clientId: userInfo.data.message._id,artistId:'' });
+        
+        if ("data" in response4) {
+          setDoneData(response4.data?.bookings);
+        }
       } catch (err) {
         console.error("Error fetching bookings:", err);
       }
@@ -88,7 +97,7 @@ const ClientProfilePage: React.FC = () => {
     };
 
     fetchBookings();
-  }, [bookingsreq, bookingsConfirm, marked]);
+  }, [bookingsreq, bookingsConfirm, marked,changes]);
   useEffect(() => {
     if (mychats) {
       setChats(mychats);
@@ -361,6 +370,22 @@ const ClientProfilePage: React.FC = () => {
                           <button
                             type="button"
                             className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
+                              activeSection === "booked"
+                                ? "text-gray-800 font-bold"
+                                : "text-gray-500"
+                            }`}
+                            onClick={() => handleSectionClick("done")}
+                          >
+                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
+                              <i className="bx bx-user"></i>
+                            </span>
+                            <span className="text-sm font-medium">Bookings Done</span>
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            type="button"
+                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
                               activeSection === "bids"
                                 ? "text-gray-800 font-bold"
                                 : "text-gray-500"
@@ -447,18 +472,29 @@ const ClientProfilePage: React.FC = () => {
                       <BookingViewModal
                        message='Marked Users'
                        marked={markedData}
+                       setChanges={setChanges}
                       />
                     )}
                     {activeSection === "requested" && (
                       <BookingViewModal
                        message='Requested Bookings'
                        marked={bookingReqData}
+                       setChanges={setChanges}
                       />
                     )}
                     {activeSection === "booked" && (
                       <BookingViewModal
                        message='Booked'
                        marked={bookingConfirmData}
+                       setChanges={setChanges}
+                      
+                      />
+                    )}
+                    {activeSection === "done" && (
+                      <BookingViewModal
+                       message='Bookings Done'
+                       marked={doneData}
+                       setChanges={setChanges}
                       
                       />
                     )}

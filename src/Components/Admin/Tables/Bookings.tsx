@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IBooking } from "../../../types/booking";
+import { Booking } from "../../../types/booking";
 import UserDetailsModal from "../PopupModals/AdminUserDetails";
 import { User } from "../../../types/user";
 import ConfirmationModal from "../../User/CancelConfirmModal";
@@ -17,7 +17,7 @@ const BookingsTable = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<IBooking | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [cancelbooking] = useAdmincancelbookingMutation();
   const bookingsPerPage = 10;
 
@@ -40,7 +40,7 @@ const BookingsTable = () => {
     setCurrentPage(1);
   };
 
-  const filteredBookings = bookings.filter((booking: IBooking) => {
+  const filteredBookings = bookings.filter((booking: Booking) => {
     const searchTermRegex = new RegExp(
       searchTerm.toLowerCase().split(" ").join("\\s*")
     );
@@ -208,7 +208,7 @@ const BookingsTable = () => {
               </tr>
             </thead>
             <tbody>
-              {currentBookings.map((booking: IBooking) => (
+              {currentBookings.map((booking: Booking) => (
                 <tr key={booking._id}>
                   
                   <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">

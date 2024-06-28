@@ -4,6 +4,7 @@ import {
   useBookingsreqMutation,
   useBookingsConfirmMutation,
   useMarkedMutation,
+  useDoneMutation,
 } from '../../redux/slices/Api/EndPoints/bookingEndpoints';
 import { RootState } from '../../redux/slices/Reducers/types';
 import { Booking } from '../../types/booking';
@@ -27,10 +28,12 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
   const [bookingsReq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
+  const [done] = useDoneMutation();
 
   const [requestedBookings, setRequestedBookings] = React.useState<Booking[]>([]);
   const [confirmedBookings, setConfirmedBookings] = React.useState<Booking[]>([]);
   const [markedBookings, setMarkedBookings] = React.useState<Booking[]>([]);
+  const [doneBookings, setDoneBookings] = React.useState<Booking[]>([]);
   const [filter, setFilter] = React.useState('all');
   const [currentPage, setCurrentPage] = React.useState(1);
   const bookingsPerPage = 5;
@@ -42,10 +45,12 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
           const responseReq = await bookingsReq({ clientId, artistId });
           const responseConfirm = await bookingsConfirm({ clientId, artistId });
           const responseMarked = await marked({ clientId, artistId });
+          const responseDone = await done({ clientId, artistId });
 
           if ('data' in responseReq) setRequestedBookings(responseReq.data.bookings);
           if ('data' in responseConfirm) setConfirmedBookings(responseConfirm.data.bookings);
           if ('data' in responseMarked) setMarkedBookings(responseMarked.data.bookings);
+          if ('data' in responseDone) setDoneBookings(responseDone.data.bookings);
         } catch (error) {
           console.error('Error fetching bookings:', error);
         }
@@ -99,11 +104,13 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
 
   const filteredBookings =
     filter === 'all'
-      ? [...requestedBookings, ...confirmedBookings, ...markedBookings]
+      ? [...requestedBookings, ...confirmedBookings, ...markedBookings,...doneBookings]
       : filter === 'requested'
       ? requestedBookings
       : filter === 'confirmed'
       ? confirmedBookings
+      : filter === 'done'
+      ? doneBookings
       : markedBookings;
 
   const indexOfLastBooking = currentPage * bookingsPerPage;
@@ -129,6 +136,7 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
             <option value="requested">Requested</option>
             <option value="confirmed">Booked</option>
             <option value="marked">Marked</option>
+            <option value="done">Done</option>
           </select>
         </div>
         {currentBookings.length > 0 ? (

@@ -1,20 +1,99 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/Reducers/ClientReducer';
 import { RootState } from '../../redux/slices/Reducers/types';
-import { useLogoutMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import { useGetUserChatsQuery, useLogoutMutation } from '../../redux/slices/Api/EndPoints/clientApiEndPoints';
+import Chats from '../Chats';
+import ChatComponent from '../ChatSingle';
+import { io } from 'socket.io-client';
 
-
+const socket = io("http://localhost:8888");
 export const Navbar = () => {
   const userInfo=useSelector((state:RootState)=>state.client.userInfo)
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [chats, setChats] = useState<any[]>([]);
+  const {
+    data: mychats,
+    refetch
+    
+  } = useGetUserChatsQuery(userInfo?.data.message._id??'');
+  useEffect(() => {
+    if (mychats) {
+      setChats(mychats);
+      console.log(mychats);
+    }
+  }, [mychats]);
+  useEffect(() => {
+    if(userInfo){
+    const senderId = userInfo?.data?.message?._id;
+
+    chats.forEach((chat) => {
+      const receiverId = chat.userId._id;
+      socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {
+        console.log(`Joined room: ${roomId}`);
+      });
+    });
+
+    socket.on("chat_message", (newMessage:any) => {
+      const isSenderPresent = chats.some(chat => 
+        chat.userId._id === newMessage.senderId
+      );
+console.log('inside',isSenderPresent)
+      if (!isSenderPresent) {
+        refetch();  
+      } else {
+        updateChats(newMessage);
+      }
+    });
+    
+
+    return () => {
+      socket.off("chat_message");
+    };}
+  }, [chats]);
+
+  const updateChats = (newMessage: any) => {
+    const updatedChats = chats.map((chat) => {
+      if (
+        chat.userId._id === newMessage.receiverId ||
+        chat.userId._id === newMessage.senderId
+      ) {
+        return {
+          ...chat,
+          messages: [...chat.messages, newMessage].sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          ),
+        };
+      }
+      return chat;
+    });
+
+    setChats(
+      updatedChats.sort((a, b) => {
+        const lastMessageA = a.messages[a.messages.length - 1];
+        const lastMessageB = b.messages[b.messages.length - 1];
+        return (
+          new Date(lastMessageB?.createdAt).getTime() -
+          new Date(lastMessageA?.createdAt).getTime()
+        );
+      })
+    );
+  };
+  const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [singleChatOpen, setSingleChatOpen] = useState(false);
   const navigation = [
     { name: 'Home', to: '/' },
     { name: 'About', to: '/about' },
     // { name: 'Contact', to: '/contact' },
   ];
+  const handleChatClick = (chat: any) => {
+    setSelectedChat(chat);
+    setSingleChatOpen(true);
+  };
   
   if (userInfo) {
     if (userInfo.client) {
@@ -22,6 +101,7 @@ export const Navbar = () => {
     } else {
       navigation.push({ name: 'Profile', to: '/artpho/profile' });
     }
+    
   }
   const [logoutApi] = useLogoutMutation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -61,6 +141,8 @@ export const Navbar = () => {
               {item.name}
             </Link>
           ))}
+          { userInfo &&
+          <button className="text-sm font-semibold leading-6" onClick={() => setIsChatModalOpen(true)}>Chats</button>}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end text-white">
           {userInfo && <button type="button" className="text-sm font-semibold leading-6" onClick={handleLogout}>
@@ -108,7 +190,10 @@ export const Navbar = () => {
                   >
                     {item.name}
                   </Link>
+                  
                 ))}
+                { userInfo &&
+          <button className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-600" onClick={() => setIsChatModalOpen(true)}>Chats</button>}
               </div>
               
               <div className="py-6">
@@ -124,6 +209,26 @@ export const Navbar = () => {
           </div>
         </Dialog.Panel>
       </Dialog>
+      {isChatModalOpen && (
+        <Chats
+          isOpen={isChatModalOpen}
+          onClose={() => setIsChatModalOpen(false)}
+          chats={chats}
+          onChatClick={handleChatClick}
+          setChats={setChats}
+        />
+      )}
+      {singleChatOpen && (
+        <ChatComponent
+          receiverId={selectedChat?.userId._id || ""}
+          onClose={() => setSingleChatOpen(false)}
+          isOpen={singleChatOpen}
+          Fname={selectedChat?.userId.Fname || ""}
+          Lname={selectedChat?.userId.Lname || ""}
+          profile={selectedChat?.userId.profile || ""}
+          setChats={setChats}
+        />
+      )}
     </>
   );
 };

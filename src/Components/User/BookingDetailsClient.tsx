@@ -180,19 +180,25 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                       ? "Marked Artist"
                       : booking.status === "confirmed"
                       ? "Booking Accepted"
+                      : booking.status === "done"
+                      ? "Booking Finished"
                       : "Booked"}
                   </td>
                 </tr>
-                {booking.amount !== 0 && (
+                {booking.amount !== 0 && (<>
                   <tr>
                     <td>Payment Amount:</td>
                     <td className="flex items-center">₹ {booking.amount}</td>
                   </tr>
+                  <tr>
+                    <td>Payment Method:</td>
+                    <td className="flex items-center"> {booking.payment_method}</td>
+                  </tr></>
                 )}
               </tbody>
             </table>
           </div>
-          {booking.status!='booked' && <button
+          {booking.status!='booked' && booking.status!='done' && <button
             className="bg-red-900 hover:bg-red-700 text-white font-bold py-2 px-4 my-5 rounded cancel-button"
             onClick={onCancel}
           >

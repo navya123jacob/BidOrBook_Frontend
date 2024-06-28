@@ -113,7 +113,7 @@ const SellerProfileClientside: React.FC = () => {
       const existingReview = reviewData.receivedReviews.find(
         (review: any) => review.userId._id === userInfo.data.message._id
       );
-      console.log('existing',existingReview)
+      
       if (existingReview) {
         setUserReview({stars:existingReview.stars,review:existingReview.review});
       }
