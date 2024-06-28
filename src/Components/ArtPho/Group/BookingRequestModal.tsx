@@ -3,8 +3,14 @@ import { Booking } from "../../../types/booking";
 import ChatComponent from "../../ChatSingle";
 import BookingFormModal from "../BookinFormModal";
 import ConfirmationModal from "../../User/CancelConfirmModal";
-import { useCancelPaymentReqMutation } from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
-import { useSpamUserMutation, useUnspamUserMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import {
+  useCancelPaymentReqMutation,
+  useUpdatebookingMutation,
+} from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
+import {
+  useSpamUserMutation,
+  useUnspamUserMutation,
+} from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/slices/Reducers/types";
 import SpamModal from "../../User/SpamModal";
@@ -94,7 +100,10 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   const [spamReason, setSpamReason] = useState("");
   const [spamUser] = useSpamUserMutation();
   const [unspamUser] = useUnspamUserMutation();
-  
+  const [showDoneConfirmationModal, setShowDoneConfirmationModal] =
+    useState(false);
+  const [updatebooking] = useUpdatebookingMutation();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -130,7 +139,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
   const handleCancelConfirmation = () => {
     setShowConfirmationModal(false);
   };
-  
+
   const handleSpamClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsSpamModalOpen(true);
@@ -143,7 +152,11 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
 
   const handleSpamSubmit = async () => {
     if (selectedBooking) {
-      await spamUser({ userId: userInfo.data.message._id, id: selectedBooking.clientId._id, reason: spamReason });
+      await spamUser({
+        userId: userInfo.data.message._id,
+        id: selectedBooking.clientId._id,
+        reason: spamReason,
+      });
       setChanges((prevChanges) => prevChanges + 1);
       setIsReasonModalOpen(false);
       setSpamReason("");
@@ -157,22 +170,47 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
 
   const handleUnspamConfirm = async () => {
     if (selectedBooking) {
-       await unspamUser({ userId: userInfo.data.message._id, id: selectedBooking.clientId._id });
+      await unspamUser({
+        userId: userInfo.data.message._id,
+        id: selectedBooking.clientId._id,
+      });
       setChanges((prevChanges) => prevChanges + 1);
       setIsUnspamModalOpen(false);
     }
   };
+  const handleDoneClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setShowDoneConfirmationModal(true);
+  };
 
-  const normalizeSearchTerm = searchTerm.trim().toLowerCase().replace(/\s+/g, ' ');
-  const searchTermParts = normalizeSearchTerm.split(' ');
-  
+  const handleDoneConfirmation = async () => {
+    if (selectedBooking) {
+      try {
+        await updatebooking({ ...selectedBooking, done:true });
+        setChanges((prevChanges) => prevChanges + 1);
+      } catch (error) {
+        console.error("Error marking booking as done: ", error);
+      } finally {
+        setShowDoneConfirmationModal(false);
+      }
+    }
+  };
+
+  const normalizeSearchTerm = searchTerm
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+  const searchTermParts = normalizeSearchTerm.split(" ");
+
   const filteredBookings = bookings?.filter((booking) => {
-    const fullName = `${booking.clientId.Fname} ${booking.clientId.Lname}`.toLowerCase().replace(/\s+/g, ' ');
-    
+    const fullName = `${booking.clientId.Fname} ${booking.clientId.Lname}`
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+
     let isMatch = true;
     let lastIndex = 0;
-    
-    searchTermParts.forEach(part => {
+
+    searchTermParts.forEach((part) => {
       const index = fullName.indexOf(part, lastIndex);
       if (index === -1) {
         isMatch = false;
@@ -180,15 +218,16 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
         lastIndex = index + part.length;
       }
     });
-  
+
     return isMatch;
   });
 
-
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBookings = filteredBookings?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentBookings = filteredBookings?.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -265,7 +304,8 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                           >
                             DM
                           </button>
-                          <button
+
+                          {booking.status!='done' && (<button
                             className="text-white px-4 py-2 rounded bg-red-700 mr-2"
                             onClick={() => {
                               setSelectedBooking(booking);
@@ -273,7 +313,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                             }}
                           >
                             Cancel
-                          </button>
+                          </button>)}
                           {!mark &&
                             (booking.status !== "confirmed" ? (
                               <button
@@ -290,19 +330,27 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
                                 Payment Requested
                               </button>
                             ))}
+                          {message === "Booked" && (
+                            <button
+                              className="text-white px-4 py-2 rounded bg-blue-600 mr-2"
+                              onClick={() => handleDoneClick(booking)}
+                            >
+                              Done
+                            </button>
+                          )}
                           {booking?.clientId.spam &&
                           booking.clientId.spam.some(
                             (spam) => spam.userId === userInfo.data.message._id
                           ) ? (
                             <button
-                            onClick={() =>handleUnspamClick( booking)}
+                              onClick={() => handleUnspamClick(booking)}
                               className="text-white px-4 py-2 rounded bg-red-700 m-2"
                             >
                               Unspam
                             </button>
                           ) : (
                             <button
-                            onClick={() =>handleSpamClick( booking)}
+                              onClick={() => handleSpamClick(booking)}
                               className="text-white px-4 py-2 rounded bg-red-700 m-2"
                             >
                               Spam
@@ -316,15 +364,21 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
             )}
             {totalPages >= 1 && (
               <div className="flex justify-center mt-4">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                  <button
-                    key={pageNumber}
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`mx-1 px-3 py-1 border ${currentPage === pageNumber ? "bg-blue-500 text-white" : "bg-white text-black"}`}
-                  >
-                    {pageNumber}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`mx-1 px-3 py-1 border ${
+                        currentPage === pageNumber
+                          ? "bg-blue-500 text-white"
+                          : "bg-white text-black"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  )
+                )}
               </div>
             )}
           </div>
@@ -355,7 +409,7 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
           onCancel={handleCancelConfirmation}
         />
       )}
-       {isSpamModalOpen && (
+      {isSpamModalOpen && (
         <SpamModal
           onClose={() => setIsSpamModalOpen(false)}
           onConfirm={handleSpamConfirm}
@@ -386,6 +440,13 @@ const BookingRequestModal: React.FC<BookingRequestModalProps> = ({
           onConfirm={handleUnspamConfirm}
           title="Confirm Unspam"
           description="Are you sure you want to unmark this user as spam?"
+        />
+      )}
+      {showDoneConfirmationModal && (
+        <ConfirmationModal
+          message="Do you want to mark this booking as done?"
+          onConfirm={handleDoneConfirmation}
+          onCancel={() => setShowDoneConfirmationModal(false)}
         />
       )}
     </>

@@ -18,6 +18,8 @@ import {
   useBookingsConfirmMutation,
   useMarkedMutation,
   useCancelbookingMutation,
+  useDoneMutation,
+  useUpdatebookingMutation
 } from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
 import BookingRequestModal from "../../../Components/ArtPho/Group/BookingRequestModal";
 import ConfirmationModal from "../../../Components/User/CancelConfirmModal";
@@ -33,6 +35,7 @@ const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
+  const [done] = useDoneMutation();
   const [cancelbooking] = useCancelbookingMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const { data: reviewData } = useGetUserReviewsQuery(
@@ -47,10 +50,12 @@ const ProfilePageSeller: React.FC = () => {
   const [bookingReqData, setBookingReqData] = useState<Booking[]>([]);
   const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
   const [markedData, setMarkedData] = useState<Booking[]>([]);
+  const [doneData, setDoneData] = useState<Booking[]>([]);
   const [isBookingRequestModalOpen, setIsBookingRequestModalOpen] =
     useState(false);
   const [isMarkedByModalOpen, setIsMarkedByModalOpen] = useState(false);
   const [isBookedModalOpen, setIsBookedModalOpen] = useState(false);
+  const [isBookedDoneOpen, setIsBookedDoneOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [changes, setChanges] = useState<number>(0);
@@ -191,6 +196,13 @@ const ProfilePageSeller: React.FC = () => {
         if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
         }
+        const response4 = await done({
+          artistId: userInfo.data.message._id,
+          clientId: "",
+        });
+        if ("data" in response4) {
+          setDoneData(response4.data?.bookings);
+        }
       } catch (err) {
         console.error("Error fetching bookings:", err);
       }
@@ -209,6 +221,9 @@ const ProfilePageSeller: React.FC = () => {
 
   const handleMarkingBookedclick = () => {
     setIsBookedModalOpen(true);
+  };
+  const handleDoneBookedclick = () => {
+    setIsBookedDoneOpen(true);
   };
 
   const handleCancelBooking = () => {
@@ -325,6 +340,15 @@ const ProfilePageSeller: React.FC = () => {
                     {bookingConfirmData.length}
                   </span>{" "}
                   Booked
+                </li>
+                <li
+                  className="hover:cursor-pointer"
+                  onClick={() => handleDoneBookedclick()}
+                >
+                  <span className="font-semibold">
+                    {doneData.length}
+                  </span>{" "}
+                  Done
                 </li>
                 <li
                   className="hover:cursor-pointer"
@@ -525,6 +549,19 @@ const ProfilePageSeller: React.FC = () => {
           onCancel={() => handleCancelBooking()}
           setChanges={setChanges}
           message="Booked"
+          mark={true}
+          selectedBooking={selectedBooking}
+          setSelectedBooking={setSelectedBooking}
+        />
+      )}
+      {isBookedDoneOpen && (
+        <BookingRequestModal
+          isOpen={isBookedDoneOpen}
+          onClose={() => setIsBookedDoneOpen(false)}
+          bookings={doneData}
+          onCancel={() => {}}
+          setChanges={setChanges}
+          message="Done Bookings"
           mark={true}
           selectedBooking={selectedBooking}
           setSelectedBooking={setSelectedBooking}

@@ -6,7 +6,7 @@ export interface Address {
     country: string;
   }
   
-  export type BookingStatus = 'pending' | 'confirmed' | 'marked'|'booked';
+  export type BookingStatus = 'pending' | 'confirmed' | 'marked'|'booked'|'done';
   
   
   export interface Booking {

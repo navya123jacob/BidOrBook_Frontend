@@ -44,6 +44,14 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
                 
             }),
         }), 
+        done: builder.mutation({
+            query: (data) => ({
+                url: '/done',
+                method: 'POST',
+                body: data,
+                
+            }),
+        }), 
       
         SingleBooking: builder.query({
             query: ({ artistId, clientId }) => ({
@@ -127,7 +135,8 @@ export const BookingApiSlice = apiSlice.injectEndpoints({
         useCreateCheckoutSessionMutation,
         useCreateCheckoutSessionAuctionMutation,
         useWalletMutation,
-        useFindAvailablePeopleMutation
+        useFindAvailablePeopleMutation,
+        useDoneMutation
         
    
 } = BookingApiSlice

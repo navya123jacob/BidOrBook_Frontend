@@ -196,10 +196,11 @@ const BookingFormModal: React.FC<BookingFormModalProps> = ({
       location: formData.location,
       date_of_booking: datesInRange,
       amount: formData.amount,
+      
     };
 
     try {
-       await updatebooking(requestData).unwrap();
+      await updatebooking(requestData).unwrap();
       setChanges((prevChanges) => prevChanges + 1);
       onClose();
     } catch (error) {
