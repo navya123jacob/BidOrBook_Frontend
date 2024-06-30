@@ -5,7 +5,7 @@ import { RootState } from "../../redux/slices/Reducers/types";
 import ArtistProfileForm from "../../Components/ArtPho/ArtistProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
-import { useGetUserChatsQuery, useGetWalletValueQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useGetUserChatsQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useAllAuctionsMutation, useAuctionByBidderMutation, useDeleteAuctionMutation } from "../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { User } from "../../types/user";
 import { io } from "socket.io-client";
@@ -23,7 +23,9 @@ import AuctionDetailModal from "../../Components/ArtPho/AuctionDetail";
 import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
 
-const socket = io("http://localhost:8888");
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 interface PopulatedChat {
   userId: User;
   messages: any[];

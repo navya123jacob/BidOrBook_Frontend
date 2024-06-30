@@ -12,8 +12,9 @@ interface PopulatedChat {
   messages: any[];
 }
 
-// const url=import.meta.env.backendurl
-const socket = io('http://localhost:8888');
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 
 const ChatsAdmin: React.FC = () => {
   const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);

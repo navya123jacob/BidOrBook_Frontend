@@ -30,7 +30,9 @@ import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
 import WalletHistoryModal from "../../Components/WalletHistory";
 
-const socket = io("http://localhost:8888");
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 interface PopulatedChat {
   userId: User;
   messages: any[];

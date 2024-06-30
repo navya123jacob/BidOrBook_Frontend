@@ -17,7 +17,9 @@ interface ChatComponentProps {
   refetch?: () => void; 
 }
 
-const socket = io('http://localhost:8888');
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 
 const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, chats ,refetch }) => {
   

@@ -66,7 +66,9 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
     phonenumber: '',
   });
   const [addressError, setAddressError] = useState<string | null>(null);
-  const socket = io('http://localhost:8888');
+  // const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 
   const handlePayClick = async () => {
     if (!validateAddress()) return;

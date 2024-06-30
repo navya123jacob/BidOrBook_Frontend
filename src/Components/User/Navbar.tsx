@@ -10,7 +10,9 @@ import Chats from '../Chats';
 import ChatComponent from '../ChatSingle';
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:8888");
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 
 export const Navbar = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);

@@ -30,7 +30,9 @@ import ChatComponent from "../../../Components/ChatSingle";
 import { io } from "socket.io-client";
 import { IReview } from "../../../types/user";
 import ViewReviewsModal from "../../../Components/ViewReviewsModal";
-const socket = io("http://localhost:8888");
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();

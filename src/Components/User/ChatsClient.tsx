@@ -14,7 +14,9 @@ interface ChatModalProps {
   setChats: Dispatch<SetStateAction<PopulatedChat[]>>;
 }
 
-const socket = io('http://localhost:8888');
+// const socket = io("http://localhost:8888");
+const official=import.meta.env.official
+const socket = io(official);
 
 const ChatsClient: React.FC<ChatModalProps> = ({ chats, onChatClick, setChats }) => {
   
