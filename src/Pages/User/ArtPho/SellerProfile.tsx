@@ -585,7 +585,7 @@ const ProfilePageSeller: React.FC = () => {
           Fname={selectedChat?.userId.Fname || ""}
           Lname={selectedChat?.userId.Lname || ""}
           profile={selectedChat?.userId.profile || ""}
-          setChats={setChats}
+          chats={chats}
         />
       )}
       {isViewReviewsModalOpen && (

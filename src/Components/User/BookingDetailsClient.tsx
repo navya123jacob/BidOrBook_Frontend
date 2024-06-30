@@ -104,6 +104,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
           bookingId: booking._id,
           amount: booking.amount,
           clientId: booking.clientId,
+          
         }).unwrap();
         setChanges((prevChanges) => prevChanges + 1);
         setSingle((prevBooking) => 

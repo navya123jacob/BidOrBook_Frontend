@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import BookingDetailModal from './BookingDetailsClient';
 import ConfirmationModal from './CancelConfirmModal';
 import { useCancelbookingMutation } from '../../redux/slices/Api/EndPoints/bookingEndpoints';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/slices/Reducers/types';
 
 interface Props {
     message: string;
@@ -12,6 +14,7 @@ interface Props {
 }
 
 const BookingViewModal: React.FC<Props> = ({ message, marked,setChanges }) => {
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const totalPages = Math.ceil(marked.length / itemsPerPage);
@@ -107,7 +110,12 @@ const bookingCancel = async () => {
     const currentBookings = marked.slice(startIdx, startIdx + itemsPerPage);
 
     const renderUserRow = (booking: any) => {
-        const user = booking.artistId;
+      let user;
+      if(userInfo?.client){
+         user = booking.artistId;}
+         else{
+          user = booking.clientId;
+         }
 
         return (
             <div key={user._id} className="flex items-center justify-between py-2 px-4 border-b">
@@ -126,7 +134,8 @@ const bookingCancel = async () => {
                 >
                     View
                 </button>
-                <Link to={`/artprof/client?id=${user._id}`} className=" text-white px-3 py-1 rounded bg-graydark">Go to Profile</Link>
+                {userInfo.client &&
+                <Link to={`/artprof/client?id=${user._id}`} className=" text-white px-3 py-1 rounded bg-graydark">Go to Profile</Link>}
             </div>
         );
     };

@@ -11,105 +11,123 @@ import ChatComponent from '../ChatSingle';
 import { io } from 'socket.io-client';
 
 const socket = io("http://localhost:8888");
+
 export const Navbar = () => {
-  const userInfo=useSelector((state:RootState)=>state.client.userInfo)
+  const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [chats, setChats] = useState<any[]>([]);
-  const {
-    data: mychats,
-    refetch
-    
-  } = useGetUserChatsQuery(userInfo?.data.message._id??'');
+  const { data: mychats, refetch } = useGetUserChatsQuery(userInfo?.data.message._id ?? '');
+  const [newMessage, setNewMessage] = useState<any>(null);
+
+  
+
   useEffect(() => {
     if (mychats) {
       setChats(mychats);
-      console.log(mychats);
     }
   }, [mychats]);
+
   useEffect(() => {
-    if(userInfo){
-    const senderId = userInfo?.data?.message?._id;
+    if (userInfo) {
+      const senderId = userInfo?.data?.message?._id;
 
-    chats.forEach((chat) => {
-      const receiverId = chat.userId._id;
-      socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {
-        console.log(`Joined room: ${roomId}`);
+      chats.forEach((chat) => {
+        const receiverId = chat.userId._id;
+        socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {
+          console.log(`Joined room: ${roomId}`);
+        });
       });
-    });
 
-    socket.on("chat_message", (newMessage:any) => {
-      const isSenderPresent = chats.some(chat => 
-        chat.userId._id === newMessage.senderId
-      );
-console.log('inside',isSenderPresent)
-      if (!isSenderPresent) {
-        refetch();  
-      } else {
-        updateChats(newMessage);
+      const handleMessage = async (message: any) => {
+        setNewMessage(message);
+      };
+
+      socket.on("chat_message", handleMessage);
+
+      return () => {
+        socket.off("chat_message", handleMessage);
+      };
+    }
+  }, [chats, userInfo]);
+ 
+
+
+  useEffect(() => {
+    const fetchNewChats = async () => {
+      if (newMessage) {
+        console.log(newMessage)
+        const isSenderPresent =
+         chats.some(chat => chat.userId._id === newMessage.senderId);
+
+        if (!isSenderPresent) {
+          const refetchResult = await refetch();
+          if (refetchResult?.data) {
+            setChats(refetchResult.data);
+          }
+        } else {
+          updateChats(newMessage);
+        }
       }
-    });
-    
+    };
 
-    return () => {
-      socket.off("chat_message");
-    };}
-  }, [chats]);
+    fetchNewChats();
+  }, [newMessage]);
 
   const updateChats = (newMessage: any) => {
+    
     const updatedChats = chats.map((chat) => {
-      if (
-        chat.userId._id === newMessage.receiverId ||
-        chat.userId._id === newMessage.senderId
-      ) {
+      if (chat.userId._id === newMessage.receiverId || chat.userId._id === newMessage.senderId) {
         return {
           ...chat,
-          messages: [...chat.messages, newMessage].sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          ),
+          messages: [...chat.messages, newMessage].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
         };
       }
+      
       return chat;
     });
 
-    setChats(
-      updatedChats.sort((a, b) => {
-        const lastMessageA = a.messages[a.messages.length - 1];
-        const lastMessageB = b.messages[b.messages.length - 1];
-        return (
-          new Date(lastMessageB?.createdAt).getTime() -
-          new Date(lastMessageA?.createdAt).getTime()
-        );
-      })
-    );
+    setChats(updatedChats.sort((a, b) => {
+      const lastMessageA = a.messages[a.messages.length - 1];
+      const lastMessageB = b.messages[b.messages.length - 1];
+      return new Date(lastMessageB?.createdAt).getTime() - new Date(lastMessageA?.createdAt).getTime();
+    }));
   };
+
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [singleChatOpen, setSingleChatOpen] = useState(false);
+
   const navigation = [
     { name: 'Home', to: '/' },
     { name: 'About', to: '/about' },
-    // { name: 'Contact', to: '/contact' },
   ];
-  const handleChatClick = (chat: any) => {
-    setSelectedChat(chat);
-    setSingleChatOpen(true);
-  };
-  
+
   if (userInfo) {
     if (userInfo.client) {
       navigation.push({ name: 'Profile', to: '/profile' });
     } else {
       navigation.push({ name: 'Profile', to: '/artpho/profile' });
+      navigation.push({ name: 'Account', to: '/artpho/account' });
     }
-    
   }
+
   const [logoutApi] = useLogoutMutation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
-  const handleLogout = async() => { 
+  const handleLogout = async () => {
     dispatch(logout());
     await logoutApi(undefined).unwrap();
-        
+  };
+
+  const handleChatClick = (chat: any) => {
+    setSelectedChat(chat);
+    setSingleChatOpen(true);
+
+    // Ensure handshake for newly opened chat
+    const senderId = userInfo?.data?.message?._id;
+    const receiverId = chat.userId._id;
+    socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {
+      console.log(`Joined room: ${roomId}`);
+    });
   };
 
   return (
@@ -118,19 +136,11 @@ console.log('inside',isSenderPresent)
         <div className="flex lg:flex-1">
           <Link to="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Bid or Book</span>
-            <img
-              className="h-8 w-auto"
-              src="https://res.cloudinary.com/dvgwqkegd/image/upload/v1716207599/Logo2_t9jslm.png"
-              alt=""
-            />
+            <img className="h-8 w-auto" src="https://res.cloudinary.com/dvgwqkegd/image/upload/v1716207599/Logo2_t9jslm.png" alt="" />
           </Link>
         </div>
         <div className="flex lg:hidden">
-          <button
-            type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-            onClick={() => setMobileMenuOpen(true)}
-          >
+          <button type="button" className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700" onClick={() => setMobileMenuOpen(true)}>
             <span className="sr-only">Open main menu</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
@@ -141,8 +151,7 @@ console.log('inside',isSenderPresent)
               {item.name}
             </Link>
           ))}
-          { userInfo &&
-          <button className="text-sm font-semibold leading-6" onClick={() => setIsChatModalOpen(true)}>Chats</button>}
+          {userInfo && <button className="text-sm font-semibold leading-6" onClick={() => setIsChatModalOpen(true)}>Chats</button>}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end text-white">
           {userInfo && <button type="button" className="text-sm font-semibold leading-6" onClick={handleLogout}>
@@ -150,58 +159,32 @@ console.log('inside',isSenderPresent)
           </button>}
         </div>
       </nav>
-      
+
       <Dialog className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
-       
         <div className="fixed inset-0 z-50" />
-        
         <Dialog.Panel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-black px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 bg-opacity-80 text-black">
-          
           <div className="flex items-center justify-between">
-           
             <Link to="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <img
-                className="h-8 w-auto"
-                src="https://res.cloudinary.com/dvgwqkegd/image/upload/v1716207599/Logo2_t9jslm.png"
-                alt=""
-              />
+              <img className="h-8 w-auto" src="https://res.cloudinary.com/dvgwqkegd/image/upload/v1716207599/Logo2_t9jslm.png" alt="" />
             </Link>
-            
-            <button
-              type="button"
-              className="-m-2.5 rounded-md p-2.5 text-gray-700"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <button type="button" className="-m-2.5 rounded-md p-2.5 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
               <span className="sr-only">Close menu</span>
               <XMarkIcon className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
-          
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-gray-500/10">
-            
               <div className="space-y-2 py-6">
                 {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.to}
-                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-600"
-                  >
+                  <Link key={item.name} to={item.to} className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-600">
                     {item.name}
                   </Link>
-                  
                 ))}
-                { userInfo &&
-          <button className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-600" onClick={() => setIsChatModalOpen(true)}>Chats</button>}
+                {userInfo && <button className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-600" onClick={() => setIsChatModalOpen(true)}>Chats</button>}
               </div>
-              
               <div className="py-6">
-                {userInfo && <button
-                  type="button"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-600"
-                  onClick={handleLogout}
-                >
+                {userInfo && <button type="button" className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-600" onClick={handleLogout}>
                   Log out
                 </button>}
               </div>
@@ -218,7 +201,7 @@ console.log('inside',isSenderPresent)
           setChats={setChats}
         />
       )}
-      {singleChatOpen && (
+      {singleChatOpen && chats.length > 0 && (
         <ChatComponent
           receiverId={selectedChat?.userId._id || ""}
           onClose={() => setSingleChatOpen(false)}
@@ -226,10 +209,11 @@ console.log('inside',isSenderPresent)
           Fname={selectedChat?.userId.Fname || ""}
           Lname={selectedChat?.userId.Lname || ""}
           profile={selectedChat?.userId.profile || ""}
-          setChats={setChats}
+          chats={chats}
+          refetch={refetch}
+
         />
       )}
     </>
   );
 };
-

@@ -12,6 +12,7 @@ export interface IAuction extends Document {
   initial: number;
   payment:string;
   paymentmethod:string;
+  payment_date:Date;
   spam:Spam[]
 }
 export interface AdIAuction extends Document {

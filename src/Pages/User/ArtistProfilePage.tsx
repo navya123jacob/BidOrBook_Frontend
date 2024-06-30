@@ -2,24 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
-import ProfileForm from "../../Components/User/ProfileForm";
+import ArtistProfileForm from "../../Components/ArtPho/ArtistProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
-import {
-  useGetUserChatsQuery,
-  useGetWalletValueQuery,
-} from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
-import {
-  useAuctionByBidderMutation,
-  useDeleteAuctionMutation,
-} from "../../redux/slices/Api/EndPoints/auctionEndPoints";
+import { useGetUserChatsQuery, useGetWalletValueQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useAllAuctionsMutation, useAuctionByBidderMutation, useDeleteAuctionMutation } from "../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { User } from "../../types/user";
 import { io } from "socket.io-client";
 import {
   useBookingsreqMutation,
   useBookingsConfirmMutation,
   useMarkedMutation,
-  useDoneMutation,
+  useDoneMutation
 } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { Booking } from "../../types/booking";
 import BookingViewModal from "../../Components/User/BookingViewModal";
@@ -28,7 +22,6 @@ import AuctionList from "../../Components/User/AuctionsViewModal";
 import AuctionDetailModal from "../../Components/ArtPho/AuctionDetail";
 import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
-import WalletHistoryModal from "../../Components/WalletHistory";
 
 const socket = io("http://localhost:8888");
 interface PopulatedChat {
@@ -36,14 +29,14 @@ interface PopulatedChat {
   messages: any[];
 }
 
-const ClientProfilePage: React.FC = () => {
-  const { data: admin } = useGetAdminDetailsQuery();
+const ArtistProfilePage: React.FC = () => {
+  const { data: admin,  } = useGetAdminDetailsQuery();
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
   const [done] = useDoneMutation();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const [walletBookings, setWalletBookings] = useState<Booking[]>([]);
+  
   const [selectedChat, setSelectedChat] = useState<PopulatedChat | null>(null);
   const [chats, setChats] = useState<PopulatedChat[]>([]);
   const [activeSection, setActiveSection] = useState("profile");
@@ -51,70 +44,60 @@ const ClientProfilePage: React.FC = () => {
   const [bookingConfirmData, setBookingConfirmData] = useState<Booking[]>([]);
   const [markedData, setMarkedData] = useState<Booking[]>([]);
   const [doneData, setDoneData] = useState<Booking[]>([]);
-  const [currentbids, setCurrentbids] = useState<IAuction[]>([]);
-  const [isAuctionDetModalOpen, setIsAuctionDetModalOpen] = useState(false);
+  const [currentbids,setCurrentbids]=useState<IAuction[]>([])
+  const [isAuctionDetModalOpen, setIsAuctionDetModalOpen] =useState(false);
   const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
-  const [walletHistoryOpen, setWalletHistoryOpen] = useState(false);
-  const [AdminChatOpen, setAdminChatOpen] = useState(false);
-  const [purchased, setPurchased] = useState<IAuction[]>([]);
+  const [AdminChatOpen,setAdminChatOpen]= useState(false);
   const [selectedAuction, setSelectedAuction] = useState<IAuction | null>(null);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const [allAuctions] = useAllAuctionsMutation();
   const [bids, setBids] = useState<{ userId: string; amount: number }[]>([]);
-  const { data: walletData = { wallet: 0 } } = useGetWalletValueQuery(
-    userInfo.data.message._id
-  );
+  // const { data: walletData = { wallet: 0 } } = useGetWalletValueQuery(userInfo.data.message._id);
   const [changes, setChanges] = useState(0);
-  const [AuctionByBidder] = useAuctionByBidderMutation();
+  const[AuctionByBidder] =useAuctionByBidderMutation()
   const [deleteAuction] = useDeleteAuctionMutation();
-  const { data: mychats } = useGetUserChatsQuery(userInfo.data.message._id);
-  const [walletAuctions, setWalletAuctions] = useState<IAuction[]>([]);
+  const {
+    data: mychats,
+   
+  } = useGetUserChatsQuery(userInfo.data.message._id);
+  
   useEffect(() => {
     const fetchBookings = async () => {
       try {
+        
         const response = await bookingsreq({
-          clientId: userInfo.data.message._id,
-          artistId: "",
+          artistId: userInfo.data.message._id
         });
         if ("data" in response) {
           setBookingReqData(response.data?.bookings);
         }
 
         const response2 = await bookingsConfirm({
-          clientId: userInfo.data.message._id,
-          artistId: "",
+          artistId: userInfo.data.message._id
         });
         if ("data" in response2) {
-          const walletBookings = response2.data?.bookings.filter(
-            (booking: Booking) => booking.payment_method === "wallet"
-          );
-          console.log('booking',walletBookings)
-          setWalletBookings(walletBookings);
           setBookingConfirmData(response2.data?.bookings);
         }
+       
 
-        const response3 = await marked({
-          clientId: userInfo.data.message._id,
-          artistId: "",
-        });
-
+        const response3 = await marked({ artistId: userInfo.data.message._id });
+        
         if ("data" in response3) {
           setMarkedData(response3.data?.bookings);
         }
-        const response4 = await done({
-          clientId: userInfo.data.message._id,
-          artistId: "",
-        });
-
+        const response4 = await done({ artistId: userInfo.data.message._id });
+        
         if ("data" in response4) {
           setDoneData(response4.data?.bookings);
         }
       } catch (err) {
         console.error("Error fetching bookings:", err);
       }
+      
     };
 
     fetchBookings();
-  }, [bookingsreq, bookingsConfirm, marked, changes]);
+  }, [bookingsreq, bookingsConfirm, marked,changes]);
   useEffect(() => {
     if (mychats) {
       setChats(mychats);
@@ -142,7 +125,7 @@ const ClientProfilePage: React.FC = () => {
       });
     });
 
-    socket.on("chat_message", (newMessage: any) => {
+    socket.on("chat_message", (newMessage:any) => {
       updateChats(newMessage);
     });
 
@@ -182,37 +165,26 @@ const ClientProfilePage: React.FC = () => {
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
-        const response = await AuctionByBidder({
-          clientId: userInfo.data.message._id,
-        });
-        if ("data" in response) {
+        const response = await allAuctions({ userId: userInfo.data.message._id ?? "", notId: "" });
+
+        if ('data' in response) {
           const auctions = response.data.auctions;
           const pendingBids: IAuction[] = [];
           const paidBids: IAuction[] = [];
-          const walletAuctions = auctions.filter(
-            (auction: IAuction) => auction.paymentmethod === "wallet"
-          );
-          setWalletAuctions(walletAuctions);
-
-
+  
           auctions.forEach((auction: IAuction) => {
-            if (
-              auction.payment === "paid" &&
-              auction.bids.length > 0 &&
-              auction.bids[auction.bids.length - 1].userId ===
-                userInfo.data.message._id
-            ) {
+            if (auction.payment === 'paid' && auction.bids.length > 0 && auction.bids[auction.bids.length - 1].userId === userInfo.data.message._id) {
               paidBids.push(auction);
             } else {
               pendingBids.push(auction);
             }
           });
-
+  
           setCurrentbids(pendingBids);
-          setPurchased(paidBids);
+          // setPurchased(paidBids);
         }
       } catch (err) {
-        console.error("Error fetching auctions:", err);
+        console.error('Error fetching auctions:', err);
       }
     };
 
@@ -225,17 +197,19 @@ const ClientProfilePage: React.FC = () => {
 
   const handleChatClick = (chat: PopulatedChat) => {
     setSelectedChat(chat);
+    
   };
   const handleSelectAuction = (auction: IAuction) => {
     setSelectedAuction(auction);
   };
   const handleDeleteAuction = async (auctionId: string) => {
     await deleteAuction({ auctionId, userId: userInfo.data.message._id });
-    if (selectedAuction?.payment == "paid") {
-      setPurchased((prevAuctions) =>
-        prevAuctions.filter((auction) => auction._id !== auctionId)
-      );
-    } else {
+    if(selectedAuction?.payment=='paid'){
+    // setPurchased((prevAuctions) =>
+    //   prevAuctions.filter((auction) => auction._id !== auctionId)
+    // );
+  }
+    else{
       setCurrentbids((prevAuctions) =>
         prevAuctions.filter((auction) => auction._id !== auctionId)
       );
@@ -310,18 +284,8 @@ const ClientProfilePage: React.FC = () => {
                   <h3 className="text-4xl font-semibold leading-normal  text-blueGray-700 mb-2">
                     {userInfo?.data?.message?.Fname}
                   </h3>
-                  <button
-                    className="text-white bg-graydark rounded p-2"
-                    onClick={() => setAdminChatOpen(true)}
-                  >
-                    DM ADMIN
-                  </button>
-                  <p
-                    className="text-black bg-gray rounded p-2 m-2"
-                    onClick={() => setWalletHistoryOpen(true)}
-                  >
-                    Wallet :₹ {walletData.wallet}
-                  </p>
+                  <button className="text-white bg-graydark rounded p-2" onClick={()=>setAdminChatOpen(true)}>DM ADMIN</button>
+                  {/* <p className="text-black bg-gray rounded p-2  m-2" >Wallet :₹ {walletData.wallet} </p> */}
                 </div>
 
                 <div className="mt-10 py-10 border-t border-blueGray-200 text-center">
@@ -354,7 +318,8 @@ const ClientProfilePage: React.FC = () => {
                             <span className="text-sm font-medium">Profile</span>
                           </button>
                         </li>
-
+                        
+                        
                         <li>
                           <button
                             type="button"
@@ -368,9 +333,7 @@ const ClientProfilePage: React.FC = () => {
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
                               <i className="bx bx-shopping-bag"></i>
                             </span>
-                            <span className="text-sm font-medium">
-                              Marked Bookings
-                            </span>
+                            <span className="text-sm font-medium">Marked Bookings</span>
                           </button>
                         </li>
                         <li>
@@ -386,9 +349,7 @@ const ClientProfilePage: React.FC = () => {
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
                               <i className="bx bx-shopping-bag"></i>
                             </span>
-                            <span className="text-sm font-medium">
-                              Requested bookings
-                            </span>
+                            <span className="text-sm font-medium">Requested bookings</span>
                           </button>
                         </li>
                         <li>
@@ -420,9 +381,7 @@ const ClientProfilePage: React.FC = () => {
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
                               <i className="bx bx-user"></i>
                             </span>
-                            <span className="text-sm font-medium">
-                              Bookings Done
-                            </span>
+                            <span className="text-sm font-medium">Bookings Done</span>
                           </button>
                         </li>
                         <li>
@@ -443,25 +402,8 @@ const ClientProfilePage: React.FC = () => {
                             </span>
                           </button>
                         </li>
-                        <li>
-                          <button
-                            type="button"
-                            className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
-                              activeSection === "purchased"
-                                ? "text-gray-800 font-bold"
-                                : "text-gray-500"
-                            }`}
-                            onClick={() => handleSectionClick("purchased")}
-                          >
-                            <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
-                              <i className="bx bx-chat"></i>
-                            </span>
-                            <span className="text-sm font-medium">
-                              Purchased
-                            </span>
-                          </button>
-                        </li>
-
+                        
+                        
                         <li>
                           <button
                             type="button"
@@ -472,6 +414,7 @@ const ClientProfilePage: React.FC = () => {
                             }`}
                             onClick={() => {
                               handleSectionClick("chats");
+                              
                             }}
                           >
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
@@ -483,7 +426,6 @@ const ClientProfilePage: React.FC = () => {
                             </span>
                           </button>
                         </li>
-
                         <li>
                           <button
                             type="button"
@@ -503,7 +445,7 @@ const ClientProfilePage: React.FC = () => {
                       </ul>
                     </div>
 
-                    {activeSection === "profile" && <ProfileForm />}
+                    {activeSection === "profile" && <ArtistProfileForm />}
                     {activeSection === "chats" && (
                       <ChatsClient
                         chats={chats}
@@ -513,46 +455,42 @@ const ClientProfilePage: React.FC = () => {
                     )}
                     {activeSection === "marked" && (
                       <BookingViewModal
-                        message="Marked Users"
-                        marked={markedData}
-                        setChanges={setChanges}
+                       message='Marked Users'
+                       marked={markedData}
+                       setChanges={setChanges}
                       />
                     )}
                     {activeSection === "requested" && (
                       <BookingViewModal
-                        message="Requested Bookings"
-                        marked={bookingReqData}
-                        setChanges={setChanges}
+                       message='Requested Bookings'
+                       marked={bookingReqData}
+                       setChanges={setChanges}
                       />
                     )}
                     {activeSection === "booked" && (
                       <BookingViewModal
-                        message="Booked"
-                        marked={bookingConfirmData}
-                        setChanges={setChanges}
+                       message='Booked'
+                       marked={bookingConfirmData}
+                       setChanges={setChanges}
+                      
                       />
                     )}
                     {activeSection === "done" && (
                       <BookingViewModal
-                        message="Bookings Done"
-                        marked={doneData}
-                        setChanges={setChanges}
+                       message='Bookings Done'
+                       marked={doneData}
+                       setChanges={setChanges}
+                      
                       />
                     )}
                     {activeSection === "bids" && (
                       <AuctionList
-                        auctions={currentbids}
-                        onSelectAuction={handleSelectAuction}
-                        setIsAuctionDetModalOpen={setIsAuctionDetModalOpen}
+                       auctions={currentbids}
+                       onSelectAuction={handleSelectAuction}
+                       setIsAuctionDetModalOpen={setIsAuctionDetModalOpen}
                       />
                     )}
-                    {activeSection === "purchased" && (
-                      <AuctionList
-                        auctions={purchased}
-                        onSelectAuction={handleSelectAuction}
-                        setIsAuctionDetModalOpen={setIsAuctionDetModalOpen}
-                      />
-                    )}
+                    
                   </div>
                 </div>
               </div>
@@ -561,7 +499,7 @@ const ClientProfilePage: React.FC = () => {
         </section>
       </main>
 
-      {selectedChat && chats.length > 0 && (
+      {selectedChat && chats.length>0 && (
         <ChatComponent
           isOpen={!!selectedChat}
           onClose={() => setSelectedChat(null)}
@@ -576,10 +514,10 @@ const ClientProfilePage: React.FC = () => {
         <ChatComponent
           isOpen={AdminChatOpen}
           onClose={() => setAdminChatOpen(false)}
-          receiverId={admin?._id || ""}
-          Fname={admin?.Fname || ""}
-          Lname={admin?.Lname || ""}
-          profile={admin?.profile || ""}
+          receiverId={admin?._id||''}
+          Fname={admin?.Fname ||''}
+          Lname={admin?.Lname ||''}
+          profile={admin?.profile||''}
         />
       )}
       {isAuctionDetModalOpen && selectedAuction && (
@@ -589,29 +527,22 @@ const ClientProfilePage: React.FC = () => {
           onDelete={() => handleDeleteAuction(selectedAuction._id)}
           onOpenBiddingModal={() => setIsBiddingModalOpen(true)}
           SetselectedAuction={setSelectedAuction}
+          
+          
         />
       )}
       {isBiddingModalOpen && (
         <BiddingModal
           initialBid={selectedAuction?.initial || 0}
-          bids={selectedAuction?.bids || []}
+          bids={selectedAuction?.bids||[]}
           onClose={() => setIsBiddingModalOpen(false)}
           onBid={handleBid}
           auctionId={selectedAuction?._id || ""}
           SetselectedAuction={setSelectedAuction}
         />
       )}
-      {walletHistoryOpen && (
-  <WalletHistoryModal
-    isOpen={walletHistoryOpen}
-    onClose={() => setWalletHistoryOpen(false)}
-    walletBookings={walletBookings}
-    walletAuctions={walletAuctions}
-  />
-)}
-
     </>
   );
 };
 
-export default ClientProfilePage;
+export default ArtistProfilePage;

@@ -21,6 +21,7 @@ import AdminPost from './Pages/Admin/Posts/AdminPost';
 import AdminBookings from './Pages/Admin/Bookings/AdminBookings';
 import AdminAuction from './Pages/Admin/Auctions/AdminAuctions';
 import AdminChats from './Pages/Admin/Chats/AdminChats';
+import ArtistProfilePage from './Pages/User/ArtistProfilePage';
 
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -39,6 +40,7 @@ const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
         
         <Route element={<ProtectedArtistRoute />}>
           <Route path="/artpho/profile" element={<ProfilePageSeller />} />
+          <Route path="/artpho/account" element={<ArtistProfilePage />} />
           
         </Route>
 
@@ -63,6 +65,7 @@ const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
         {/* Fallback route */}
         <Route path="*" element={<AnimatedImageComponent/>} />
       </Routes>
+      
     </BrowserRouter>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal';
 import { io } from 'socket.io-client';
 import { useSelector } from 'react-redux';
@@ -13,17 +13,17 @@ interface ChatComponentProps {
   Fname: string;
   Lname: string;
   profile: string;
-  setChats?: Dispatch<SetStateAction<any[]>>;
-  admin?:boolean
+  chats?: any[];
+  refetch?: () => void; 
 }
 
 const socket = io('http://localhost:8888');
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats,admin }) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, chats ,refetch }) => {
+  
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-  const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
   const [sendMessage] = useSendMessageMutation();
   const [getMessage, { isLoading, error }] = useGetMessagesMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,9 +57,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
        
         if (msg.senderId !== senderId) {
           setMessages((prevMessages) => [...prevMessages, msg].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
-          // if (setChats) {
-          //   updateChats(msg);
-          // }
+          
         }
       });
 
@@ -78,11 +76,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
 
   const handleSendMessage = async () => {
     let senderId;
-    if(admin){
-      senderId=adminInfo._id
-    }
-    else{
-    senderId = userInfo.data.message._id}
+    
+    senderId = userInfo.data.message._id
     if (message.trim()) {
       const msgData = {
         senderId,
@@ -94,45 +89,21 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
       socket.emit('chat_message', msgData);
       await sendMessage(msgData);
       
+          // if (chats) {
+          //   const isReceiverPresent = chats.some(chat => chat.userId._id === receiverId);
+          //   if(!isReceiverPresent && refetch){
+          //     refetch()
+          //   }
+          //   console.log(isReceiverPresent)
+          // }
+      
       setMessages((prevMessages) => [...prevMessages, msgData].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
-      if (setChats) {
-        updateChats(msgData);
-      }
       
       setMessage('');
     }
   };
 
-  const updateChats = (newMessage: any) => {
-    setChats?.((prevChats) => {
-      const updatedChats = [...prevChats];
-      const chatIndex = updatedChats.findIndex((chat) => chat.userId._id === receiverId);
-
-      if (chatIndex !== -1) {
-        updatedChats[chatIndex] = {
-          ...updatedChats[chatIndex],
-          messages: [...updatedChats[chatIndex].messages, newMessage].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
-        };
-      } else {
-        updatedChats.push({
-          userId: {
-            _id: receiverId,
-            Fname,
-            Lname,
-            profile,
-          },
-          messages: [newMessage],
-        });
-      }
-
-      return updatedChats.sort((a, b) => {
-        const lastMessageA = a.messages[a.messages.length - 1];
-        const lastMessageB = b.messages[b.messages.length - 1];
-        return new Date(lastMessageB?.createdAt).getTime() - new Date(lastMessageA?.createdAt).getTime();
-      });
-    });
-  };
-
+  
   const groupMessagesByDate = (messages: any[]) => {
     const groupedMessages: { [key: string]: any[] } = {};
 
