@@ -21,7 +21,7 @@ interface ChatComponentProps {
 const official=import.meta.env.official
 const socket = io(official);
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, chats ,refetch }) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile }) => {
   
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
