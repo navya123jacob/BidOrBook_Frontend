@@ -22,7 +22,7 @@ import AdminBookings from './Pages/Admin/Bookings/AdminBookings';
 import AdminAuction from './Pages/Admin/Auctions/AdminAuctions';
 import AdminChats from './Pages/Admin/Chats/AdminChats';
 import ArtistProfilePage from './Pages/User/ArtistProfilePage';
-
+console.log(import.meta.env.official)
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
 const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
