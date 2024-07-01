@@ -7,7 +7,8 @@ import { Link } from "react-router-dom";
 import { useForgotpasswordMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import Otp from "../../Components/User/Otp";
 const LoginUser = () => {
- 
+  const official=import.meta.env.official
+  console.log(official)
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
