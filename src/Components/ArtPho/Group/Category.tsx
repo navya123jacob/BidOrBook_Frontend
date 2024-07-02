@@ -43,7 +43,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const [endDate, setEndDate] = useState<string>("");
   const [priceRange, setPriceRange] = useState<number[]>([0, 10000]);
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
-
+  const [dateError, setDateError] = useState<string>("");
   const [allpost, { isLoading: allPostLoading }] = useAllpostMutation();
   const [findAvailablePeople, { isLoading: availablePeopleLoading }] =
     useFindAvailablePeopleMutation();
@@ -124,6 +124,18 @@ const GallerySection: React.FC<GallerySectionProps> = ({
 
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (startDate < today || endDate < today) {
+      setDateError("Dates should be greater than or equal to today's date.");
+      return;
+    }
+    if (endDate < startDate) {
+      setDateError("End date should be greater than or equal to start date.");
+      return;
+    }
+
+    setDateError("");
     try {
       const response = await findAvailablePeople({
         startDate,
@@ -220,6 +232,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                       />
+                       {dateError && <p className="text-red-500">{dateError}</p>}
                       <button
                         type="submit"
                         className="focus:outline-none px-4  m-3 py-2 rounded-md text-gray-800 bg-white mt-2"

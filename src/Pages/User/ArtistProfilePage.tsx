@@ -400,7 +400,7 @@ const ArtistProfilePage: React.FC = () => {
                               <i className="bx bx-drink"></i>
                             </span>
                             <span className="text-sm font-medium">
-                              Your Bids
+                              Auctions
                             </span>
                           </button>
                         </li>
