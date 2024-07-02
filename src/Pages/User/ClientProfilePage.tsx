@@ -580,10 +580,10 @@ const ClientProfilePage: React.FC = () => {
         <ChatComponent
           isOpen={AdminChatOpen}
           onClose={() => setAdminChatOpen(false)}
-          receiverId={admin?._id || ""}
-          Fname={admin?.Fname || ""}
+          receiverId={admin?._id || "66713969a30484dcdcf10071"}
+          Fname={admin?.Fname || "ADMIN"}
           Lname={admin?.Lname || ""}
-          profile={admin?.profile || ""}
+          profile={admin?.profile || "https://res.cloudinary.com/dvgwqkegd/image/upload/v1719033298/lpcwuzd91echxpkopgud.jpg"}
         />
       )}
       {isAuctionDetModalOpen && selectedAuction && (
