@@ -124,13 +124,14 @@ const GallerySection: React.FC<GallerySectionProps> = ({
 
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
-    const today = new Date().toISOString().split('T')[0];
-    
-    if (startDate < today || endDate < today) {
+    const today = new Date(Date.now())
+    let startDate1=new Date(startDate )
+    let endDate1=new Date(endDate )
+    if (startDate1 < today || endDate1 < today) {
       setDateError("Dates should be greater than or equal to today's date.");
       return;
     }
-    if (endDate < startDate) {
+    if (endDate1 < startDate1) {
       setDateError("End date should be greater than or equal to start date.");
       return;
     }
