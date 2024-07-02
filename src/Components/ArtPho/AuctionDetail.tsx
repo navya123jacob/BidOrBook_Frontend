@@ -67,8 +67,8 @@ const AuctionDetailModal: React.FC<AuctionDetailModalProps> = ({
   });
   const [addressError, setAddressError] = useState<string | null>(null);
   // const socket = io("http://localhost:8888");
-const official=import.meta.env.official
-const socket = io(official);
+// const official=import.meta.env.official
+const socket = io('https://bidorbook.xyz');
 
   const handlePayClick = async () => {
     if (!validateAddress()) return;
