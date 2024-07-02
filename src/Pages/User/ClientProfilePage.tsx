@@ -31,8 +31,8 @@ import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminE
 import WalletHistoryModal from "../../Components/WalletHistory";
 
 // const socket = io("http://localhost:8888");
-const official=import.meta.env.official
-const socket = io(official);
+// const official=import.meta.env.official
+const socket = io('https://bidorbook.xyz');
 interface PopulatedChat {
   userId: User;
   messages: any[];
