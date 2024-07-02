@@ -11,8 +11,8 @@ import ChatComponent from '../ChatSingle';
 import { io } from 'socket.io-client';
 
 // const socket = io("http://localhost:8888");
-const official=import.meta.env.official
-const socket = io(official);
+// const official=import.meta.env.official
+const socket = io('https://bidorbook.xyz');
 
 export const Navbar = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
