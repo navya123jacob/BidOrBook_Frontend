@@ -72,7 +72,7 @@ const ClientProfilePage: React.FC = () => {
   const { data: mychats } = useGetUserChatsQuery(userInfo.data.message._id);
   const [walletAuctions, setWalletAuctions] = useState<IAuction[]>([]);
   useEffect(() => {
-    console.log('admin',admin)
+    
     const fetchBookings = async () => {
       try {
         const response = await bookingsreq({
@@ -576,7 +576,7 @@ const ClientProfilePage: React.FC = () => {
           chats={chats}
         />
       )}
-      {AdminChatOpen && (
+      {AdminChatOpen && admin && (
         <ChatComponent
           isOpen={AdminChatOpen}
           onClose={() => setAdminChatOpen(false)}
