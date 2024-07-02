@@ -48,7 +48,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const [findAvailablePeople, { isLoading: availablePeopleLoading }] =
     useFindAvailablePeopleMutation();
 
-  const ITEMS_PER_PAGE = 2;
+  const ITEMS_PER_PAGE = 1;
 
   const photographerEventTypes = [
     "Weddings",
