@@ -576,7 +576,7 @@ const ClientProfilePage: React.FC = () => {
           chats={chats}
         />
       )}
-      {AdminChatOpen && admin && (
+      {AdminChatOpen  && (
         <ChatComponent
           isOpen={AdminChatOpen}
           onClose={() => setAdminChatOpen(false)}
