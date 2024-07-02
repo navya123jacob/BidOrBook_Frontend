@@ -14,7 +14,7 @@ interface PopulatedChat {
 
 // const socket = io("http://localhost:8888");
 // const official=import.meta.env.official
-const socket = io('https://bidorbook.xyz');
+const socket = io('http://localhost:8888');
 
 const ChatsAdmin: React.FC = () => {
   const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);

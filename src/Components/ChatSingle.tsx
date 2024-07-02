@@ -20,7 +20,7 @@ interface ChatComponentProps {
 // const socket = io("http://localhost:8888");
 // const official=import.meta.env.official
 
-const socket = io('https://bidorbook.xyz');
+const socket = io('http://localhost:8888');
 
 const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile }) => {
   

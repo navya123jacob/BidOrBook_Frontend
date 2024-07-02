@@ -20,7 +20,7 @@ const BiddingModal: React.FC<BiddingModalProps> = ({ initialBid, bids, onClose, 
   const [error, setError] = useState<string>('');
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [placeBid, { isLoading }] = usePlacebidMutation();
-  const socket = io('https://bidorbook.xyz', { autoConnect: false });
+  const socket = io('http://localhost:8888', { autoConnect: false });
 
   useEffect(() => {
     socket.connect();

@@ -33,7 +33,7 @@ import WalletHistoryModal from "../../Components/WalletHistory";
 
 // const socket = io("http://localhost:8888");
 // const official=import.meta.env.official
-const socket = io('https://bidorbook.xyz');
+const socket = io('http://localhost:8888');
 interface PopulatedChat {
   userId: User;
   messages: any[];

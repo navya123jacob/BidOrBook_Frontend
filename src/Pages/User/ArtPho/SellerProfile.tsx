@@ -32,7 +32,7 @@ import { IReview } from "../../../types/user";
 import ViewReviewsModal from "../../../Components/ViewReviewsModal";
 // const socket = io("http://localhost:8888");
 // const official=import.meta.env.official
-const socket = io('https://bidorbook.xyz');
+const socket = io('hhttp://localhost:8888');
 const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
