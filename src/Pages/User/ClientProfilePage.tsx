@@ -5,7 +5,7 @@ import { RootState } from "../../redux/slices/Reducers/types";
 import ProfileForm from "../../Components/User/ProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
-import AdminChatComponent from "../../Components/Admin/AdminChatBoxSingle";
+
 import {
   useGetUserChatsQuery,
   useGetWalletValueQuery,
@@ -72,6 +72,7 @@ const ClientProfilePage: React.FC = () => {
   const { data: mychats } = useGetUserChatsQuery(userInfo.data.message._id);
   const [walletAuctions, setWalletAuctions] = useState<IAuction[]>([]);
   useEffect(() => {
+    console.log(admin)
     const fetchBookings = async () => {
       try {
         const response = await bookingsreq({
@@ -576,7 +577,7 @@ const ClientProfilePage: React.FC = () => {
         />
       )}
       {AdminChatOpen && (
-        <AdminChatComponent
+        <ChatComponent
           isOpen={AdminChatOpen}
           onClose={() => setAdminChatOpen(false)}
           receiverId={admin?._id || ""}
