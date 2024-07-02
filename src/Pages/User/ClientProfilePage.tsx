@@ -5,6 +5,7 @@ import { RootState } from "../../redux/slices/Reducers/types";
 import ProfileForm from "../../Components/User/ProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
+import AdminChatComponent from "../../Components/Admin/AdminChatBoxSingle";
 import {
   useGetUserChatsQuery,
   useGetWalletValueQuery,
@@ -575,7 +576,7 @@ const ClientProfilePage: React.FC = () => {
         />
       )}
       {AdminChatOpen && (
-        <ChatComponent
+        <AdminChatComponent
           isOpen={AdminChatOpen}
           onClose={() => setAdminChatOpen(false)}
           receiverId={admin?._id || ""}
