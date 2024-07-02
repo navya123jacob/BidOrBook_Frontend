@@ -18,8 +18,8 @@ interface ChatComponentProps {
 }
 
 // const socket = io("http://localhost:8888");
-const official=import.meta.env.official
-const socket = io(official);
+// const official=import.meta.env.official
+const socket = io('https://bidorbook.xyz');
 
 const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats,admin }) => {
   const [message, setMessage] = useState('');
