@@ -9,10 +9,9 @@ import { useGetUserChatsQuery, useLogoutMutation } from '../../redux/slices/Api/
 import Chats from '../Chats';
 import ChatComponent from '../ChatSingle';
 import { io } from 'socket.io-client';
+import { userOnline,userOffline } from '../../redux/slices/onlineUsersSlice';
 
-// const socket = io("http://localhost:8888");
-// const official=import.meta.env.official
-const socket = io('https://bidorbook.xyz');
+const socket = io('http://localhost:8888');
 
 export const Navbar = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -20,8 +19,47 @@ export const Navbar = () => {
   const [chats, setChats] = useState<any[]>([]);
   const { data: mychats, refetch } = useGetUserChatsQuery(userInfo?.data.message._id ?? '');
   const [newMessage, setNewMessage] = useState<any>(null);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
-  
+
+  useEffect(() => {
+    if (userInfo) {
+      socket.emit('user_connected', userInfo.data.message._id);
+    }
+
+    const handleUserOnline = (userId: string) => {
+      setOnlineUsers((prev) => {
+        if (!prev.includes(userId)) {
+          return [...prev, userId];
+        }
+        return prev;
+      });
+      dispatch(userOnline(userId));
+    };
+    
+
+    const handleUserOffline = (userId: string) => {
+      setOnlineUsers((prev) => prev.filter(id => id !== userId));
+      dispatch(userOffline(userId));
+    };
+    
+
+    const handleOnlineUsers = (users: string[]) => {
+      setOnlineUsers(users);
+      users.forEach(userId => dispatch(userOnline(userId)));
+    };
+    
+
+    socket.on('user_online', handleUserOnline);
+    socket.on('user_offline', handleUserOffline);
+    socket.on('online_users', handleOnlineUsers);
+
+    return () => {
+      socket.off('user_online', handleUserOnline);
+      socket.off('user_offline', handleUserOffline);
+      socket.off('online_users', handleOnlineUsers);
+    };
+  }, [userInfo]);
 
   useEffect(() => {
     if (mychats) {
@@ -51,15 +89,11 @@ export const Navbar = () => {
       };
     }
   }, [chats, userInfo]);
- 
-
 
   useEffect(() => {
     const fetchNewChats = async () => {
       if (newMessage) {
-        console.log(newMessage)
-        const isSenderPresent =
-         chats.some(chat => chat.userId._id === newMessage.senderId);
+        const isSenderPresent = chats.some(chat => chat.userId._id === newMessage.senderId);
 
         if (!isSenderPresent) {
           const refetchResult = await refetch();
@@ -76,7 +110,6 @@ export const Navbar = () => {
   }, [newMessage]);
 
   const updateChats = (newMessage: any) => {
-    
     const updatedChats = chats.map((chat) => {
       if (chat.userId._id === newMessage.receiverId || chat.userId._id === newMessage.senderId) {
         return {
@@ -84,7 +117,6 @@ export const Navbar = () => {
           messages: [...chat.messages, newMessage].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
         };
       }
-      
       return chat;
     });
 
@@ -116,6 +148,11 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const handleLogout = async () => {
+    // Emit user logout event
+    if (userInfo?.data?.message?._id) {
+      socket.emit('user_logout', userInfo.data.message._id);
+    }
+
     dispatch(logout());
     await logoutApi(undefined).unwrap();
   };
@@ -201,6 +238,7 @@ export const Navbar = () => {
           chats={chats}
           onChatClick={handleChatClick}
           setChats={setChats}
+          onlineUsers={onlineUsers}
         />
       )}
       {singleChatOpen && chats.length > 0 && (
@@ -213,7 +251,6 @@ export const Navbar = () => {
           profile={selectedChat?.userId.profile || ""}
           chats={chats}
           refetch={refetch}
-
         />
       )}
     </>

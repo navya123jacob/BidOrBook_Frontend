@@ -23,9 +23,9 @@ import AuctionDetailModal from "../../Components/ArtPho/AuctionDetail";
 import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
 
-// const socket = io("http://localhost:8888");
+const socket = io(import.meta.env.VITE_OFFICIAL);
 // const official=import.meta.env.official
-const socket = io('http://localhost:8888');
+// const socket = io('https://bidorbook.xyz');
 interface PopulatedChat {
   userId: User;
   messages: any[];
@@ -404,7 +404,7 @@ const ArtistProfilePage: React.FC = () => {
                             </span>
                           </button>
                         </li>
-                        
+{/*                         
                         
                         <li>
                           <button
@@ -427,7 +427,7 @@ const ArtistProfilePage: React.FC = () => {
                               {chats.length}
                             </span>
                           </button>
-                        </li>
+                        </li> */}
                         <li>
                           <button
                             type="button"

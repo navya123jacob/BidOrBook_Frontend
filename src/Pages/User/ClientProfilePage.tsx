@@ -31,9 +31,9 @@ import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
 import WalletHistoryModal from "../../Components/WalletHistory";
 
-// const socket = io("http://localhost:8888");
+const socket = io("http://localhost:8888");
 // const official=import.meta.env.official
-const socket = io('http://localhost:8888');
+// const socket = io('https://bidorbook.xyz');
 interface PopulatedChat {
   userId: User;
   messages: any[];
@@ -466,7 +466,7 @@ const ClientProfilePage: React.FC = () => {
                           </button>
                         </li>
 
-                        <li>
+                        {/* <li>
                           <button
                             type="button"
                             className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
@@ -486,7 +486,7 @@ const ClientProfilePage: React.FC = () => {
                               {chats.length}
                             </span>
                           </button>
-                        </li>
+                        </li> */}
 
                         <li>
                           <button

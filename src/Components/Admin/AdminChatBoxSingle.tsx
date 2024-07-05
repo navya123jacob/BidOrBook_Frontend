@@ -3,8 +3,11 @@ import Modal from 'react-modal';
 import { io } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/slices/Reducers/types';
-import { useAdminSendMessageMutation, useAdminGetMessagesMutation  } from '../../redux/slices/Api/EndPoints/AdminEndpoints';
+import { useAdminSendMessageMutation, useAdminGetMessagesMutation } from '../../redux/slices/Api/EndPoints/AdminEndpoints';
 import { format, isToday, isYesterday } from 'date-fns';
+import Picker, { EmojiClickData } from 'emoji-picker-react';
+import FileBase64, { FileInfo } from 'react-file-base64';
+import { ClipLoader } from 'react-spinners';
 
 interface ChatComponentProps {
   receiverId: string;
@@ -14,26 +17,26 @@ interface ChatComponentProps {
   Lname: string;
   profile: string;
   setChats?: Dispatch<SetStateAction<any[]>>;
-  admin?:boolean
+  admin?: boolean;
 }
 
-// const socket = io("http://localhost:8888");
-// const official=import.meta.env.official
-const socket = io('http://localhost:8888');
+const socket = io(import.meta.env.VITE_OFFICIAL);
 
-const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats,admin }) => {
+const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats, admin }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
+  const [file, setFile] = useState<FileInfo | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
   const [sendMessage] = useAdminSendMessageMutation();
   const [getMessage, { isLoading, error }] = useAdminGetMessagesMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  console.log(userInfo)
-  console.log(adminInfo)
+
   useEffect(() => {
-    let senderId=adminInfo._id;
-    
+    let senderId = adminInfo._id;
+
     if (isOpen) {
       const fetchMessages = async () => {
         const response: any = await getMessage({ senderId, receiverId });
@@ -50,19 +53,15 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
 
   useEffect(() => {
     if (isOpen) {
-        let senderId=adminInfo._id;
+      let senderId = adminInfo._id;
+
       socket.emit('handshake', { senderId, receiverId }, (roomId: string) => {
-        
         console.log(`Joined room: ${roomId}`);
       });
 
-      socket.on('chat_message', (msg:any) => {
-       
+      socket.on('chat_message', (msg: any) => {
         if (msg.senderId !== senderId) {
           setMessages((prevMessages) => [...prevMessages, msg].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
-          // if (setChats) {
-          //   updateChats(msg);
-          // }
         }
       });
 
@@ -80,60 +79,37 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
   }, [messages]);
 
   const handleSendMessage = async () => {
-    let senderId;
-    if(admin){
-      senderId=adminInfo._id
-    }
-    else{
-    senderId = userInfo.data.message._id}
-    if (message.trim()) {
+    let senderId = admin ? adminInfo._id : userInfo.data.message._id;
+
+    if (message.trim() || file) {
       const msgData = {
         senderId,
         receiverId,
-        message: message,
-        createdAt: new Date().toISOString(), 
+        message: message.trim() || '',
+        file: file ? file.base64 : null,
+        fileType: file ? file.type : null,
+        createdAt: new Date().toISOString(),
       };
 
-      socket.emit('chat_message', msgData);
-      await sendMessage(msgData);
+      setIsSending(true);
+
       
+     const response= await sendMessage(msgData);
+     if('data' in response){
+      socket.emit('chat_message', response.data);
+     }
+
       setMessages((prevMessages) => [...prevMessages, msgData].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
-      if (setChats) {
-        updateChats(msgData);
-      }
-      
       setMessage('');
+      setFile(null);
+
+      setIsSending(false);
     }
   };
 
-  const updateChats = (newMessage: any) => {
-    setChats?.((prevChats) => {
-      const updatedChats = [...prevChats];
-      const chatIndex = updatedChats.findIndex((chat) => chat.userId._id === receiverId);
-
-      if (chatIndex !== -1) {
-        updatedChats[chatIndex] = {
-          ...updatedChats[chatIndex],
-          messages: [...updatedChats[chatIndex].messages, newMessage].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
-        };
-      } else {
-        updatedChats.push({
-          userId: {
-            _id: receiverId,
-            Fname,
-            Lname,
-            profile,
-          },
-          messages: [newMessage],
-        });
-      }
-
-      return updatedChats.sort((a, b) => {
-        const lastMessageA = a.messages[a.messages.length - 1];
-        const lastMessageB = b.messages[b.messages.length - 1];
-        return new Date(lastMessageB?.createdAt).getTime() - new Date(lastMessageA?.createdAt).getTime();
-      });
-    });
+  const onEmojiClick = (emojiObject: EmojiClickData) => {
+    setMessage(prevMessage => prevMessage + emojiObject.emoji);
+    setShowEmojiPicker(false);
   };
 
   const groupMessagesByDate = (messages: any[]) => {
@@ -164,7 +140,13 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Chat Modal" className="chat-component-modal" overlayClassName="chat-component-modal-overlay">
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Chat Modal"
+      className="chat-component-modal"
+      overlayClassName="chat-component-modal-overlay"
+    >
       <div className="chat-component-container">
         <div className="chat-component-header">
           <img src={profile} alt={`${Fname} ${Lname}`} className="profile-image" />
@@ -181,8 +163,25 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
               <div key={index}>
                 <div className="date-label">{renderDateLabel(date)}</div>
                 {groupedMessages[date].map((msg, msgIndex) => (
-                  <div key={msgIndex} className={msg.senderId === adminInfo._id  ? 'chat-component-my-message' : 'chat-component-other-message'}>
-                    <p>{msg.message}</p>
+                  <div key={msgIndex} className={msg.senderId === adminInfo._id ? 'chat-component-my-message' : 'chat-component-other-message'}>
+                    {msg.message && <p>{msg.message}</p>}
+                    {msg.file && (
+                      <div>
+                        {msg.fileType.startsWith('image') ? (
+                          <img src={msg.file} alt="file" />
+                        ) : msg.fileType.startsWith('video') ? (
+                          <video controls>
+                            <source src={msg.file} type={msg.fileType} />
+                          </video>
+                        ) : msg.fileType.startsWith('audio') ? (
+                          <audio controls>
+                            <source src={msg.file} type={msg.fileType} />
+                          </audio>
+                        ) : (
+                          <a href={msg.file} download>Download File</a>
+                        )}
+                      </div>
+                    )}
                     <span>{new Date(msg.createdAt).toLocaleTimeString()}</span>
                   </div>
                 ))}
@@ -192,13 +191,43 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
           <div ref={messagesEndRef} />
         </div>
         <div className="chat-component-input">
+          {file && (
+            <div className="file-preview">
+              {file.type.startsWith('image') ? (
+                <img src={file.base64} alt="preview" />
+              ) : file.type.startsWith('video') ? (
+                <video controls>
+                  <source src={file.base64} type={file.type} />
+                </video>
+              ) : file.type.startsWith('audio') ? (
+                <audio controls>
+                  <source src={file.base64} type={file.type} />
+                </audio>
+              ) : (
+                <p>{file.name}</p>
+              )}
+              <button onClick={() => setFile(null)} className="text-red-500"><i className="fa fa-close"></i></button>
+            </div>
+          )}
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Type a message"
           />
-          <button onClick={handleSendMessage}>Send</button>
+          <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="emoji-button">
+            <i className="fa fa-smile-o"></i>
+          </button>
+          {showEmojiPicker && (
+            <div className="emoji-picker">
+              <Picker onEmojiClick={onEmojiClick} />
+            </div>
+          )}
+          <FileBase64 multiple={false} onDone={(file) => setFile(file)} />
+          <button onClick={handleSendMessage} disabled={isSending} className="send-button">
+            {isSending ? <ClipLoader size={20} color="white" /> : <i className="fa fa-paper-plane"></i>}
+          </button>
         </div>
       </div>
     </Modal>

@@ -30,9 +30,9 @@ import ChatComponent from "../../../Components/ChatSingle";
 import { io } from "socket.io-client";
 import { IReview } from "../../../types/user";
 import ViewReviewsModal from "../../../Components/ViewReviewsModal";
-// const socket = io("http://localhost:8888");
+const socket = io(import.meta.env.VITE_OFFICIAL);
 // const official=import.meta.env.official
-const socket = io('hhttp://localhost:8888');
+// const socket = io('https://bidorbook.xyz');
 const ProfilePageSeller: React.FC = () => {
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
@@ -72,6 +72,33 @@ const ProfilePageSeller: React.FC = () => {
     data: mychats,
     
   } = useGetUserChatsQuery(userInfo.data.message._id);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (userInfo) {
+      socket.emit('user_connected', userInfo._id);
+    }
+
+    const handleUserOnline = (userId: string) => {
+      setOnlineUsers((prev) => new Set(prev).add(userId));
+    };
+
+    const handleUserOffline = (userId: string) => {
+      setOnlineUsers((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    };
+
+    socket.on('user_online', handleUserOnline);
+    socket.on('user_offline', handleUserOffline);
+
+    return () => {
+      socket.off('user_online', handleUserOnline);
+      socket.off('user_offline', handleUserOffline);
+    };
+  }, [userInfo]);
   useEffect(() => {
     if (mychats) {
       setChats(mychats);
@@ -308,11 +335,11 @@ const ProfilePageSeller: React.FC = () => {
               />
             </div>
             <div className="flex justify-center items-center  ">
-              <img
+              {userInfo.data.message.profile ? <img
                 className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-full p-1"
                 src={userInfo.data.message.profile}
-                alt="profile"
-              />
+                alt="Loading...."
+              />:<div>Loading.....</div>}
             </div>
             <div className="w-8/12 md:w-7/12 ml-4 mt-5 ">
               <ul className="hidden md:flex space-x-8 mb-4">
@@ -577,6 +604,7 @@ const ProfilePageSeller: React.FC = () => {
           chats={chats}
           onChatClick={handleChatClick}
           setChats={setChats}
+          onlineUsers={onlineUsers}
         />
       )}
       {singleChatOpen && (

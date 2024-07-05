@@ -216,34 +216,8 @@ body{
 
 /* Styles for the chat modal */
 
-.chat-component-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  opacity: 87%;
-  border-radius: 8px;
-  padding: 20px;
-  width: 90%;
-  max-width: 500px;
-  height: 80%; 
-  overflow-y: hidden; 
-  z-index: 1000;
-}
 
-.chat-component-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  z-index: 999;
-}
+
 
 .chat-component-container {
   display: flex;
@@ -284,14 +258,14 @@ body{
 }
 
 .chat-component-my-message {
-  background-color: #c9e1f1;
+  
   align-self: flex-end;
   text-align: right;
   margin-right: 0; 
 }
 
 .chat-component-other-message {
-  background-color: #a0c8bb;
+ 
   align-self: flex-start;
   text-align: left;
   margin-left: 0; 
@@ -345,6 +319,199 @@ body{
   border-radius: 50%;
 }
 
+/* Emoji Picker Modal */
+.emoji-picker-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  background-color: transparent !important;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+
+
+/* Chat Component */
+.chats-search {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chats-search input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.chat-component-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  opacity: 87%;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  height: 80%; 
+  overflow-y: hidden; 
+  z-index: 1000;
+  
+}
+
+.chat-component-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 999;
+}
+
+
+/* Chat Header */
+.chat-component-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.semi-bold {
+  font-weight: 600;
+}
+
+.chat-component-header button {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  height:20px;
+  width:50px
+}
+
+/* Chat Messages */
+.chat-component-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.date-label {
+  text-align: center;
+  font-weight: bold;
+  margin: 10px 0;
+  color: gray;
+}
+
+.chat-component-my-message,
+.chat-component-other-message {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.chat-component-my-message {
+  align-items: flex-end;
+}
+
+.chat-component-other-message {
+  align-items: flex-start;
+}
+
+.chat-component-my-message p,
+.chat-component-other-message p {
+  background-color: #e1ffc7;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 60%;
+}
+
+.chat-component-other-message p {
+  background-color: #c9e1f1;
+  
+}
+
+.chat-component-my-message img,
+.chat-component-other-message img {
+  max-width: 200px;
+  border-radius: 10px;
+  margin-top: 5px;
+}
+
+.chat-component-my-message span,
+.chat-component-other-message span {
+  font-size: 0.8em;
+  color: gray;
+  margin-top: 2px;
+}
+
+/* Chat Input */
+.chat-component-input {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+}
+
+.chat-component-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  margin-right: 10px;
+}
+
+.chat-component-input button {
+  
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.file-preview img {
+  max-width: 70px;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+.file-preview p {
+  margin: 0;
+}
+
+.file-preview button {
+  background: none;
+  border: none;
+  
+  cursor: pointer;
+  font-size: 1.2em;
+}
 /* Unique class names for Chats */
 .chats-modal {
   position: absolute;
@@ -358,7 +525,7 @@ body{
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   padding: 20px;
   outline: none;
-  max-height: 80%; 
+  height: 60%; 
 }
 
 .chats-overlay {
@@ -429,6 +596,7 @@ body{
   cursor: pointer;
   margin-top: 10px;
 }
+
 
 
 /* reviews */
@@ -514,3 +682,15 @@ body{
   background-color: #ddd;
   cursor: not-allowed;
 }
+
+.online-indicator {
+  color: green;
+  font-weight: bold;
+}
+
+.offline-indicator {
+  color: red;
+  font-weight: bold;
+}
+
+
