@@ -34,7 +34,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
   const [sendMessage] = useSendMessageMutation();
   const [getMessage, { isLoading, error }] = useGetMessagesMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const isReceiverOnline = onlineUsers.includes(receiverId); 
 
   useEffect(() => {
@@ -67,10 +69,19 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
           setMessages((prevMessages) => [...prevMessages, msg].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
         }
       });
+      socket.on('typing', () => {
+        setIsTyping(true);
+      });
+  
+      socket.on('stopped_typing', () => {
+        setIsTyping(false);
+      });
 
       return () => {
         socket.emit('leaveRoom', { senderId, receiverId });
         socket.off('chat_message');
+        socket.off('typing');
+        socket.off('stopped_typing');
       };
     }
   }, [receiverId, userInfo, isOpen]);
@@ -108,6 +119,20 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
       setIsSending(false);
     }
   };
+  const handleKeyPress = () => {
+    let senderId = userInfo.data.message._id;
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    socket.emit('typing', { senderId, receiverId });
+  
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('stopped_typing', { senderId, receiverId });
+    }, 3000); 
+  };
+  
 
   const onEmojiClick = (emojiObject: EmojiClickData) => {
     setMessage(prevMessage => prevMessage + emojiObject.emoji);
@@ -190,6 +215,12 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
               </div>
             ))
           )}
+           {isTyping && (
+    <div className="typing-indicator">
+      <p>{Fname} is typing...</p>
+    </div>
+  )}
+ 
           <div ref={messagesEndRef} />
         </div>
         <div className="chat-component-input">
@@ -217,6 +248,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
             placeholder="Type a message"
             disabled={isSending}
           />
