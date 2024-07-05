@@ -22,6 +22,7 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
   artistId,
   changes
 }) => {
+  const [isLoading, setIsLoading] = React.useState(true);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const clientId = userInfo?.data?.message?._id;
 
@@ -53,6 +54,8 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
           if ('data' in responseDone) setDoneBookings(responseDone.data.bookings);
         } catch (error) {
           console.error('Error fetching bookings:', error);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
@@ -125,6 +128,10 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-white bg-opacity-90 p-4 rounded-lg max-w-lg w-full">
         <h2 className="text-xl font-bold mb-4">All Bookings</h2>
+         {isLoading ? (
+        <div className="p-4 text-center text-graydark">Loading...</div>
+      ) : (
+        <>
         <div className="mb-4">
           <label className="mr-2">Filter:</label>
           <select
@@ -168,6 +175,8 @@ const AllBookingsModal: React.FC<AllBookingsModalProps> = ({
             Next
           </button>
         </div>
+        </>
+      )}
         <button onClick={onClose} className="mt-4 bg-red-500 text-white p-2 rounded">
           Close
         </button>
