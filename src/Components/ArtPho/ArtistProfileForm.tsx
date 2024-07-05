@@ -5,9 +5,12 @@ import { useClientprofileMutation, useForgotpasswordMutation } from "../../redux
 import { setCredentials } from "../../redux/slices/Reducers/ClientReducer";
 import Modal from "../User/cropper/Modal";
 import Otp from "../User/Otp";
+import { useGetEventsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
+import { IEvent } from "../../types/Event";
 
 const ArtistProfileForm: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
+  const { data: events = [] } = useGetEventsQuery(userInfo.data.message.category); 
   const [clientprofile, { isLoading }] = useClientprofileMutation();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState<boolean>(false);
@@ -15,7 +18,7 @@ const ArtistProfileForm: React.FC = () => {
   const avatarUrl = useRef<string>(userInfo.data.message.profile);
   const [forgotpassword] = useForgotpasswordMutation();
   const [otp, setOtp] = useState(false);
-
+  
   const [formData, setFormData] = useState({
     _id: userInfo.data.message._id,
     Fname: userInfo.data.message.Fname,
@@ -28,6 +31,7 @@ const ArtistProfileForm: React.FC = () => {
     country: userInfo.data.message.location.country || "",
     minPayPerHour: userInfo.data.message.minPayPerHour || 0,
     image: null as File | null,
+    typesOfEvents: userInfo.data.message.typesOfEvents || [], 
   });
 
   const [errors, setErrors] = useState({
@@ -41,6 +45,19 @@ const ArtistProfileForm: React.FC = () => {
     minPayPerHour: "",
     image: "",
   });
+  const handleEventChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const eventName = event.target.name;
+    setFormData((prev) => {
+      const updatedTypesOfEvents = event.target.checked
+        ? [...prev.typesOfEvents, eventName]
+        : prev.typesOfEvents.filter((evt:string) => evt !== eventName);
+      return {
+        ...prev,
+        typesOfEvents: updatedTypesOfEvents,
+      };
+    });
+  };
+  
 
   const updateAvatar = (imgSrc: string) => {
     avatarUrl.current = imgSrc;
@@ -154,11 +171,11 @@ const ArtistProfileForm: React.FC = () => {
     setErrors(newErrors);
     return valid;
   };
-
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
-        
+        console.log( formData.typesOfEvents)
       const formDataToSend = new FormData();
       formDataToSend.append("_id", formData._id);
       formDataToSend.append("Fname", formData.Fname);
@@ -169,6 +186,7 @@ const ArtistProfileForm: React.FC = () => {
       formDataToSend.append("district", formData.district);
       formDataToSend.append("country", formData.country);
       formDataToSend.append("minPayPerHour", formData.minPayPerHour);
+      formData.typesOfEvents.forEach((eventType:string) => formDataToSend.append("typesOfEvents[]", eventType));
       if (formData.image) {
         formDataToSend.append("image", formData.image);
       }
@@ -345,6 +363,26 @@ const ArtistProfileForm: React.FC = () => {
                 {errors.description && <span className="text-red-500">{errors.description}</span>}
               </div>
             </div>
+            <div>
+        <label className="block text-sm font-medium text-gray-700">Events</label>
+        <div className="grid grid-cols-3 gap-4 mt-1">
+        {events.map((event: IEvent) => (
+      <div key={event._id} className="flex items-center">
+        <input
+          type="checkbox"
+          id={event._id}
+          name={event.name}
+          checked={formData.typesOfEvents.includes(event.name)}
+          onChange={handleEventChange}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor={event._id} className="ml-2 text-sm text-gray-700">
+          {event.name}
+        </label>
+      </div>
+    ))}
+        </div>
+      </div>
 
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-gray-700">

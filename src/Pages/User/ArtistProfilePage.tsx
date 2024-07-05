@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
 import ArtistProfileForm from "../../Components/ArtPho/ArtistProfileForm";
 import ChatsClient from "../../Components/User/ChatsClient";
 import ChatComponent from "../../Components/ChatSingle";
-import { useGetUserChatsQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
+import { useGetUserChatsQuery, useLogoutMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useAllAuctionsMutation, useAuctionByBidderMutation, useDeleteAuctionMutation } from "../../redux/slices/Api/EndPoints/auctionEndPoints";
 import { User } from "../../types/user";
 import { io } from "socket.io-client";
@@ -22,6 +22,7 @@ import AuctionList from "../../Components/User/AuctionsViewModal";
 import AuctionDetailModal from "../../Components/ArtPho/AuctionDetail";
 import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
+import { logout } from "../../redux/slices/Reducers/ClientReducer";
 
 const socket = io(import.meta.env.VITE_OFFICIAL);
 // const official=import.meta.env.official
@@ -32,13 +33,14 @@ interface PopulatedChat {
 }
 
 const ArtistProfilePage: React.FC = () => {
+  const [logoutApi] = useLogoutMutation();
   const { data: admin,  } = useGetAdminDetailsQuery();
   const [bookingsreq] = useBookingsreqMutation();
   const [bookingsConfirm] = useBookingsConfirmMutation();
   const [marked] = useMarkedMutation();
   const [done] = useDoneMutation();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  
+  const dispatch = useDispatch();
   const [selectedChat, setSelectedChat] = useState<PopulatedChat | null>(null);
   const [chats, setChats] = useState<PopulatedChat[]>([]);
   const [activeSection, setActiveSection] = useState("profile");
@@ -135,6 +137,15 @@ const ArtistProfilePage: React.FC = () => {
       socket.off("chat_message");
     };
   }, [chats]);
+  const handleLogout = async () => {
+    
+    if (userInfo?.data?.message?._id) {
+      socket.emit('user_logout', userInfo.data.message._id);
+    }
+
+    dispatch(logout());
+    await logoutApi(undefined).unwrap();
+  };
 
   const updateChats = (newMessage: any) => {
     const updatedChats = chats.map((chat) => {
@@ -404,7 +415,7 @@ const ArtistProfilePage: React.FC = () => {
                             </span>
                           </button>
                         </li>
-{/*                         
+                        {/*          
                         
                         <li>
                           <button
@@ -436,7 +447,7 @@ const ArtistProfilePage: React.FC = () => {
                                 ? "text-gray-800 font-bold"
                                 : "text-gray-500"
                             }`}
-                            onClick={() => handleSectionClick("logout")}
+                            onClick={handleLogout}
                           >
                             <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400">
                               <i className="bx bx-log-out"></i>

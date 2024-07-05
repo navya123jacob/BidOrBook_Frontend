@@ -20,7 +20,7 @@ interface ChatComponentProps {
   refetch?: () => void;
 }
 
-const socket = io((import.meta.env.VITE_OFFICIAL));
+const socket = io(import.meta.env.VITE_OFFICIAL);
 
 const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile }) => {
   const [message, setMessage] = useState('');
@@ -224,10 +224,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
           <Modal isOpen={showEmojiPicker} onRequestClose={() => setShowEmojiPicker(false)} contentLabel="Emoji Picker Modal" className="emoji-picker-modal bg-transparent" overlayClassName="emoji-picker-modal-overlay">
             <Picker onEmojiClick={onEmojiClick} />
           </Modal>
-          <FileBase64 multiple={false} onDone={(file: FileInfo) => setFile(file)} />
+         
           
         </div>
-        <button className="m-5 bg-graydark text-white w-16 rounded p-2" onClick={handleSendMessage} disabled={isSending}>{isSending ? <ClipLoader size={20} color="#000" /> : 'Send'}</button>
+        <FileBase64 multiple={false} onDone={(file: FileInfo) => setFile(file)} />
+        <button className="m-2 bg-graydark text-white w-16 rounded p-2" onClick={handleSendMessage} disabled={isSending}>{isSending ? <ClipLoader size={20} color="#000" /> : 'Send'}</button>
       </div>
     </Modal>
   );

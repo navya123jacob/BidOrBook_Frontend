@@ -161,7 +161,6 @@ export const Navbar = () => {
     setSelectedChat(chat);
     setSingleChatOpen(true);
 
-    // Ensure handshake for newly opened chat
     const senderId = userInfo?.data?.message?._id;
     const receiverId = chat.userId._id;
     socket.emit("handshake", { senderId, receiverId }, (roomId: string) => {

@@ -154,7 +154,7 @@ const AuctionModal: React.FC<AuctionModalProps> = ({ onClose, setAuctions, aucti
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="block w-full px-5 py-3 text-black transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-2 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 flex items-center justify-center"
+              className=" w-full px-5 py-3 text-black transition duration-500 ease-in-out transform border border-transparent rounded-lg bg-gray-2 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-300 flex items-center justify-center"
             >
               <FontAwesomeIcon icon={faPlus} className="text-black mr-2" />
               Upload

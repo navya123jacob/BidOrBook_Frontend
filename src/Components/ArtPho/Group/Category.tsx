@@ -6,7 +6,8 @@ import Footer from "../../User/Footer";
 import { useAllpostMutation } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { useFindAvailablePeopleMutation } from "../../../redux/slices/Api/EndPoints/bookingEndpoints";
 import Slider from "@mui/material/Slider";
-
+import { useGetEventsQuery } from "../../../redux/slices/Api/EndPoints/AdminEndpoints";
+import { IEvent } from "../../../types/Event";
 interface Post {
   image: string;
   description: string;
@@ -34,6 +35,8 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   onTranslateUp,
   translateUp,
 }) => {
+  const filterType = translateUp;
+  const { data: eventsData = [] } = useGetEventsQuery(filterType??'Photographer');
   const [usersWithPosts, setUsersWithPosts] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -45,28 +48,15 @@ const GallerySection: React.FC<GallerySectionProps> = ({
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [dateError, setDateError] = useState<string>("");
   const [allpost, { isLoading: allPostLoading }] = useAllpostMutation();
+  const [events, setEvents] = useState<IEvent[]>([]);
   const [findAvailablePeople, { isLoading: availablePeopleLoading }] =
     useFindAvailablePeopleMutation();
 
-  const ITEMS_PER_PAGE = 1;
+  const ITEMS_PER_PAGE = 2;
 
-  const photographerEventTypes = [
-    "Weddings",
-    "Corporate Events",
-    "Sports Events",
-    "Concerts and Festivals",
-    "Private Events Birthdays",
-    "Charity Events",
-  ];
-
-  const artistEventTypes = [
-    "Contemporary Art",
-    "Face Paint",
-    "Portrait",
-    "Landscape Art",
-    "Event Artist",
-  ];
-
+  useEffect(() => {
+    setEvents(eventsData);
+  }, [eventsData]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -110,13 +100,7 @@ const GallerySection: React.FC<GallerySectionProps> = ({
     priceRange,
     selectedEventTypes,
   ]);
-  useEffect(() => {
-    if (translateUp === "Photographer") {
-      setSelectedEventTypes(photographerEventTypes);
-    } else if (translateUp === "Artist") {
-      setSelectedEventTypes(artistEventTypes);
-    }
-  }, [translateUp]);
+
 
   const handleBackButtonClick = () => {
     onTranslateUp(null);
@@ -253,27 +237,19 @@ const GallerySection: React.FC<GallerySectionProps> = ({
                       />
                     </div>
                     <div className="flex flex-wrap">
-                      {(translateUp === "Photographer"
-                        ? photographerEventTypes
-                        : artistEventTypes
-                      ).map((eventType) => (
-                        <label
-                          key={eventType}
-                          className="inline-flex text-white items-center m-2"
-                        >
-                          <input
-                            type="checkbox"
-                            value={eventType}
-                            checked={selectedEventTypes.includes(eventType)}
-                            onChange={handleEventTypeChange}
-                            className="form-checkbox h-5 w-5 text-blue-600"
-                          />
-                          <span className="ml-2 text-gray-300">
-                            {eventType}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
+  {events.map((event) => (
+    <label key={event._id} className="inline-flex text-white items-center m-2">
+      <input
+        type="checkbox"
+        value={event.name}
+        checked={selectedEventTypes.includes(event.name)}
+        onChange={handleEventTypeChange}
+        className="form-checkbox h-5 w-5 text-blue-600"
+      />
+      <span className="ml-2 text-gray-300">{event.name}</span>
+    </label>
+  ))}
+</div>
                   </div>
                 </form>
               </div>

@@ -22,6 +22,7 @@ import AdminBookings from './Pages/Admin/Bookings/AdminBookings';
 import AdminAuction from './Pages/Admin/Auctions/AdminAuctions';
 import AdminChats from './Pages/Admin/Chats/AdminChats';
 import ArtistProfilePage from './Pages/User/ArtistProfilePage';
+import AdminEvents from './Pages/Admin/Events/AdminEvents';
 console.log(import.meta.env.official)
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
@@ -51,6 +52,7 @@ const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
           <Route path="/admin/bookings" element={<><AdminBookings /></>} />
           <Route path="/admin/auctions" element={<><AdminAuction /></>} />
           <Route path="/admin/chats" element={<><AdminChats /></>} />
+          <Route path="/admin/event" element={<><AdminEvents/></>} />
          
         </Route>
 

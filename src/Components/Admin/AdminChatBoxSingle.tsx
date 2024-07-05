@@ -225,10 +225,11 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose,
             </div>
           )}
           <FileBase64 multiple={false} onDone={(file) => setFile(file)} />
-          <button onClick={handleSendMessage} disabled={isSending} className="send-button">
+          
+        </div>
+        <button onClick={handleSendMessage} disabled={isSending} className="send-button m-1">
             {isSending ? <ClipLoader size={20} color="white" /> : <i className="fa fa-paper-plane"></i>}
           </button>
-        </div>
       </div>
     </Modal>
   );

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "../../Components/User/Navbar";
 import { useSignupMutation } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
-import {  Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import GoogleComp from "./GoogleComp";
 import Otp from "../../Components/User/Otp";
+import { useGetEventsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
+import { IEvent } from "../../types/Event";
 
 export const SignupUser = () => {
   const { user, loginWithRedirect } = useAuth0();
@@ -31,6 +33,17 @@ export const SignupUser = () => {
   const [typesOfEvents, setTypesOfEvents] = useState<string[]>([]);
   const [initialPayment, setInitialPayment] = useState<number>(0);
   const [initialPaymentError, setInitialPaymentError] = useState("");
+  const [filterType, setFilterType] = useState<string>("Photographer");
+  const {
+    data: events = [],
+    isLoading: eventload,
+    refetch,
+  } = useGetEventsQuery(filterType);
+
+  useEffect(() => {
+    setFilterType(category);
+    refetch();
+  }, [category, refetch]);
 
   const handleEventChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
@@ -338,155 +351,60 @@ export const SignupUser = () => {
                           />
                           <span className="ml-2 text-gray">Artist</span>
                         </label>
-                        {category === "Photographer" && (
-                          <div>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Weddings"
-                                checked={typesOfEvents.includes("Weddings")}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">Weddings</span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Corporate Events"
-                                checked={typesOfEvents.includes(
-                                  "Corporate Events"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Corporate Events
-                              </span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Sports Events"
-                                checked={typesOfEvents.includes(
-                                  "Sports Events"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Sports Events
-                              </span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Concerts and Festivals"
-                                checked={typesOfEvents.includes(
-                                  "Concerts and Festivals"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Concerts and Festivals
-                              </span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Private Events Birthdays"
-                                checked={typesOfEvents.includes(
-                                  "Private Events Birthdays"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Private Events Birthdays
-                              </span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Charity Events"
-                                checked={typesOfEvents.includes(
-                                  "Charity Events"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Charity Events
-                              </span>
-                            </label>
-                          </div>
+                        {eventload ? (
+                          <div>Loading...</div>
+                        ) : (
+                          <>
+                            {category === "Photographer" && (
+                              <div>
+                                {events.map((event: IEvent) => (
+                                  <label
+                                    key={event._id}
+                                    className="inline-flex items-center"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      value={event.name}
+                                      checked={typesOfEvents.includes(
+                                        event.name
+                                      )}
+                                      onChange={handleEventChange}
+                                      className="form-checkbox h-5 w-5 text-blue-600"
+                                    />
+                                    <span className="ml-2 text-gray">
+                                      {event.name}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+
+                            {category === "Artist" && (
+                              <div>
+                                {events.map((event: IEvent) => (
+                                  <label
+                                    key={event._id}
+                                    className="inline-flex items-center"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      value={event.name}
+                                      checked={typesOfEvents.includes(
+                                        event.name
+                                      )}
+                                      onChange={handleEventChange}
+                                      className="form-checkbox h-5 w-5 text-blue-600"
+                                    />
+                                    <span className="ml-2 text-gray">
+                                      {event.name}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+                          </>
                         )}
 
-                        {category === "Artist" && (
-                          <div>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Contemporary Art"
-                                checked={typesOfEvents.includes(
-                                  "Contemporary Art"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Contemporary Art
-                              </span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Face Paint"
-                                checked={typesOfEvents.includes("Face Paint")}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">Face Paint</span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Portrait"
-                                checked={typesOfEvents.includes("Portrait")}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">Portrait</span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Landscape Art"
-                                checked={typesOfEvents.includes(
-                                  "Landscape Art"
-                                )}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Landscape Art
-                              </span>
-                            </label>
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                value="Event Artist"
-                                checked={typesOfEvents.includes("Event Artist")}
-                                onChange={handleEventChange}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                              />
-                              <span className="ml-2 text-gray">
-                                Event Artist
-                              </span>
-                            </label>
-                          </div>
-                        )}
                         <div>
                           <label htmlFor="initialPayment" className="sr-only">
                             Initial Payment Amount Per Hour
