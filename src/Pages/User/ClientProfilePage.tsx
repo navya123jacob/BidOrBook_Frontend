@@ -31,7 +31,7 @@ import BiddingModal from "../../Components/User/MakeBid";
 import { useGetAdminDetailsQuery } from "../../redux/slices/Api/EndPoints/AdminEndpoints";
 import WalletHistoryModal from "../../Components/WalletHistory";
 
-const socket = io("http://localhost:8888");
+const socket = io(import.meta.env.VITE_OFFICIAL);
 // const official=import.meta.env.official
 // const socket = io('https://bidorbook.xyz');
 interface PopulatedChat {

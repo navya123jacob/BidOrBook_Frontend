@@ -11,7 +11,7 @@ import ChatComponent from '../ChatSingle';
 import { io } from 'socket.io-client';
 import { userOnline,userOffline } from '../../redux/slices/onlineUsersSlice';
 
-const socket = io('http://localhost:8888');
+const socket = io(import.meta.env.VITE_OFFICIAL);
 
 export const Navbar = () => {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
