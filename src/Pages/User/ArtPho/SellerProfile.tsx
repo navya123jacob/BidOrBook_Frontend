@@ -26,7 +26,7 @@ import ConfirmationModal from "../../../Components/User/CancelConfirmModal";
 import { setCredentials } from "../../../redux/slices/Reducers/ClientReducer";
 import { useGetUserChatsQuery } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
 // import Chats from "../../../Components/Chats";
-import ChatComponent from "../../../Components/ChatSingle";
+// import ChatComponent from "../../../Components/ChatSingle";
 import { io } from "socket.io-client";
 import { IReview } from "../../../types/user";
 import ViewReviewsModal from "../../../Components/ViewReviewsModal";
@@ -61,9 +61,9 @@ const ProfilePageSeller: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [changes, setChanges] = useState<number>(0);
-  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<any>(null);
-  const [singleChatOpen, setSingleChatOpen] = useState(false);
+  // const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  // const [selectedChat, setSelectedChat] = useState<any>(null);
+  // const [singleChatOpen, setSingleChatOpen] = useState(false);
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [isViewReviewsModalOpen, setIsViewReviewsModalOpen] = useState(false);
   const dispatch = useDispatch();
@@ -72,33 +72,9 @@ const ProfilePageSeller: React.FC = () => {
     data: mychats,
     
   } = useGetUserChatsQuery(userInfo.data.message._id);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  // const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (userInfo) {
-      socket.emit('user_connected', userInfo._id);
-    }
-
-    const handleUserOnline = (userId: string) => {
-      setOnlineUsers((prev) => new Set(prev).add(userId));
-    };
-
-    const handleUserOffline = (userId: string) => {
-      setOnlineUsers((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(userId);
-        return newSet;
-      });
-    };
-
-    socket.on('user_online', handleUserOnline);
-    socket.on('user_offline', handleUserOffline);
-
-    return () => {
-      socket.off('user_online', handleUserOnline);
-      socket.off('user_offline', handleUserOffline);
-    };
-  }, [userInfo]);
+  
   useEffect(() => {
     if (mychats) {
       setChats(mychats);
@@ -314,10 +290,10 @@ const ProfilePageSeller: React.FC = () => {
     }
   };
 
-  const handleChatClick = (chat: any) => {
-    setSelectedChat(chat);
-    setSingleChatOpen(true);
-  };
+  // const handleChatClick = (chat: any) => {
+  //   setSelectedChat(chat);
+  //   setSingleChatOpen(true);
+  // };
 
   return (
     <>
@@ -379,13 +355,13 @@ const ProfilePageSeller: React.FC = () => {
                   </span>{" "}
                   Done
                 </li>
-                <li
+                {/* <li
                   className="hover:cursor-pointer"
                   onClick={() => setIsChatModalOpen(true)}
                 >
                   <span className="font-semibold">{chats?.length || 0}</span>{" "}
                   Chats
-                </li>
+                </li> */}
               </ul>
               <div className="hidden   md:flex flex-col justify-center items-center">
                 <h1 className="font-semibold">{userInfo.data.message.Fname}</h1>
@@ -462,7 +438,7 @@ const ProfilePageSeller: React.FC = () => {
                 </span>{" "}
                 Booked
               </li>
-              <li
+              {/* <li
                 className="hover:cursor-pointer"
                 onClick={() => setIsChatModalOpen(true)}
               >
@@ -470,7 +446,7 @@ const ProfilePageSeller: React.FC = () => {
                   {chats?.length || 0}
                 </span>{" "}
                 Chats
-              </li>
+              </li> */}
             </ul>
             <ul className="flex items-center justify-around md:justify-center space-x-12 uppercase tracking-widest font-semibold text-xs text-gray-600 border-t">
               <li className="md:border-t md:border-gray-700 md:-mt-px md:text-gray-700">
@@ -607,7 +583,7 @@ const ProfilePageSeller: React.FC = () => {
           onlineUsers={onlineUsers}
         />
       )} */}
-      {singleChatOpen && (
+      {/* {singleChatOpen && (
         <ChatComponent
           receiverId={selectedChat?.userId._id || ""}
           onClose={() => setSingleChatOpen(false)}
@@ -617,7 +593,7 @@ const ProfilePageSeller: React.FC = () => {
           profile={selectedChat?.userId.profile || ""}
           chats={chats}
         />
-      )}
+      )} */}
       {isViewReviewsModalOpen && (
         <ViewReviewsModal
           reviews={reviews}

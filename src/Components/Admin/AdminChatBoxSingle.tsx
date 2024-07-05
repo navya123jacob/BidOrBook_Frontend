@@ -22,7 +22,7 @@ interface ChatComponentProps {
 
 const socket = io(import.meta.env.VITE_OFFICIAL);
 
-const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile, setChats, admin }) => {
+const AdminChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOpen, Fname, Lname, profile,  admin }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const [file, setFile] = useState<FileInfo | null>(null);
