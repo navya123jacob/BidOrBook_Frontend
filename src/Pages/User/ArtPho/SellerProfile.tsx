@@ -25,7 +25,7 @@ import BookingRequestModal from "../../../Components/ArtPho/Group/BookingRequest
 import ConfirmationModal from "../../../Components/User/CancelConfirmModal";
 import { setCredentials } from "../../../redux/slices/Reducers/ClientReducer";
 import { useGetUserChatsQuery } from "../../../redux/slices/Api/EndPoints/clientApiEndPoints";
-import Chats from "../../../Components/Chats";
+// import Chats from "../../../Components/Chats";
 import ChatComponent from "../../../Components/ChatSingle";
 import { io } from "socket.io-client";
 import { IReview } from "../../../types/user";
@@ -597,7 +597,7 @@ const ProfilePageSeller: React.FC = () => {
         />
       )}
 
-      {isChatModalOpen && (
+      {/* {isChatModalOpen && (
         <Chats
           isOpen={isChatModalOpen}
           onClose={() => setIsChatModalOpen(false)}
@@ -606,7 +606,7 @@ const ProfilePageSeller: React.FC = () => {
           setChats={setChats}
           onlineUsers={onlineUsers}
         />
-      )}
+      )} */}
       {singleChatOpen && (
         <ChatComponent
           receiverId={selectedChat?.userId._id || ""}

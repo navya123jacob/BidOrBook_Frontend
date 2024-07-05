@@ -28,7 +28,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
   const [file, setFile] = useState<FileInfo | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [fileSizeLimit] = useState(200 * 1024 * 1024);
+  // const [fileSizeLimit] = useState(200 * 1024 * 1024);
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const onlineUsers = useSelector((state: RootState) => state.userStatus.onlineUsers); 
   const [sendMessage] = useSendMessageMutation();
