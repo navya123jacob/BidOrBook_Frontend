@@ -69,12 +69,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ receiverId, onClose, isOp
           setMessages((prevMessages) => [...prevMessages, msg].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
         }
       });
-      socket.on('typing', () => {
-        setIsTyping(true);
+      socket.on('typing', (data: { senderId: string }) => {
+        if (data.senderId === receiverId) {
+          setIsTyping(true);
+        }
       });
   
-      socket.on('stopped_typing', () => {
-        setIsTyping(false);
+      socket.on('stopped_typing', (data: { senderId: string }) => {
+        if (data.senderId === receiverId) {
+          setIsTyping(false);
+        }
       });
 
       return () => {
