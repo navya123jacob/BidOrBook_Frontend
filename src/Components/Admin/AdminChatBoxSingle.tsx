@@ -102,12 +102,16 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({
           );
         }
       });
-      socket.on("typing", () => {
-        setIsTyping(true);
+      socket.on('typing', (data: { senderId: string }) => {
+        if (data.senderId === receiverId) {
+          setIsTyping(true);
+        }
       });
-
-      socket.on("stopped_typing", () => {
-        setIsTyping(false);
+  
+      socket.on('stopped_typing', (data: { senderId: string }) => {
+        if (data.senderId === receiverId) {
+          setIsTyping(false);
+        }
       });
 
       return () => {
@@ -327,7 +331,7 @@ const AdminChatComponent: React.FC<ChatComponentProps> = ({
         <button
           onClick={handleSendMessage}
           disabled={isSending}
-          className="send-button m-1 w-20 bg-graydark text-white"
+          className="send-button m-1 rounded p-1 w-20 bg-graydark text-white"
         >
           {isSending ? (
             <ClipLoader size={20} color="white" />
