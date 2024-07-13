@@ -6,7 +6,7 @@ import { RootState } from './redux/slices/Reducers/types';
 import HomeArtPho from './Pages/User/ArtPho/HomeArtPho';
 import { SignupUser } from './Pages/User/SignupUser';
 import ClientProfilePage from './Pages/User/ClientProfilePage';
-import { ProtectedArtistRoute, ProtectedClientRoute,ProtectedAdminRoute } from './Components/Protected';
+import { ProtectedArtistRoute, ProtectedClientRoute, ProtectedAdminRoute } from './Components/Protected';
 import ProfilesSellers from './Pages/User/ArtPho/Sellers';
 import ProfilePageSeller from './Pages/User/ArtPho/SellerProfile';
 import ProfileSellerClientSide from './Pages/User/SellerProfileClientside';
@@ -23,41 +23,39 @@ import AdminAuction from './Pages/Admin/Auctions/AdminAuctions';
 import AdminChats from './Pages/Admin/Chats/AdminChats';
 import ArtistProfilePage from './Pages/User/ArtistProfilePage';
 import AdminEvents from './Pages/Admin/Events/AdminEvents';
-console.log(import.meta.env.official)
+
 function App(): JSX.Element {
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
-const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
+  const adminInfo = useSelector((state: RootState) => state.adminAuth.adminInfo);
+
   return (
     <BrowserRouter>
-    
       <Routes>
         {/* Public Routes */}
-        <Route path="/admin" element={!adminInfo ? <LoginAdmin /> :<AdminProfile />} />
-          
+        <Route path="/admin" element={!adminInfo ? <LoginAdmin /> : <AdminProfile />} />
         <Route path="/signup" element={!userInfo ? <SignupUser /> : <Navigate to="/" />} />
-        <Route path="/" element={!userInfo ? <LoginUser /> : (userInfo.client ? <HomeUser /> : <HomeArtPho />)} />
+        <Route path="/login" element={!userInfo ? <LoginUser /> : <Navigate to="/" />} />
+        <Route path="/" element={!userInfo ? <HomeUser /> : (userInfo.client ? <HomeUser /> : <HomeArtPho />)} />
         <Route path="/artpho/auction" element={userInfo ? <AuctionProfilePage /> : <Navigate to="/" />} />
         <Route path="/about" element={<About />} />
-        
+
         <Route element={<ProtectedArtistRoute />}>
           <Route path="/artpho/profile" element={<ProfilePageSeller />} />
           <Route path="/artpho/account" element={<ArtistProfilePage />} />
-          
         </Route>
 
         <Route element={<ProtectedAdminRoute />}>
-          {/* Admin specific route */}
-          <Route path="/admin/users" element={<><Tables /></>} />
-          <Route path="/admin/posts" element={<><AdminPost /></>} />
-          <Route path="/admin/bookings" element={<><AdminBookings /></>} />
-          <Route path="/admin/auctions" element={<><AdminAuction /></>} />
-          <Route path="/admin/chats" element={<><AdminChats /></>} />
-          <Route path="/admin/event" element={<><AdminEvents/></>} />
-         
+          {/* Admin specific routes */}
+          <Route path="/admin/users" element={<Tables />} />
+          <Route path="/admin/posts" element={<AdminPost />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/auctions" element={<AdminAuction />} />
+          <Route path="/admin/chats" element={<AdminChats />} />
+          <Route path="/admin/event" element={<AdminEvents />} />
         </Route>
 
         <Route element={<ProtectedClientRoute />}>
-          {/* client-specific routes */}
+          {/* Client-specific routes */}
           <Route path="/profile" element={<ClientProfilePage />} />
           <Route path="/groupprofiles" element={<ProfilesSellers />} />
           <Route path="/artprof/client" element={<ProfileSellerClientSide />} />
@@ -65,9 +63,8 @@ const adminInfo=useSelector((state:RootState)=>state.adminAuth.adminInfo)
         </Route>
 
         {/* Fallback route */}
-        <Route path="*" element={<AnimatedImageComponent/>} />
+        <Route path="*" element={<AnimatedImageComponent />} />
       </Routes>
-      
     </BrowserRouter>
   );
 }

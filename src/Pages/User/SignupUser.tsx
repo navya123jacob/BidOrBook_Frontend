@@ -406,9 +406,10 @@ export const SignupUser = () => {
                         )}
 
                         <div>
-                          <label htmlFor="initialPayment" className="sr-only">
+                          <label htmlFor="initialPayment" className=" text-white">
                             Initial Payment Amount Per Hour
                           </label>
+                          
                           <input
                             type="number"
                             name="initialPayment"
@@ -447,7 +448,7 @@ export const SignupUser = () => {
                         Signup with google
                       </button>
                       <Link
-                        to="/"
+                        to="/login"
                         type="button"
                         className="inline-flex justify-center  text-base font-medium text-gray focus:outline-none hover:text-neutral-600 focus:text-blue-600 sm:text-sm"
                       >

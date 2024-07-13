@@ -1,4 +1,3 @@
-
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/slices/Reducers/types";
 import { Link } from "react-router-dom";
@@ -9,10 +8,16 @@ const HomeBody = () => {
     <div className="flex justify-center items-center p-5">
       <div className="2xl:mx-auto 2xl:container py-12 px-4 sm:px-6 xl:px-20 2xl:px-0 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          {userInfo.client ? (
+          {userInfo?.client || !userInfo ? (
             <div className="relative group flex flex-col justify-center items-center p-5">
               <Link
-                to={!userInfo.client ? "/artpho/profile" : "/groupprofiles"}
+                to={
+                  userInfo
+                    ? !userInfo.client
+                      ? "/artpho/profile"
+                      : "/groupprofiles"
+                    : "/login"
+                }
                 className="group relative block w-full h-full mb-10"
               >
                 <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
@@ -26,17 +31,20 @@ const HomeBody = () => {
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
                   />
+                  <div className="absolute inset-0 h-full w-full bg-black opacity-20 group-hover:opacity-20"></div>
                 </div>
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-10">
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-10 ">
                   <h3 className="text-xl font-bold text-white">
-                    ARTISTS|PHOTOGRAPHERS
+                    {userInfo ? "ARTISTS|PHOTOGRAPHERS" : "Welcome Guest"}
                   </h3>
                   <p className="mt-1.5 text-pretty text-xs text-white">
-                    Explore and book your favorite Artist|Photographer
+                    {userInfo
+                      ? "Explore and book your favorite Artist|Photographer"
+                      : "Check out your profile"}
                   </p>
                   <span className="mt-3 inline-block bg-black px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
-                    DISCOVER
+                    {userInfo ? "DISCOVER" : "GO TO LOGIN"}
                   </span>
                 </div>
               </Link>
@@ -54,24 +62,25 @@ const HomeBody = () => {
           ) : (
             <div className="relative group flex flex-col justify-center items-center p-5">
               <Link
-              
                 to="/artpho/profile"
                 className="group relative block w-full h-full mb-10"
               >
                 <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
                   {userInfo?.data?.message?.profile !=
                   "https://res.cloudinary.com/dvgwqkegd/image/upload/v1715854222/dummy_profile_ozs8gh.jpg" ? (
+                    <>
                     <img
                       src={userInfo?.data?.message?.profile}
                       alt=""
                       className="absolute inset-0 h-full w-full object-cover opacity-100"
-                    />
-                  ) : (
+                    /><div className="absolute inset-0 h-full w-full bg-black opacity-20 group-hover:opacity-20"></div></>
+                  ) : (<>
                     <img
                       src="/clientPho2.jpeg"
                       alt=""
                       className="absolute inset-0 h-full w-full object-cover opacity-100"
                     />
+                    <div className="absolute inset-0 h-full w-full bg-black opacity-20 group-hover:opacity-20"></div></>
                   )}
                 </div>
 
@@ -99,10 +108,16 @@ const HomeBody = () => {
               </figcaption>
             </div>
           )}
+
           <div className="relative group flex flex-col justify-between items-center p-5">
             <Link
-              to={!userInfo.client ? `/artpho/auction?id=${userInfo.data.message._id}` : "/auctions"}
-            
+              to={
+                userInfo
+                  ? !userInfo.client
+                    ? `/artpho/auction?id=${userInfo.data.message._id}`
+                    : "/auctions"
+                  : "/login"
+              }
               className="group relative block w-full h-full mb-10"
             >
               <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[550px]">
@@ -116,6 +131,7 @@ const HomeBody = () => {
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
                 />
+                <div className="absolute inset-0 h-full w-full bg-black opacity-0 group-hover:opacity-20"></div>
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center p-10 ">
                 <h3 className="text-xl font-bold text-white">AUCTION</h3>

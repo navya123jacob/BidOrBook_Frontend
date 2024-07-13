@@ -9,7 +9,7 @@ import { useGetUserChatsQuery, useLogoutMutation } from '../../redux/slices/Api/
 import Chats from '../Chats';
 import ChatComponent from '../ChatSingle';
 import { io } from 'socket.io-client';
-import { userOnline,userOffline } from '../../redux/slices/onlineUsersSlice';
+import { userOnline, userOffline } from '../../redux/slices/onlineUsersSlice';
 
 const socket = io(import.meta.env.VITE_OFFICIAL);
 
@@ -20,45 +20,60 @@ export const Navbar = () => {
   const { data: mychats, refetch } = useGetUserChatsQuery(userInfo?.data.message._id ?? '');
   const [newMessage, setNewMessage] = useState<any>(null);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [singleChatOpen, setSingleChatOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const [logoutApi] = useLogoutMutation();
 
+  const navigation = [
+    { name: 'Home', to: '/' },
+    { name: 'About', to: '/about' },
+  ];
+
+  if (userInfo) {
+    if (userInfo.client) {
+      navigation.push({ name: 'Profile', to: '/profile' });
+    } else {
+      navigation.push({ name: 'Profile', to: '/artpho/profile' });
+      navigation.push({ name: 'Account', to: '/artpho/account' });
+    }
+  }
 
   useEffect(() => {
     if (userInfo) {
       socket.emit('user_connected', userInfo.data.message._id);
+
+      const handleUserOnline = (userId: string) => {
+        setOnlineUsers((prev) => {
+          if (!prev.includes(userId)) {
+            return [...prev, userId];
+          }
+          return prev;
+        });
+        dispatch(userOnline(userId));
+      };
+
+      const handleUserOffline = (userId: string) => {
+        setOnlineUsers((prev) => prev.filter(id => id !== userId));
+        dispatch(userOffline(userId));
+      };
+
+      const handleOnlineUsers = (users: string[]) => {
+        setOnlineUsers(users);
+        users.forEach(userId => dispatch(userOnline(userId)));
+      };
+
+      socket.on('user_online', handleUserOnline);
+      socket.on('user_offline', handleUserOffline);
+      socket.on('online_users', handleOnlineUsers);
+
+      return () => {
+        socket.off('user_online', handleUserOnline);
+        socket.off('user_offline', handleUserOffline);
+        socket.off('online_users', handleOnlineUsers);
+      };
     }
-
-    const handleUserOnline = (userId: string) => {
-      setOnlineUsers((prev) => {
-        if (!prev.includes(userId)) {
-          return [...prev, userId];
-        }
-        return prev;
-      });
-      dispatch(userOnline(userId));
-    };
-    
-
-    const handleUserOffline = (userId: string) => {
-      setOnlineUsers((prev) => prev.filter(id => id !== userId));
-      dispatch(userOffline(userId));
-    };
-    
-
-    const handleOnlineUsers = (users: string[]) => {
-      setOnlineUsers(users);
-      users.forEach(userId => dispatch(userOnline(userId)));
-    };
-    
-
-    socket.on('user_online', handleUserOnline);
-    socket.on('user_offline', handleUserOffline);
-    socket.on('online_users', handleOnlineUsers);
-
-    return () => {
-      socket.off('user_online', handleUserOnline);
-      socket.off('user_offline', handleUserOffline);
-      socket.off('online_users', handleOnlineUsers);
-    };
   }, [userInfo]);
 
   useEffect(() => {
@@ -127,34 +142,14 @@ export const Navbar = () => {
     }));
   };
 
-  const [selectedChat, setSelectedChat] = useState<any>(null);
-  const [singleChatOpen, setSingleChatOpen] = useState(false);
-
-  const navigation = [
-    { name: 'Home', to: '/' },
-    { name: 'About', to: '/about' },
-  ];
-
-  if (userInfo) {
-    if (userInfo.client) {
-      navigation.push({ name: 'Profile', to: '/profile' });
-    } else {
-      navigation.push({ name: 'Profile', to: '/artpho/profile' });
-      navigation.push({ name: 'Account', to: '/artpho/account' });
-    }
-  }
-
-  const [logoutApi] = useLogoutMutation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const dispatch = useDispatch();
   const handleLogout = async () => {
-    // Emit user logout event
     if (userInfo?.data?.message?._id) {
       socket.emit('user_logout', userInfo.data.message._id);
     }
 
     dispatch(logout());
     await logoutApi(undefined).unwrap();
+    
   };
 
   const handleChatClick = (chat: any) => {
@@ -230,6 +225,7 @@ export const Navbar = () => {
           </div>
         </Dialog.Panel>
       </Dialog>
+      {!userInfo }
       {isChatModalOpen && (
         <Chats
           isOpen={isChatModalOpen}
