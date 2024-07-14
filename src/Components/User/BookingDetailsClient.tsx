@@ -186,7 +186,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                       : "Booked"}
                   </td>
                 </tr>
-                {booking.amount !== 0 && (<>
+                {(booking.status=='booked' || booking.status=='done' ) && booking.amount !== 0 && (<>
                   <tr>
                     <td>Payment Amount:</td>
                     <td className="flex items-center">₹ {booking.amount}</td>
