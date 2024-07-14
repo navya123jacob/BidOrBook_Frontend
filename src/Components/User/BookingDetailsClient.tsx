@@ -3,7 +3,8 @@ import { Booking } from "../../types/booking";
 import { User } from "../../types/user";
 import { useSelector } from "react-redux";
 import {
-  useCreateCheckoutSessionMutation, useWalletMutation
+  useCreateCheckoutSessionMutation,
+  useWalletMutation,
 } from "../../redux/slices/Api/EndPoints/bookingEndpoints";
 import { useGetWalletValueQuery } from "../../redux/slices/Api/EndPoints/clientApiEndPoints";
 import { RootState } from "../../redux/slices/Reducers/types";
@@ -23,14 +24,17 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   onCancel,
   artist,
   setChanges,
-  setSingle
+  setSingle,
 }) => {
-  const [createCheckoutSession, { isLoading: isCreatingCheckoutSession }] = useCreateCheckoutSessionMutation();
+  const [createCheckoutSession, { isLoading: isCreatingCheckoutSession }] =
+    useCreateCheckoutSessionMutation();
   const [wallet, { isLoading: isWalletProcessing }] = useWalletMutation();
   const userInfo = useSelector((state: RootState) => state.client.userInfo);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
-  const { data: walletData = { wallet: 0 },refetch } = useGetWalletValueQuery(userInfo.data.message._id);
+  const { data: walletData = { wallet: 0 }, refetch } = useGetWalletValueQuery(
+    userInfo.data.message._id
+  );
   const handlePayClick = async () => {
     try {
       const response = await createCheckoutSession({
@@ -81,9 +85,9 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
         if (range.length > 1) {
           return `${range[0].getDate()}/${
             range[0].getMonth() + 1
-          }/${range[0].getFullYear()} to ${
-            range[range.length - 1].getDate()
-          }/${range[range.length - 1].getMonth() + 1}/${range[range.length - 1].getFullYear()}`;
+          }/${range[0].getFullYear()} to ${range[range.length - 1].getDate()}/${
+            range[range.length - 1].getMonth() + 1
+          }/${range[range.length - 1].getFullYear()}`;
         } else {
           return `${range[0].getDate()}/${
             range[0].getMonth() + 1
@@ -94,9 +98,8 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   };
 
   const handleWalletPayment = async () => {
-    refetch()
+    refetch();
     if (walletData.wallet < booking.amount) {
-      
       setWalletError("Insufficient wallet balance.");
     } else {
       try {
@@ -104,11 +107,10 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
           bookingId: booking._id,
           amount: booking.amount,
           clientId: booking.clientId,
-          
         }).unwrap();
         setChanges((prevChanges) => prevChanges + 1);
-        setSingle((prevBooking) => 
-          prevBooking ? { ...prevBooking, status: 'booked' } : null
+        setSingle((prevBooking) =>
+          prevBooking ? { ...prevBooking, status: "booked" } : null
         );
         setIsPaymentModalOpen(false);
         onClose();
@@ -186,27 +188,37 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                       : "Booked"}
                   </td>
                 </tr>
-                {(booking.status=='booked' || booking.status=='done' ) && booking.amount !== 0 && (<>
-                  <tr>
-                    <td>Payment Amount:</td>
-                    <td className="flex items-center">₹ {booking.amount}</td>
-                  </tr>
-                  <tr>
-                    <td>Payment Method:</td>
-                    <td className="flex items-center"> {booking.payment_method}</td>
-                  </tr></>
+                {booking.amount !== 0 && (
+                  <>
+                    <tr>
+                      <td>Payment Amount:</td>
+                      <td className="flex items-center">₹ {booking.amount}</td>
+                    </tr>
+                    <tr>
+                      <td>Payment Method:</td>
+                      <td className="flex items-center">
+                        {" "}
+                        {booking.payment_method}
+                      </td>
+                    </tr>
+                  </>
                 )}
               </tbody>
             </table>
           </div>
-          {booking.status!='booked' && booking.status!='done' && <button
-            className="bg-red-900 hover:bg-red-700 text-white font-bold py-2 px-4 my-5 rounded cancel-button"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>}
+          {((userInfo.client &&
+            booking.status !== "booked" &&
+            booking.status !== "done") ||
+            (!userInfo.client && booking.status !== "done")) && (
+            <button
+              className="bg-red-900 hover:bg-red-700 text-white font-bold py-2 px-4 my-5 rounded cancel-button"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          )}
 
-          {booking.status === "confirmed" && (
+          {booking.status === "confirmed" && userInfo.client && (
             <button
               className="bg-teal-900 hover:bg-teal-700 m-5 text-white font-bold py-2 px-4 my-5 rounded cancel-button"
               onClick={() => setIsPaymentModalOpen(true)}
@@ -236,7 +248,9 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                 onClick={handlePayClick}
                 disabled={isCreatingCheckoutSession}
               >
-                {isCreatingCheckoutSession ? "Processing..." : "Pay with Stripe"}
+                {isCreatingCheckoutSession
+                  ? "Processing..."
+                  : "Pay with Stripe"}
               </button>
               <button
                 className="bg-green-900 hover:bg-green-700 m-5 text-white font-bold py-2 px-4 my-5 rounded"
