@@ -194,13 +194,13 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                       <td>Payment Amount:</td>
                       <td className="flex items-center">₹ {booking.amount}</td>
                     </tr>
-                    <tr>
+                   { booking.payment_method &&<tr>
                       <td>Payment Method:</td>
                       <td className="flex items-center">
                         {" "}
                         {booking.payment_method}
                       </td>
-                    </tr>
+                    </tr>}
                   </>
                 )}
               </tbody>
