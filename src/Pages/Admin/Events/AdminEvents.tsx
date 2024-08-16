@@ -6,7 +6,7 @@ import EventsTable from '../../../Components/Admin/Tables/EventsTable';
 const AdminEvents = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Bookings" />
+      <Breadcrumb pageName="Events" />
 
       <div className="flex flex-col gap-10">
         <EventsTable/>
