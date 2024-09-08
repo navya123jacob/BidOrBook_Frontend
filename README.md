@@ -1,30 +1,17 @@
-# React + TypeScript + Vite
+# Bid or Book - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bid or Book is a web platform that allows users to book artists/photographers or participate in online auctions for services. The platform provides a seamless booking and bidding experience with real-time features like chat and auction management.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- User can book photographers/artists or bid on auctions.
+- Real-time bidding system.
+- Secure payment integration with Stripe.
+- Authentication using Google OAuth.
+- Chat functionality using Socket.IO.
 
-## Expanding the ESLint configuration
+## Technologies Used
+- **Frontend**: React.js, TypeScript, JavaScript, Tailwind CSS
+- **State Management**: Redux
+- **Other**: Google OAuth, Stripe
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
