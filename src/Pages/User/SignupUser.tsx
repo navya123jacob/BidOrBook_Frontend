@@ -56,7 +56,7 @@ export const SignupUser = () => {
     setSignupError("");
     let isValid = true;
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim() ) {
       setEmailError("Enter a valid email address");
       isValid = false;
